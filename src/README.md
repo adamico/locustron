@@ -36,18 +36,22 @@ Return values:
 
 It is recommended that the grid size is at least as big as one of the "typical" objects in a game, or a multiple of it. For Picotron this may be 16, 32, 64, or 128.
 
-**Performance Note**: Based on benchmarking, larger grid sizes often provide better efficiency:
-- For small objects (8x8 to 16x16): Grid size **128** provides ~10x better efficiency than 32
-- For medium objects (32x32): Grid size **64** is recommended  
-- For large objects (64x64+): Grid size **32** works well
+**Performance Note**: Grid size affects two competing factors:
+- **Spatial precision**: Smaller grids (closer to object size) provide better spatial filtering with fewer false positives
+- **Memory efficiency**: Larger grids reduce the number of cells and memory overhead
 
-The ideal situation is that each cell contains multiple game objects (5-20 objects per cell is efficient).
+For optimal **query performance**, the ideal situation is that each cell contains 1 (and only 1) game object, minimizing false positives. However, for **memory efficiency** with many small objects, larger grid sizes can be beneficial.
+
+The ideal situation balances these factors based on your game's needs:
+- **High query frequency**: Use grid size ≈ object size (better spatial precision)
+- **Memory constrained**: Use larger grid sizes (fewer cells, more objects per cell)
+- **Many small objects**: Consider grid size 64-128 for efficiency
 
 A too small size will make the cells not very efficient, because every object will appear in more than one cell grid.
 
 Making the size too big will have the opposite problem: too many objects on a single grid cell, reducing spatial locality.
 
-You can try experimenting with several sizes in order to arrive to the most optimal one for your game. In general either 64 or 128 should be good defaults for most Picotron games with small-to-medium objects.
+You can try experimenting with several sizes in order to arrive to the most optimal one for your game. The choice depends on whether you prioritize query precision (smaller grids) or memory efficiency (larger grids). For most Picotron games, sizes between 32-64 provide a good balance.
 
 
 ## Adding an object to an existing grid:
