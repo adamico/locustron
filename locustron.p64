@@ -1,0 +1,202 @@
+picotron cartridge // www.picotron.net
+version 2
+
+:: .info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTEyIDE0OjQ5OjMwIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiIscnVudGltZT0yMSx3b3Jrc3BhY2VzPXt7bG9jYXRpb249Im1haW4ubHVh
+IzEiLHdvcmtzcGFjZV9pbmRleD0xfX1dXQ==
+:: gfx/
+:: gfx/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTEyIDE0OjQ5OjMwIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiJdXQ==
+:: gfx/0.gfx
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTAxLTE3IDEwOjM1OjQ4Iixtb2RpZmllZD0iMjAyNS0w
+MS0xNyAxMDozNzo0NCIscmV2aXNpb249Ml1dbHo0AH4AAAASMQAA8yF7WzBdPXtibXA9cHh1AEMg
+EBAE8FYHEAfAF9AXwAcQB-BWLGZsYWdzPTAscGFuX3gIAMt5PTAsem9vbT04fSw_AB-wMQD-----
+-----------------------------------------------------------XUG09OH19
+:: lib/
+:: lib/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTI1IDExOjIzOjMyIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiJdXQ==
+:: lib/_bbs_lib_utilinst/
+:: lib/_bbs_lib_utilinst/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTI1IDExOjI1OjIwIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiJdXQ==
+:: lib/_bbs_lib_utilinst/main.lua
+--[[pod_format="raw",created="2024-03-17 06:56:29",modified="2024-03-17 23:38:11",revision=112]]
+-- LIBRARY: Utility Stub
+--   by ahrotahn <reh@ahrotahn.net>
+--   Provides a generic utility & library cart interface
+--   Can install and uninstall libraries manually
+-- v1: inception
+
+local installable = false
+local installed = false
+
+function util_init_installable()
+	installed = verify("/ram/cart/exports", "")
+	installable = true
+end
+
+function util_init_library()
+	installable = false
+end
+
+function util_draw()
+	cls(5)
+	print("UTILITY CARTRIDGE", 85, 80, 23)
+	if installable then
+		print("This cartridge is just an installer.")
+		print("The files intended for installation are in /ram/cart/exports/")
+		print("These files will be recursively overlaid over the root filesystem.")
+		print("Current installation status: "..(installed and "INSTALLED" or "NOT INSTALLED"))
+	else
+		print("This cartridge is just a code library.")
+		print("The files intended for import are in /ram/cart/exports/")
+	end
+	print("")
+	print("Press O to open the exports folder in filenav")
+	if installable then
+		if installed then
+			print("Press X to UNinstall all exports from system storage")	
+		else
+			print("Press X to install all exports to system storage")
+		end
+	end
+end
+
+function util_update()
+	if installable and (keyp("x") or btnp(5)) then
+		if installed then
+			-- perform uninstallation
+			for export in all(exports) do
+				local dst = "/appdata/system/util/"..export
+				rm(dst)
+			end
+			
+			unmerge("/ram/cart/exports", "")
+			installed = false
+		else
+			-- perform installation
+			merge("/ram/cart/exports", "")
+			installed = true
+		end
+	end
+	if keyp("o") or btnp(4) then
+		create_process("/system/apps/filenav.p64", {
+			argv = {"/ram/cart/exports/"},
+			window_attribs = {show_in_workspace = true}
+		})
+		exit(0)
+	end
+end
+
+function verify(src, dst, dir)
+	dir = dir or "/"
+	
+	for entry in all(ls(src..dir)) do
+		local type = fstat(src..dir..entry)
+		local rpath = dir..entry
+		if type == "folder" then
+			local inner = verify(src, dst, dir..entry.."/")
+			if not inner then
+				return false
+			end
+		elseif type == "file" then
+			if fstat(dst..dir..entry) != "file" then
+				return false
+			end
+		end
+	end
+	
+	return true
+end
+
+function merge(src, dst, dir)
+	dir = dir or "/"
+		
+	local dirs = {}
+	local files = {}
+	
+	for entry in all(ls(src..dir)) do
+		local type = fstat(src..dir..entry)
+		local rpath = dir..entry
+		if type == "folder" then
+			if fstat(dst..rpath) != "folder" then
+				mkdir(dst..rpath)
+				add(dirs, dst..rpath)
+			end
+
+			local inner = merge(src, dst, dir..entry.."/")
+			foreach(inner["dirs"], function(v) add(dirs, v) end)
+			foreach(inner["files"], function(v) add(files, v) end)
+		elseif type == "file" then
+			if (fstat(dst..rpath) == "file") then
+				cp(dst..rpath, dst..rpath..".bak")
+			end
+		
+			add(files, dst..rpath)
+			cp(src..rpath, dst..rpath)
+		end
+	end
+	
+	return {
+		dirs = dirs,
+		files = files
+	}
+end
+
+function unmerge(src, dst, dir)
+	dir = dir or "/"
+	
+	-- remove all files first by drilling all the way in
+	-- then removing files on the way out
+	for entry in all(ls(src..dir)) do
+		if fstat(src..dir..entry) == "folder" then
+			unmerge(src, dst, dir..entry.."/")
+		end
+	end
+	
+	for entry in all(ls(src..dir)) do
+		local rpath = dir..entry
+		if fstat(src..dir..entry) != "folder" then
+			rm(dst..rpath)
+		end
+	end
+	
+	-- then check all dirs for emptiness and rm those
+	if fstat(dst..dir) == "folder" and #ls(dst..dir) == 0 then
+		rm(dst..dir)
+	end
+end
+:: lib/yottafile.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTI1IDExOjIzOjMyIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMTo0MTowMCIscmV2aXNpb249NV1dbHo0AIgAAAC_AAAA8Dl7X3lmX3ZlcnNpb249MSxk
+ZXBzPXsiI2xpYl91dGlsaW5zdCJ9LHRhZ3M9e2NyZWF0ZWQ9IjIwMjUtMTAtMjUgMTE6MjM6MzIl
+ANhyYWNrZWQ9e19iYnNfQgCdPXsiLi9saWIvGgAvIiwaAAX8AS9tYWluLmx1YSJ9LF9yZWaXAFB0
+In19fQ==
+:: main.lua
+--[[pod_format="raw",created="2025-10-25 11:34:13",modified="2025-10-25 12:10:28",revision=10]]
+cd("/desktop/projects/locustron/src")
+
+include("test_locus.lua")
+:: map/
+:: map/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTEyIDE0OjQ5OjMwIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiJdXQ==
+:: map/0.map
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTAxLTE3IDEwOjM1OjQ4Iixtb2RpZmllZD0iMjAyNS0w
+MS0xNyAxMDozNzo0NCIscmV2aXNpb249MV1dbHo0AFQAAABEEAAA8Ah7e2JtcD11c2VyZGF0YSgi
+aTE2IiwzMgMALyIwAQD--------------------7oSIpLHBhbl94PTAIANJ5PTAsdGlsZV9oPTE2
+CgBgdz0xNn19
+:: sfx/
+:: sfx/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTEwLTEyIDE0OjQ5OjMwIixtb2RpZmllZD0iMjAyNS0x
+MC0yNSAxMjozMDowMiJdXQ==
+:: sfx/0.sfx
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI1LTA3LTMxIDA4OjMwOjI4Iixtb2RpZmllZD0iMjAyNS0w
+Ny0zMSAwODozMDoyOCIscmV2aXNpb249MF1dbHo0AKAAAAALCgAA-zBweHUAAygAAAQABA9AEAIO
+AAGgASACoA4ADxAADfDKAQIDQA8PkAQFBgdADJAICQoLQAyQDwwPDQ8ODEAM8P8BAOv-J6oBEAYP
+MBABIAEgAfAAAhACDhABIA8hIAEwD0Dwww8oD--wxg-4Cg--D4AP9w8NAfAJARAGDjAA------_9
+H-8BAKzPyA9AAA8QQP--sPD-AQD-6lD-----KQ==
+:: [eoc]
