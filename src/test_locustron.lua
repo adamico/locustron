@@ -1,10 +1,10 @@
 include("lib/require.lua")
 local locustron = require("lib/locustron")
 local loc
-local GRID_SIZE = 256  -- Main grid display area
-local GRID_X = 16      -- Grid offset from left
-local GRID_Y = 8       -- Grid offset from top
-local INFO_X = GRID_X + GRID_SIZE + 16  -- Info panel to the right of grid
+local GRID_SIZE = 256                  -- Main grid display area
+local GRID_X = 16                      -- Grid offset from left
+local GRID_Y = 8                       -- Grid offset from top
+local INFO_X = GRID_X + GRID_SIZE + 16 -- Info panel to the right of grid
 
 local OBJECTS_MIN_WIDTH = 10
 local OBJECTS_MAX_WIDTH = 32
@@ -23,12 +23,12 @@ function _init()
    for _ = 1, MAX_OBJECTS do
       local w = rand(OBJECTS_MIN_WIDTH, OBJECTS_MAX_WIDTH)
       local obj = {
-         x = rand(20, 220),  -- Spread across the 256x256 grid area
+         x = rand(20, 220), -- Spread across the 256x256 grid area
          y = rand(20, 220),
          w = w,
          h = w,
          av = rnd(),
-         r = rnd() * 2,      -- Slightly more movement for the larger space
+         r = rnd() * 2, -- Slightly more movement for the larger space
          col = rand(6, 15)
       }
       loc.add(obj, obj.x, obj.y, obj.w, obj.h)
@@ -62,7 +62,7 @@ function draw_grid_cells(loc, color)
    local cl, ct, cr, cb = loc._box2grid(0, 0, GRID_SIZE, GRID_SIZE)
    local size = loc._size
    local row, cell
-   
+
    -- draw the cells within the grid area
    for cy = ct, cb do
       row = loc._rows[cy]
@@ -89,14 +89,14 @@ function draw_locus(loc)
          rrect(GRID_X + x, GRID_Y + y, w, h)
       end
    end
-   
+
    -- Draw information panel on the right side
    local info_y = 16
    local line_height = 12
-   
+
    print("LOCUSTRON SPATIAL HASH", INFO_X, info_y, 11)
    info_y += line_height * 2
-   
+
    print("Objects in locus: "..tostr(loc._obj_count()), INFO_X, info_y, 7)
    info_y += line_height
 
@@ -104,7 +104,7 @@ function draw_locus(loc)
    for _ in pairs(loc._pool) do poolsize += 1 end
    print("Objects in pool: "..tostr(poolsize), INFO_X, info_y, 7)
    info_y += line_height * 2
-   
+
    print("Grid size: "..tostr(loc._size).."px", INFO_X, info_y, 6)
    info_y += line_height
 
@@ -113,18 +113,18 @@ function draw_locus(loc)
 
    print("Display area: "..GRID_SIZE.."x"..GRID_SIZE, INFO_X, info_y, 6)
    info_y += line_height
-   
+
    print("Viewport: "..viewport.w.."x"..viewport.h, INFO_X, info_y, 6)
    info_y += line_height * 2
-   
+
    -- Performance info
    print("PERFORMANCE", INFO_X, info_y, 11)
    info_y += line_height
 
-   print("CPU: "..tostr(flr(stat(1)*10)).."%", INFO_X, info_y, 6)
+   print("CPU: "..tostr(flr(stat(1) * 10)).."%", INFO_X, info_y, 6)
    info_y += line_height
 
-   print("MEM: "..tostr(flr(stat(3)/1024)).." KB", INFO_X, info_y, 6)
+   print("MEM: "..tostr(flr(stat(3) / 1024)).." KB", INFO_X, info_y, 6)
    info_y += line_height
 
    local active_cells = 0
@@ -139,7 +139,7 @@ function _draw()
    -- Draw grid border
    -- color(13)
    -- rrect(GRID_X - 1, GRID_Y - 1, GRID_SIZE + 2, GRID_SIZE + 2)
-   
+
    -- draw locus in magenta
    color(1)
    draw_locus(loc)

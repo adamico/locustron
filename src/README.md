@@ -150,6 +150,7 @@ function is_enemy(obj)
 end
 
 -- create a grid with optimized cell size for small objects
+-- (use benchmark_compact.lua to find optimal size for your objects)
 local loc = locus(128)
 
 -- add objects to the grid
@@ -175,7 +176,7 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `test_locustron.lua` for a complete interactive example with moving objects and performance benchmarking. 
+See `test_locustron.lua` for a complete interactive example with moving objects and `benchmark_compact.lua` for performance analysis tools. 
 
 
 # Performance
@@ -215,6 +216,86 @@ Locustron handles object density well:
 - **Spatial locality**: Query performance depends on result size, not total objects
 - **Viewport culling**: Excellent for rendering optimization
 
+# Benchmarking & Testing
+
+## Compact Benchmark Suite
+
+Locustron includes a comprehensive benchmark tool to help you choose optimal grid sizes for your specific game objects and usage patterns.
+
+### Running Benchmarks
+
+**Method 1: Direct execution in Picotron console**
+```lua
+include("benchmark_compact.lua")
+```
+
+**Method 2: Integration with your game**
+```lua
+local benchmark = require("lib/benchmark_compact")
+
+-- In your _update() function:
+if btnp(4) then  -- Press X button
+  benchmark.run_compact_benchmark()
+end
+```
+
+### Benchmark Output
+
+The benchmark tests different grid sizes against various object sizes and provides clear recommendations:
+
+```
+OBJECT SIZE: small (8x8)
+Grid | Cells | Obj/Cell | Precision | Recommendation
+-----|-------|----------|-----------|---------------
+  16 |    25 |      2.0 |     85.2% | EXCELLENT
+  32 |     9 |      5.6 |     72.1% | GOOD/MEM+
+  64 |     4 |     12.5 |     45.8% | OK/MEM+
+ 128 |     1 |     50.0 |     22.3% | POOR/MEM+
+```
+
+### Understanding Results
+
+- **Grid**: Grid cell size being tested
+- **Cells**: Number of allocated grid cells (lower = more memory efficient)
+- **Obj/Cell**: Average objects per cell (higher = denser packing)
+- **Precision**: Percentage of query results that are actual hits (higher = fewer false positives)
+- **Recommendation**: 
+  - **EXCELLENT/GOOD/OK/POOR**: Based on query precision
+  - **MEM+**: Memory efficient (few cells)
+  - **MEM-**: Memory intensive (many cells)
+
+### Choosing Grid Size
+
+The benchmark helps you decide between two optimization strategies:
+
+**For Query Performance (High Precision)**
+- Choose grid sizes close to your object size
+- Results in more cells but better spatial filtering
+- Fewer false positives requiring `rectintersect()` checks
+- Best for games with frequent collision detection
+
+**For Memory Efficiency**
+- Choose larger grid sizes (2-4x object size)
+- Results in fewer cells but more false positives
+- Better for memory-constrained games
+- Best when queries are infrequent
+
+### Interactive Testing
+
+The included `test_locustron.lua` provides interactive visualization:
+
+```lua
+-- Visual debugging with draw_locus() function
+-- Shows grid cells, object counts, and spatial distribution
+-- Helps validate benchmark results with real object movement
+```
+
+## Performance Testing Guidelines
+
+1. **Test with your actual object sizes**: The benchmark includes tiny (4x4), small (8x8), medium (16x16), and large (32x32) objects
+2. **Consider your query patterns**: Frequent queries favor precision, rare queries favor memory efficiency
+3. **Monitor in real gameplay**: Use the visual debugging tools during actual game sessions
+4. **Validate with profiling**: Check that chosen grid size works well under game load
 
 # Preemptive FAQ
 
@@ -359,4 +440,18 @@ You can visualize the spatial grid by drawing it on screen. The included `test_l
 - Object count per cell  
 - Active vs empty cells
 - Pool size for memory debugging
+
+You can also run the included benchmark in the Picotron console to analyze performance and validate your grid size choice:
+
+```lua
+include("benchmark_compact.lua")
+-- This will show grid efficiency analysis and query precision metrics
+```
+
+For debugging specific issues:
+- **Check grid size**: Use the benchmark to verify optimal grid size for your objects
+- **Verify object lifecycle**: Ensure objects are added before being updated/deleted
+- **Validate coordinates**: Check that bounding box coordinates are correct
+- **Monitor memory usage**: Watch pool size to detect memory leaks
+- **Test query precision**: Use benchmark precision metrics to understand false positive rates
 
