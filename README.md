@@ -19,7 +19,7 @@ This is useful in several scenarios:
 * Given that the query area is rectangular, locus can be used to optimize the draw stage, by "only rendering objects that intersect with the screen"
 
 
-[![locustron demo](https://www.lexaloffle.com/bbs/cposts/te/test_locus-1.p8.png)](https://www.lexaloffle.com/bbs/cart_info.php?cid=test_locus-1)
+[![locustron demo](https://www.lexaloffle.com/bbs/cposts/lo/locustron-0.p64.png)](https://www.lexaloffle.com/bbs/?tid=152310)
 
 # API
 
@@ -123,10 +123,16 @@ Notes:
 # Usage
 
 ## With yotta
-[Yotta](https://www.lexaloffle.com/bbs/?pid=143592#p)
+The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle.com/bbs/?pid=143592#p):
+
+1. `> cd /ram/cart`
+2. `> yotta init`
+3. `> yotta add #locustron`
+4. `> yotta apply`
+
 
 ## Without yotta
-Save locustron to a single file (locustron.lua) and then:
+You can also save locustron to a single file (locustron.lua).
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
