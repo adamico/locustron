@@ -14,7 +14,7 @@ end
 
 function _init()
    -- viewport. It's a rectangle that moves around, printing the objects it "sees" in color
-   viewport = {x = 60, y = 60, w = 120, h = 80, dx = 2, dy = 1}
+   viewport = {x = 60, y = 60, w = 120, h = 120, dx = 2, dy = 1}
 
    loc = locus(32)  -- Optimal grid size for demo objects (5-15px)
    -- add 80 objects to locus (more for the larger display area)
@@ -56,7 +56,7 @@ function _update()
    end
 end
 
-function draw_locus(loc)
+function draw_grid_cells(loc, color)
    local cl, ct, cr, cb = loc._box2grid(0, 0, GRID_SIZE, GRID_SIZE)
    local size = loc._size
    local row, cell
@@ -72,12 +72,14 @@ function draw_locus(loc)
                rrect(x, y, size, size)
                local count = 0
                for _ in pairs(cell) do count += 1 end
-               print(count, x + 2, y + 2, 1)  -- Small font for cell counts
+               print(count, x + 2, y + 2, color or 1)
             end
          end
       end
    end
+end
 
+function draw_locus(loc)
    -- draw the boxes containing each object (optimized for userdata)
    for obj in pairs(loc.query(-64, -64, 384, 384)) do
       local x, y, w, h = loc.get_bbox(obj)
@@ -99,9 +101,6 @@ function draw_locus(loc)
    local poolsize = 0
    for _ in pairs(loc._pool) do poolsize += 1 end
    print("Objects in pool: "..tostr(poolsize), INFO_X, info_y, 7)
-   info_y += line_height
-   
-   print("Userdata: active", INFO_X, info_y, 10)
    info_y += line_height * 2
    
    print("Grid size: "..tostr(loc._size).."px", INFO_X, info_y, 6)
@@ -121,25 +120,17 @@ function draw_locus(loc)
    for _ in pairs(loc._rows) do active_cells += 1 end
    print("Active rows: "..active_cells, INFO_X, info_y, 6)
    info_y += line_height
-   
-   -- Controls
-   info_y += line_height
-   print("CONTROLS", INFO_X, info_y, 11)
-   info_y += line_height
-   print("Objects move automatically", INFO_X, info_y, 6)
-   info_y += line_height
-   print("Viewport shows culling", INFO_X, info_y, 6)
 end
 
 function _draw()
    cls()
 
    -- Draw grid border
-   color(13)
-   rrect(GRID_X - 1, GRID_Y - 1, GRID_SIZE + 2, GRID_SIZE + 2)
+   -- color(13)
+   -- rrect(GRID_X - 1, GRID_Y - 1, GRID_SIZE + 2, GRID_SIZE + 2)
    
    -- draw locus in magenta
-   color(13)
+   color(1)
    draw_locus(loc)
 
    -- draw the viewport (translated to grid coordinates)
@@ -156,5 +147,6 @@ function _draw()
          rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col)
       end
    end
+   draw_grid_cells(loc, 13)
    clip()
 end
