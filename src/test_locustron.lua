@@ -1,11 +1,14 @@
 include("lib/require.lua")
-local locus = require("lib/locus_userdata")
+local locustron = require("lib/locustron")
 local loc
 local GRID_SIZE = 256  -- Main grid display area
 local GRID_X = 16      -- Grid offset from left
 local GRID_Y = 8       -- Grid offset from top
 local INFO_X = GRID_X + GRID_SIZE + 16  -- Info panel to the right of grid
 
+local OBJECTS_MIN_WIDTH = 10
+local OBJECTS_MAX_WIDTH = 32
+local MAX_OBJECTS = 100
 local viewport
 
 function rand(low, hi)
@@ -14,12 +17,11 @@ end
 
 function _init()
    -- viewport. It's a rectangle that moves around, printing the objects it "sees" in color
-   viewport = {x = 60, y = 60, w = 120, h = 120, dx = 2, dy = 1}
+   viewport = {x = 60, y = 60, w = 128, h = 128, dx = 2, dy = 1}
 
-   loc = locus(32)  -- Optimal grid size for demo objects (5-15px)
-   -- add 80 objects to locus (more for the larger display area)
-   for _ = 1, 80 do
-      local w = rand(5, 15)
+   loc = locustron(32)
+   for _ = 1, MAX_OBJECTS do
+      local w = rand(OBJECTS_MIN_WIDTH, OBJECTS_MAX_WIDTH)
       local obj = {
          x = rand(20, 220),  -- Spread across the 256x256 grid area
          y = rand(20, 220),
@@ -105,7 +107,10 @@ function draw_locus(loc)
    
    print("Grid size: "..tostr(loc._size).."px", INFO_X, info_y, 6)
    info_y += line_height
-   
+
+   print("Object size: min "..OBJECTS_MIN_WIDTH..", max "..OBJECTS_MAX_WIDTH, INFO_X, info_y, 6)
+   info_y += line_height
+
    print("Display area: "..GRID_SIZE.."x"..GRID_SIZE, INFO_X, info_y, 6)
    info_y += line_height
    
@@ -115,7 +120,13 @@ function draw_locus(loc)
    -- Performance info
    print("PERFORMANCE", INFO_X, info_y, 11)
    info_y += line_height
-   
+
+   print("CPU: "..tostr(flr(stat(1)*10)).."%", INFO_X, info_y, 6)
+   info_y += line_height
+
+   print("MEM: "..tostr(flr(stat(3)/1024)).." KB", INFO_X, info_y, 6)
+   info_y += line_height
+
    local active_cells = 0
    for _ in pairs(loc._rows) do active_cells += 1 end
    print("Active rows: "..active_cells, INFO_X, info_y, 6)
