@@ -60,6 +60,6 @@ if not grid_success or not perf_success then
    printh("\n")
    printh("TROUBLESHOOTING:")
    printh("- Ensure you're running from the benchmarks/ directory")
-   printh("- Check that all required files exist in ../src/lib/")
+   printh("- Check that all required files exist in ../lib/locustron/")
    printh("- Try running individual benchmarks to isolate issues")
 end

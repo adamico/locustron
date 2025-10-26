@@ -34,15 +34,15 @@ Both test files use their respective locustron implementations:
 
 **Original Implementation Tests:**
 ```lua
-include "../src/lib/require.lua"
-local locustron = require("../src/lib/locustron")
+include "../lib/locustron/require.lua"
+local locustron = require("../lib/locustron/locustron")
 include "test_helpers.lua"
 ```
 
 **2D Implementation Tests:**
 ```lua
-include "../src/lib/require.lua"
-local locustron_2d = require("../src/lib/locustron_2d")
+include "../lib/locustron/require.lua"
+local locustron_2d = require("../lib/locustron/locustron_2d")
 include "test_helpers.lua"
 ```
 

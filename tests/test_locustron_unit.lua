@@ -3,8 +3,8 @@
 -- Consolidated from both 1D and 2D test suites - best test cases included
 
 -- Include the unified locustron implementation
-include "../src/lib/require.lua"
-local locustron = require("../src/lib/locustron")
+include "../lib/locustron/require.lua"
+local locustron = require("../lib/locustron/locustron")
 
 -- Include custom helpers after locustron is loaded
 include "test_helpers.lua"

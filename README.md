@@ -218,7 +218,7 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `test_locustron.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
+See `locustron_demo.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
 
 - `benchmarks/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
 - `benchmarks/benchmark_userdata_performance.lua` - Absolute performance measurements  
@@ -318,7 +318,7 @@ The benchmark helps you decide between two optimization strategies:
 
 ### Interactive Testing
 
-The included `test_locustron.lua` provides interactive visualization:
+The included `locustron_demo.lua` provides interactive visualization:
 
 ```lua
 -- Visual debugging with draw_locus() function
@@ -476,7 +476,7 @@ No, only squared grid cells are supported. It would be very easy to add support 
  
 ## I am having trouble with locustron, it does not seem to work. How can I debug it?
 
-You can visualize the spatial grid by drawing it on screen. The included `test_locustron.lua` file has an example function (`draw_locus`) which shows:
+You can visualize the spatial grid by drawing it on screen. The included `locustron_demo.lua` file has an example function (`draw_locus`) which shows:
 
 - Grid cell boundaries
 - Object count per cell  

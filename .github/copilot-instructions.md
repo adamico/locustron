@@ -16,16 +16,15 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
 
 ### Key Components
-- `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
-- `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
-- `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
+- `lib/locustron/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
+- `lib/locustron/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
+- `locustron_demo.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
 - `benchmarks/benchmark_grid_tuning.lua`: Grid size optimization tool for different object sizes with comprehensive metrics and colored terminal output
 - `benchmarks/benchmark_userdata_performance.lua`: Absolute performance measurements for userdata operations with professional reporting
 - `benchmarks/run_all_benchmarks.lua`: Complete benchmark suite runner for comprehensive analysis with error handling
 - `benchmarks/benchmark_diagnostics.lua`: Comprehensive diagnostic tool for troubleshooting benchmark execution and environment validation
-- `tests/test_locustron_unit.lua`: Comprehensive unit test suite (25+ test cases)
+- `tests/test_locustron_unit.lua`: Comprehensive unit test suite (28 test cases)
 - `tests/test_helpers.lua`: Custom assert functions library with proper error handling patterns
-- `test_locustron.p64`: Picotron cartridge containing the packaged library and demo
 
 ### Memory Management Pattern
 ```lua
@@ -93,7 +92,7 @@ for obj in pairs(candidates) do
   end
 end
 
--- Viewport culling (from test_locustron.lua):
+-- Viewport culling (from locustron_demo.lua):
 clip(viewport.x, viewport.y, viewport.w, viewport.h)
 for obj in pairs(loc.query(viewport.x, viewport.y, viewport.w, viewport.h)) do
   local x, y, w, h = loc.get_bbox(obj)
@@ -104,31 +103,81 @@ clip()
 
 ## File Structure & Dependencies
 
-### Picotron Integration
-- **Main entry**: `locustron.p64` → `main.lua` → `cd("/desktop/projects/locustron/src")`
-- **Module loading**: Custom `require()` function loads from local filesystem
+### Project Architecture
+Locustron follows a **Picotron cartridge + yotta package** pattern for library distribution:
+
+```
+locustron.p64/                    # Picotron cartridge (directory) + Git repository root
+├── .info.pod                   # Picotron cartridge metadata
+├── main.lua                    # Cartridge entry point → include("locustron_demo.lua")
+├── locustron_demo.lua          # Interactive demo and library showcase
+├── exports/                    # Yotta package distribution files
+│   ├── locustron.lua           # Library for yotta installation
+│   └── require.lua             # Bundled require system
+├── lib/locustron/              # Yotta package installation directory
+│   ├── locustron.lua           # (mirrors exports/locustron.lua)
+│   └── require.lua             # (mirrors exports/require.lua)
+├── tests/                      # Unit test suite
+│   ├── test_locustron_unit.lua # Main test file (28 test cases)
+│   └── test_helpers.lua        # Custom assert functions
+├── benchmarks/                 # Performance analysis tools
+│   ├── benchmark_grid_tuning.lua     # Grid size optimization
+│   ├── benchmark_userdata_performance.lua  # Performance measurement
+│   ├── run_all_benchmarks.lua        # Suite runner
+│   └── benchmark_diagnostics.lua     # Environment validation
+└── .luarc.json                 # Critical: Lua Language Server config
+```
+
+**Project Structure & Integration:**
+- **Dual-purpose Picotron cartridge**: `locustron.p64` is both a runnable demo cartridge (`main.lua` → `locustron_demo.lua`) and a library distribution container (Git repository root with `.info.pod` metadata)
+- **Yotta Package Manager**: Library distributed via yotta (see https://www.lexaloffle.com/bbs/?tid=140833)
+  - **Installation command**: `yotta add #locustron` copies `exports/` contents to user's `/lib/locustron/`
+  - **Package source**: `exports/` directory contains the distributable library files
+  - **Local development**: `lib/locustron/` contains the installed yotta package for testing and local usage
+- **Module loading**: Custom `require()` function loads from local filesystem with `../lib/locustron/` paths
 - **Error reporting**: Uses `send_message(3, {event="report_error"})` for syntax errors
 - **Token optimization**: Uses closure-based API instead of `:` syntax to save tokens
+- **File paths**: Test files use relative paths like `include "../lib/locustron/require.lua"`
 
 ### Testing & Debugging
-- `test_locustron.lua`: Interactive demo with moving objects and viewport culling
+- `locustron_demo.lua`: Interactive demo with moving objects and viewport culling
 - `benchmarks/benchmark_grid_tuning.lua`: Performance analysis and grid size optimization tool
 - `draw_locus()`: Visualization function showing grid cells and object counts
 - Pool monitoring: Track `_pool` size to verify memory management
 - Userdata debugging: Use `loc.get_bbox(obj)` and `loc.get_obj_id(obj)` for inspection
 
+### Visual Debugging & Interactive Demo
+- **Interactive Demo**: `locustron_demo.lua` provides real-time spatial hash visualization with:
+  - **100 moving objects** with physics simulation and boundary wrapping
+  - **Grid cell visualization**: `draw_locus()` shows occupied cells with object counts
+  - **Viewport culling demo**: Objects only rendered when in screen bounds via `loc.query(viewport)`
+  - **Performance metrics**: Real-time FPS, object count, and memory usage display
+  - **Color-coded objects**: Each object has unique color for easy tracking
+- **Grid Visualization**: Press visual debugging keys to see:
+  - Cell boundaries overlaid on screen
+  - Object count per cell (numerical display)
+  - Active vs empty grid regions
+  - Pool size monitoring for memory management validation
+- **Performance Validation**: Visual demo serves as real-time performance test showing:
+  - Smooth 60fps with 100 objects
+  - Efficient viewport culling (only visible objects rendered)
+  - Memory stability (pool size stabilization)
+
 ### Development Environment
-- `.luarc.json`: Lua Language Server config with Picotron-specific symbols
+- `.luarc.json`: **Critical** Lua Language Server config enabling Picotron-specific features:
+  - **Picotron symbols**: `!=`, `+=`, `-=`, `\` (integer division), etc. via `nonstandardSymbol`
+  - **Custom include**: Maps `include()` to `require()` via `runtime.special`
+  - **Userdata support**: Workspace definitions for Picotron's `userdata()` function
+  - **Diagnostic tuning**: Disables `lowercase-global` and `err-esc` for Picotron patterns
 - Custom `include()` mapped to `require()` for Picotron compatibility
 - Error handling via `send_message()` for syntax errors in module loading
-- Picotron runtime symbols: `!=`, `+=`, `-=`, etc. enabled via `nonstandardSymbol`
-- **Unit Testing**: Comprehensive test coverage with unitron framework (25+ test cases)
+- **Unit Testing**: Comprehensive test coverage with unitron framework (28 test cases)
 - **Test Results**: All tests passing as of current implementation
 - **Unitron API Reference**: Always use https://github.com/elgopher/unitron as the main reference for unitron API
 - **Test Directory**: All test files are in `tests/` directory
-- **Test File Paths**: Test files use `../src/lib/` paths to reference implementation files
+- **Test File Paths**: Test files use `../lib/locustron/` paths to reference implementation files
 - **Benchmark Directory**: All benchmark files are in `benchmarks/` directory
-- **Benchmark File Paths**: Benchmark files use `../src/lib/` paths to reference implementation files
+- **Benchmark File Paths**: Benchmark files use `../lib/locustron/` paths to reference implementation files
 - **Unitron Error Testing**: Use `test_fail(err)` to generate test errors. Pattern:
   ```lua
   test("operation should error", function()
@@ -318,3 +367,4 @@ This repository's contributors should follow Conventional Commits for all local 
 - **Testing Protocol**: All functionality validation must be done in Picotron environment with unitron framework
 - **Console Testing**: When creating console test scripts, always use `printh()` for proper Picotron output
 - **Professional Output**: All benchmark files include colored terminal output using ANSI escape sequences for better readability
+- **Yotta Package Paths**: When using locustron as an installed yotta package, import using `include("lib/locustron/require.lua")` and `require("lib/locustron/locustron")`

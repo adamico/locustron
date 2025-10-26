@@ -1,6 +1,6 @@
 --[[pod_format="raw",created="2025-10-26 18:13:48",modified="2025-10-26 18:13:48",revision=0]]
-include("lib/require.lua")
-local locustron = require("lib/locustron")
+include("lib/locustron/require.lua")
+local locustron = require("lib/locustron/locustron")
 local loc
 local GRID_SIZE = 256                  -- Main grid display area
 local GRID_X = 16                      -- Grid offset from left

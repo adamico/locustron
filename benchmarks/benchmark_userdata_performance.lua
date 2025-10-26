@@ -3,8 +3,8 @@
 -- Measures absolute performance metrics for the unified implementation
 -- Run in Picotron console: include("benchmarks/benchmark_userdata_performance.lua")
 
-include("../src/lib/require.lua")
-local locustron = require("../src/lib/locustron")
+include("../lib/locustron/require.lua")
+local locustron = require("../lib/locustron/locustron")
 
 -- Test Configuration
 local OBJECT_COUNTS = {100, 500, 1000, 2000}
