@@ -11,6 +11,8 @@ This is a port of [locus.p8](https://github.com/kikito/locus.p8) for Picotron, w
 
 Objects in locus are represented by "axis-aligned bounding boxes", which we will refer to as "boxes". Objects are usually Lua tables representing game objects like enemies, bullets, coins, etc. They can be added, updated, and removed.
 
+**Object Capacity**: Locustron can handle up to **10,000 simultaneous objects** due to its userdata-optimized storage system. This limit provides excellent performance for typical Picotron games while maintaining memory efficiency.
+
 The library uses a grid of squared cells and keeps track of which objects "touch" each cell.
 
 This is useful in several scenarios:
