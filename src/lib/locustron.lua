@@ -146,13 +146,16 @@ local locustron = function(size)
       cell_counts[i] = -1
    end
 
-   local function box2grid(x, y, w, h)
-      local l = math.floor(x / size) + 1
-      local t = math.floor(y / size) + 1
-      local r = math.floor((x + w) / size) + 1
-      local b = math.floor((y + h) / size) + 1
+   local function get_cell_bounds(x, y, w, h)
+      local l = x \ size + 1
+      local t = y \ size + 1
+      local r = (x + w) \ size + 1
+      local b = (y + h) \ size + 1
       return l, t, r, b
    end
+   
+   -- Alias for backward compatibility
+   local box2grid = get_cell_bounds
 
    -- Optimized bounding box management with userdata
    local function store_bbox(obj, x, y, w, h)
