@@ -138,6 +138,40 @@ You can also save locustron to a single file (locustron.lua).
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
+
+## Development Setup
+
+### Git Commit Message Enforcement
+
+This repository uses [Conventional Commits](https://www.conventionalcommits.org/) for consistent commit messages. To enable automatic validation of your commit messages:
+
+```bash
+# After cloning the repository, enable the commit-msg hook:
+chmod +x .git/hooks/commit-msg
+```
+
+This will enforce the following commit message format:
+```
+<type>[optional scope]: <description>
+```
+
+**Valid commit types:**
+- `feat` - A new feature
+- `fix` - A bug fix  
+- `docs` - Documentation changes
+- `test` - Adding or updating tests
+- `refactor` - Code refactoring
+- `perf` - Performance improvements
+- `chore` - Build process or auxiliary tool changes
+
+**Examples:**
+```bash
+git commit -m "feat(locustron): add 2d userdata implementation"
+git commit -m "fix(tests): handle unknown object error in delete tests"  
+git commit -m "docs: update README with setup instructions"
+```
+
+If your commit message doesn't follow this format, the commit will be rejected with helpful guidance.
 ``` lua
 local locustron = require("lib/locustron")
 ```
