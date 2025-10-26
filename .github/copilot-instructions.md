@@ -258,6 +258,21 @@ Examples:
 - `fix(tests): handle unknown object error in delete tests`
 - `docs: update README to reference benchmarks/ directory`
 
+**Multi-line commit messages:**
+
+For commits that need detailed descriptions, use separate `-m` flags (reference: https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13):
+
+```bash
+git commit -m "feat(locustron): add spatial hash optimization" \
+           -m "" \
+           -m "Implement 2D userdata for improved code readability" \
+           -m "- Direct cell indexing eliminates manual base calculations" \
+           -m "- Maintains identical performance to 1D implementation" \
+           -m "- Full API compatibility preserved"
+```
+
+**Never** use single `-m` flag with `\n` characters as Git will truncate at the first line.
+
 Tooling and enforcement suggestions:
 
 - Use commit hooks (e.g. `husky`) and a commitlint configuration in CI to validate messages where possible.
