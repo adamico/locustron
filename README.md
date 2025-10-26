@@ -309,9 +309,9 @@ The included `test_locustron.lua` provides interactive visualization:
 
 ## How does it work?
 
-Internally, locus has a sparse list of "rows" (representing the `y` axis). Each row can have one or more cells (on the `x` axis).
+Internally, locustron has a sparse list of "rows" (representing the `y` axis). Each row can have one or more cells (on the `x` axis).
 
-locus also "remembers" all of the bounding boxes it has seen in a separate table called `boxes`. `boxes` contains one axis-aligned-bounding-box per object added to locus.
+locustron also "remembers" all of the bounding boxes it has seen in a separate table called `boxes`. `boxes` contains one axis-aligned-bounding-box per object added to locustron.
 
 Finally, there is also an internal "table pool". When a table is no longer needed (cell depleted of objects, row doesn't have any cells left, box for object which was removed) the tables are added to the pool table instead of being garbage collected. Then the tables can be reused for other purposes, minimizing garbage collection.
 
@@ -319,19 +319,19 @@ While the other methods are "symmetric" with regards to pool usage (`add` takes 
 
 ## Why does `query` return a table? Wouldn't it be more efficient to use a callback, or an iterator?
 
-Objects in locus, even small ones, can touch multiple cells as they move. As a result, while querying the cells, we might encounter the same object more than once. The only way to detect this by introducing a `visited` table, which contains the already visited objects. A callback or an iterator would need to be built *on top* of that `visited` table in order to avoid calling the same callback multiple times for the same object. I think this will be undesirable more often than not. So `query` just returns the `visited` table, which is used internally *also* to avoid duplicated objects in the results.
+Objects in locustron, even small ones, can touch multiple cells as they move. As a result, while querying the cells, we might encounter the same object more than once. The only way to detect this by introducing a `visited` table, which contains the already visited objects. A callback or an iterator would need to be built *on top* of that `visited` table in order to avoid calling the same callback multiple times for the same object. I think this will be undesirable more often than not. So `query` just returns the `visited` table, which is used internally *also* to avoid duplicated objects in the results.
 
-## When should I *not* use locus?
+## When should I *not* use locustron?
 
-There's several reasons not to use locus:
+There's several reasons not to use locustron:
 
-* Your game world is fixed in size and densely populated. In this case a non-sparse grid will make more sense; the code will be smaller and faster since it doesn't have to deal with sparse data. Since the world is densely populated, you don't have zones without objects, where locus could save up memory.
-* Your objects can not be represented properly by axis-aligned bounding boxes. Perhaps you have very long, very thin objects that are often "arranged diagonally". This is the worst case scenario for using locus. You might need a different hash map entirely.
-* Your world is already extremely sparse. The main advantage of using locus is that it allows for very fast local queries in an area. If your game has very few interactive objects, it might be simpler to just check all of the objects on every frame. (Take into account that tiles with collision do count as "game objects")
+* Your game world is fixed in size and densely populated. In this case a non-sparse grid will make more sense; the code will be smaller and faster since it doesn't have to deal with sparse data. Since the world is densely populated, you don't have zones without objects, where locustron could save up memory.
+* Your objects can not be represented properly by axis-aligned bounding boxes. Perhaps you have very long, very thin objects that are often "arranged diagonally". This is the worst case scenario for using locustron. You might need a different hash map entirely.
+* Your world is already extremely sparse. The main advantage of using locustron is that it allows for very fast local queries in an area. If your game has very few interactive objects, it might be simpler to just check all of the objects on every frame. (Take into account that tiles with collision do count as "game objects")
 
-## Can I use locus to accelerate collision detection?
+## Can I use locustron to accelerate collision detection?
 
-Yes. You can use the `query` object to get a "fast rough list of candidate objects for collision", and then apply a "more expensive collision detection algorithm" (like [hit.p8](https://github.com/kikito/hit.p8/tree/main)) to do use a more costly collision detection algorithm only to the list of candidates.
+Yes. You can use the `query` method to get a "fast rough list of candidate objects for collision", and then apply a "more expensive collision detection algorithm" (like [hit.p8](https://github.com/kikito/hit.p8/tree/main)) to use a more costly collision detection algorithm only to the list of candidates.
 
 ## Could you show me how to use it in combination with hit.p8?
 
@@ -339,7 +339,8 @@ Here's a partial example:
 
 
 ``` lua
-loc = locus()
+local locustron = require("lib/locustron")
+local loc = locustron()
 ...
 
 -- filter for only looking at enemies
@@ -348,29 +349,31 @@ function is_enemy(obj)
 end
 
 function createbullet(x,y)
-  local b={x=x,y=y,w=3,h=3}
-  loc.add(b,b.x,b.y,b.w,b.h)
+  local b = {x = x, y = y, w = 3, h = 3}
+  loc.add(b, b.x, b.y, b.w, b.h)
 end
 
 function updatebullet(b)
   -- note: bullet will move to nx,ny unless it finds an enemy
-  local nx,ny=getnextposition(b)
+  local nx, ny = getnextposition(b)
 
   -- calculate the query box for the bullet moving towards nx,ny
-  local l=b.x+b.vx+min(0,nx)
-  local t=b.y+b.vy+min(0,ny)
-  local w,h=b.w+abs(nx), b.h+abs(ny)
+  local l = b.x + b.vx + min(0, nx)
+  local t = b.y + b.vy + min(0, ny)
+  local w, h = b.w + abs(nx), b.h + abs(ny)
+  
   -- check the querybox for enemies
-  local first_e=nil
-  local first_t=32767 --max integer
-  for e in pairs(loc.query(l,t,w,h,is_enemy)) do
-    local t=hit(b.x,b.y,b.w,b.h,
-                e.x,e.y,e.w,e.h,
-                b.x+dx,b.y+dy)
+  local first_e = nil
+  local first_t = 32767 -- max integer
+  
+  for e in pairs(loc.query(l, t, w, h, is_enemy)) do
+    local t = hit(b.x, b.y, b.w, b.h,
+                  e.x, e.y, e.w, e.h,
+                  b.x + dx, b.y + dy)
     -- we could hit several enemies in transit. We only want the first one (minimum t)
-    if t and t<first_t then
-      first_t=t
-      first_e=e
+    if t and t < first_t then
+      first_t = t
+      first_e = e
     end
   end
 
@@ -380,38 +383,39 @@ function updatebullet(b)
     loc.del(b) -- destroy the bullet. Might need to remove it from other places besides loc
   else
     -- no collision. advance bullet
-    b.x,b.y=nx,ny
-    loc:update(b,b.x,b.y,b.w,b.h)
+    b.x, b.y = nx, ny
+    loc.update(b, b.x, b.y, b.w, b.h)
   end
 end
 ```
 
-## I don't need continuous collision detection in my game. Can I use locus to accelerate simple (rectangle intersection-based) collision detection?
+## I don't need continuous collision detection in my game. Can I use locustron to accelerate simple (rectangle intersection-based) collision detection?
 
-Yes, `hit` and `locus` can be used separately and they don't need each other to work. Here's an example using collision based on rectangle intersection:
+Yes, `hit` and `locustron` can be used separately and they don't need each other to work. Here's an example using collision based on rectangle intersection:
 
 ```lua
-local loc=locus()
+local locustron = require("lib/locustron")
+local loc = locustron()
 ...
 
-function createplayer(x,y)
-  local p={x=x,y=y,w=8,h=16}
-  loc.add(p,p.x,p.y,p.w,p.h)
+function createplayer(x, y)
+  local p = {x = x, y = y, w = 8, h = 16}
+  loc.add(p, p.x, p.y, p.w, p.h)
 end
 
-function rectintersect(x0,y0,w0,h0,x1,y1,w1,h1)
-  return x0+w0>=x1 and x1+w1>=x0 and y0+h0>=y1 and y1+h1>=y0
+function rectintersect(x0, y0, w0, h0, x1, y1, w1, h1)
+  return x0 + w0 >= x1 and x1 + w1 >= x0 and y0 + h0 >= y1 and y1 + h1 >= y0
 end
 
 function updateplayer(p)
-  local nx,ny=getnextposition(p)
-  p.x,p.y=nx,ny
-  loc.update(p,p.x,p.y,p.w,p.h)
+  local nx, ny = getnextposition(p)
+  p.x, p.y = nx, ny
+  loc.update(p, p.x, p.y, p.w, p.h)
 
-  for c in pairs(loc.query(p.x,p.y,p.w,p.h,is_coin)) do
-    if rectintersect(p.x,p.y,p.w,p.h,
-                     c.x,c.y,c.w,c.h) then
-      score+=1
+  for c in pairs(loc.query(p.x, p.y, p.w, p.h, is_coin)) do
+    if rectintersect(p.x, p.y, p.w, p.h,
+                     c.x, c.y, c.w, c.h) then
+      score += 1
       loc.del(c) -- delete coin. We might need to remove it from other places too
     end
   end
@@ -436,11 +440,11 @@ Yes! Locustron is specifically designed for Picotron with several optimizations:
 
 The library handles thousands of objects efficiently while staying within Picotron's resource constraints.
 
-## Can locus have rectangular (non-squared) grid cells?
+## Can locustron have rectangular (non-squared) grid cells?
 
 No, only squared grid cells are supported. It would be very easy to add support for rectangular cells, but it would cost some tokens that I didn't want to spend. Feel free to fork and add support for that if you need to.
  
-## I am having trouble with locus, it does not seem to work. How can I debug it?
+## I am having trouble with locustron, it does not seem to work. How can I debug it?
 
 You can visualize the spatial grid by drawing it on screen. The included `test_locustron.lua` file has an example function (`draw_locus`) which shows:
 
