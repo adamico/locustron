@@ -13,14 +13,14 @@ MDEwMTAxMDAwMDAwMDAwMDAxMDEwMTAxMDcwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDEwMTAxMDEw
 MTAxMDEwMTAxMDEwMTAwMDAwMDAwMDAwMTAxMDEwMTAxMDEwMTAxMDEwMTAxMDAwMDAwMDAwMDAx
 MDEwMTAxMDEwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw
 MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIpLGxvd2NvbF9pY29uPXRydWUsbW9kaWZp
-ZWQ9IjIwMjUtMTAtMjYgMDg6MzU6MzkiLG5vdGVzPSJVbml0IFRlc3RpbmcgaW4gUGljb3Ryb24i
+ZWQ9IjIwMjUtMTAtMjYgMTA6Mjg6MjMiLG5vdGVzPSJVbml0IFRlc3RpbmcgaW4gUGljb3Ryb24i
 LHJ1bnRpbWU9MjEsc3RvcmVkPSIyMDI0LTA0LTE0IDA1OjU1OjM0Iix0aXRsZT0iVW5pdHJvbiIs
 dmVyc2lvbj0iMC41LjEiLHdvcmtzcGFjZXM9e3tsb2NhdGlvbj0iZ3VpLmx1YSM5MyIsd29ya3Nw
 YWNlX2luZGV4PTF9LHtsb2NhdGlvbj0iZ3VpX3Rlc3RfdHJlZS5sdWEjNSIsd29ya3NwYWNlX2lu
 ZGV4PTF9LHtsb2NhdGlvbj0icnVubmVyLmx1YSM4Iix3b3Jrc3BhY2VfaW5kZXg9MX0se2xvY2F0
-aW9uPSJnZngvMC5nZngiLHdvcmtzcGFjZV9pbmRleD0yfSx7bG9jYXRpb249Im1hcC8wLm1hcCIs
-d29ya3NwYWNlX2luZGV4PTN9LHtsb2NhdGlvbj0ic2Z4LzAuc2Z4Iix3b3Jrc3BhY2VfaW5kZXg9
-NH19XV0=
+aW9uPSJndWkvZ3VpLmx1YSMxMyIsd29ya3NwYWNlX2luZGV4PTF9LHtsb2NhdGlvbj0iZ2Z4LzAu
+Z2Z4Iix3b3Jrc3BhY2VfaW5kZXg9Mn0se2xvY2F0aW9uPSJtYXAvMC5tYXAiLHdvcmtzcGFjZV9p
+bmRleD0zfSx7bG9jYXRpb249InNmeC8wLnNmeCIsd29ya3NwYWNlX2luZGV4PTR9fV1d
 :: LICENSE
 b64$TUlUIExpY2Vuc2UNCg0KQ29weXJpZ2h0IChjKSAyMDI0IEphY2VrIE9sc3phaw0KDQpQZXJt
 aXNzaW9uIGlzIGhlcmVieSBncmFudGVkLCBmcmVlIG9mIGNoYXJnZSwgdG8gYW55IHBlcnNvbiBv
@@ -424,7 +424,7 @@ end
 :: examples/
 :: examples/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSJdXQ==
+MC0yNiAxMDoyODoyMyJdXQ==
 :: examples/subject.lua
 -- (c) 2024 Jacek Olszak
 -- This code is licensed under MIT license (see LICENSE for details)
@@ -617,7 +617,7 @@ end)
 :: gfx/
 :: gfx/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
+MC0yNiAxMDoyODoyMyIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
 :: gfx/0.gfx
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTAyIDA4OjIxOjQzIixtb2RpZmllZD0iMjAyNC0w
 NC0xNCAwNTo1NTozNCIscmV2aXNpb249MTQ0OF1dbHo0AMUAAABIMQAA8BJ7WzBdPXtibXA9cHh1
@@ -628,8 +628,9 @@ GNII8mNGABwv8PAxAP----------------------------------------------------------
 :: gui/
 :: gui/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSJdXQ==
+MC0yNiAxMDoyODoyMyJdXQ==
 :: gui/gui.lua
+--[[pod_format="raw",created="2025-10-26 10:28:23",modified="2025-10-26 10:28:23",revision=0]]
 -- (c) 2024 Jacek Olszak
 -- This code is licensed under MIT license (see LICENSE for details)
 
@@ -642,7 +643,7 @@ include "gui/test_toolbar.lua"
 include "gui/printed_lines.lua"
 include "gui/tree.lua"
 
-local width <const> = 280
+local width <const> = 400
 local height <const> = 200
 
 local gui, test_tree, lights, test_summary, runner_pid, selected_test_id
@@ -1984,7 +1985,7 @@ AAE=
 :: lib/
 :: lib/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSJdXQ==
+MC0yNiAxMDoyODoyMyJdXQ==
 :: lib/tables.lua
 -- (c) 2024 Jacek Olszak
 -- This code is licensed under MIT license (see LICENSE for details)
@@ -2056,7 +2057,7 @@ end
 :: map/
 :: map/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Iixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Il1d
+MC0yNiAxMDoyODoyMyIsc3RvcmVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Il1d
 :: map/0.map
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Iixtb2RpZmllZD0iMjAyNC0w
 NC0xNCAwNTo1NTozNCIscmV2aXNpb249MzE1XV1sejQAZwAAAFYQAADwCHt7Ym1wPXVzZXJkYXRh
@@ -2266,7 +2267,7 @@ publish { event = "done", root_test_id = 1 }
 :: sfx/
 :: sfx/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
+MC0yNiAxMDoyODoyMyIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
 :: sfx/0.sfx
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTAyIDA4OjIxOjQzIixtb2RpZmllZD0iMjAyNC0w
 NC0xNCAwNTo1NTozNCIscmV2aXNpb249MTI2OV1dbHo0AD0BAABXCAAA8CdweHUAAygAAAMABA9A
@@ -2279,7 +2280,7 @@ cAMIAP-cH-8BAJdQ-----x8=
 :: tests/
 :: tests/.info.pod
 b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
-MC0yNiAwODozNTozOSJdXQ==
+MC0yNiAxMDoyODoyMyJdXQ==
 :: tests/api_test.lua
 -- (c) 2024 Jacek Olszak
 -- This code is licensed under MIT license (see LICENSE for details)

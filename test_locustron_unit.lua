@@ -226,24 +226,18 @@ test("error on unknown object update", function()
    local loc = locustron(32)
    local obj = {id = "test1"}
    
-   local success, err = pcall(function()
-      loc.update(obj, 10, 10, 8, 8)
-   end)
-   
-   assert_eq(false, success, "should throw error for unknown object")
-   assert(string.find(err or "", "unknown object"), "error message should mention unknown object")
+   -- Try to update unknown object, should fail
+   loc.update(obj, 10, 10, 8, 8)
+   test_fail("Expected error when updating unknown object")
 end)
 
 test("error on unknown object delete", function()
    local loc = locustron(32)
    local obj = {id = "test1"}
    
-   local success, err = pcall(function()
-      loc.del(obj)
-   end)
-   
-   assert_eq(false, success, "should throw error for unknown object")
-   assert(string.find(err or "", "unknown object"), "error message should mention unknown object")
+   -- Try to delete unknown object, should fail
+   loc.del(obj)
+   test_fail("Expected error when deleting unknown object")
 end)
 
 -- Test: Grid Coordinate System

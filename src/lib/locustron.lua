@@ -1,8 +1,8 @@
 --- @diagnostic disable:unknown-symbol, action-after-return, exp-in-action, miss-symbol
--- Picotron Userdata-Optimized Spatial Hash
+-- Locustron: Picotron Userdata-Optimized Spatial Hash
 -- Uses Picotron userdata for efficient bounding box storage
 
-local locus_optimized = function(size)
+local locustron = function(size)
    size = size or 32
    local rows = {}
 
@@ -336,4 +336,4 @@ local locus_optimized = function(size)
    }
 end
 
-return locus_optimized
+return locustron
