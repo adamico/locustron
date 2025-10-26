@@ -17,14 +17,14 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 
 ### Key Components
 - `src/lib/locustron.lua`: Core spatial hash implementation with 1D userdata-optimized cell storage
-- `src/lib/locustron_2d.lua`: 2D userdata optimized implementation with direct cell indexing (5-15% performance gain)
+- `src/lib/locustron_2d.lua`: 2D userdata alternative implementation with direct cell indexing (identical performance to 1D)
 - `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
 - `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
-- `src/benchmark_compact.lua`: Performance analysis tool for grid size optimization
-- `test_locustron_unit.lua`: Comprehensive unit test suite for original implementation (18 test cases)
-- `test_locustron_2d_unit.lua`: Comprehensive unit test suite for 2D implementation (21 test cases)
-- `test_helpers.lua`: Custom assert functions library with proper error handling patterns
-- `benchmark_2d_comparison.lua`: A/B performance testing between 1D and 2D implementations
+- `benchmarks/benchmark_grid_tuning.lua`: Performance analysis tool for grid size optimization
+- `tests/test_locustron_unit.lua`: Comprehensive unit test suite for original implementation (20 test cases)
+- `tests/test_locustron_2d_unit.lua`: Comprehensive unit test suite for 2D implementation (22 test cases)
+- `tests/test_helpers.lua`: Custom assert functions library with proper error handling patterns
+- `benchmarks/benchmark_2d_comparison.lua`: A/B performance testing between 1D and 2D implementations
 - `test_locustron.p64`: Picotron cartridge containing the packaged library and demo
 
 ### Memory Management Pattern
@@ -39,7 +39,7 @@ bbox_map          -- obj_id -> bbox_index mapping
 cell_data         -- userdata("i32", MAX_CELLS * MAX_CELL_CAPACITY) - object IDs in cells
 cell_counts       -- userdata("i32", MAX_CELLS) - track object count per cell
 
--- Potential 2D userdata optimization (SYNTAX CONFIRMED):
+-- Completed 2D userdata implementation (PERFORMANCE TESTED):
 -- Picotron supports 2D userdata with method-based access:
 -- cell_data_2d = userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY)
 -- cell_data_2d:set(cell_idx, count, obj_id)  -- instead of cell_data[base + count] = obj_id
@@ -114,7 +114,7 @@ clip()
 
 ### Testing & Debugging
 - `test_locustron.lua`: Interactive demo with moving objects and viewport culling
-- `benchmark_compact.lua`: Performance analysis and grid size optimization tool
+- `benchmarks/benchmark_grid_tuning.lua`: Performance analysis and grid size optimization tool
 - `draw_locus()`: Visualization function showing grid cells and object counts
 - Pool monitoring: Track `_pool` size to verify memory management
 - Userdata debugging: Use `loc.get_bbox(obj)` and `loc.get_obj_id(obj)` for inspection
@@ -124,9 +124,13 @@ clip()
 - Custom `include()` mapped to `require()` for Picotron compatibility
 - Error handling via `send_message()` for syntax errors in module loading
 - Picotron runtime symbols: `!=`, `+=`, `-=`, etc. enabled via `nonstandardSymbol`
-- **Unit Testing**: Comprehensive test coverage with unitron framework (18 test cases for 1D, 21 test cases for 2D)
+- **Unit Testing**: Comprehensive test coverage with unitron framework (20 test cases for 1D, 22 test cases for 2D)
 - **Test Results**: All tests passing as of current implementation
 - **Unitron API Reference**: Always use https://github.com/elgopher/unitron as the main reference for unitron API
+- **Test Directory**: All test files are in `tests/` directory
+- **Test File Paths**: Test files use `../src/lib/` paths to reference implementation files
+- **Benchmark Directory**: All benchmark files are in `benchmarks/` directory
+- **Benchmark File Paths**: Benchmark files use `../src/lib/` paths to reference implementation files
 - **Unitron Error Testing**: Use `test_fail(err)` to generate test errors. Pattern:
   ```lua
   test("operation should error", function()
@@ -199,13 +203,9 @@ clip()
   - `ud:set(x, y, value)` for writing
   - `ud:get(x, y, n)` for reading (n = number of values to return)
   - **NOT** bracket syntax: `ud[x][y]` is unsupported
-- **2D Locustron Implementation**: Complete alternative using 2D userdata arrays for improved performance
+- **2D Locustron Implementation**: Complete alternative using 2D userdata arrays for improved code clarity
   - `src/lib/locustron_2d.lua`: Direct cell indexing eliminates manual base calculations
-  - Target: 5-15% performance improvement from reduced arithmetic overhead
-  - API compatible: Same interface as original locustron with internal 2D optimization
-- **2D Locustron Implementation**: Complete alternative using 2D userdata arrays for improved performance
-  - `src/lib/locustron_2d.lua`: Direct cell indexing eliminates manual base calculations
-  - Target: 5-15% performance improvement from reduced arithmetic overhead
+  - Performance tested: Identical performance to 1D implementation (0.0% difference)
   - API compatible: Same interface as original locustron with internal 2D optimization
 
 ## API Usage Patterns
@@ -235,6 +235,36 @@ loc.del(obj)
 - Validate grid size against typical object dimensions during setup
 - Userdata capacity: MAX_OBJECTS (10,000) limit enforced
 - **Always refer to the [Official Picotron Manual](https://www.lexaloffle.com/dl/docs/picotron_manual.html) for authoritative guidance on Picotron-specific functions and error handling**
+
+## Git commit convention
+
+We follow the Conventional Commits specification: https://www.conventionalcommits.org/en/v1.0.0/.
+
+All commits to this repository MUST use the Conventional Commits format:
+
+  <type>[optional scope]: <short description>
+
+Required guidance:
+
+- Use one of the conventional types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `revert`.
+- The optional scope should be a single token describing the module or area, for example `locustron`, `tests`, or `benchmarks`.
+- Keep the subject line concise and written in imperative mood (e.g. `add`, `fix`, `update`).
+- Add an empty line and a longer body when more context is needed.
+- Use the footer for metadata (e.g. `BREAKING CHANGE: <description>`, or `Closes #<issue>`).
+
+Examples:
+
+- `feat(locustron): add 2d userdata implementation`
+- `fix(tests): handle unknown object error in delete tests`
+- `docs: update README to reference benchmarks/ directory`
+
+Tooling and enforcement suggestions:
+
+- Use commit hooks (e.g. `husky`) and a commitlint configuration in CI to validate messages where possible.
+- Reviewers should enforce the format on PRs where automated checks are not available.
+- For automated/CI commits include context in the footer and a descriptive body when necessary.
+
+This repository's contributors should follow Conventional Commits for all local commits and PRs. The change history will be easier to parse, generate changelogs from, and integrate with release tooling.
 
 ## Performance Considerations
 
@@ -273,6 +303,6 @@ loc.del(obj)
 - **Grid size tuning**: Test with different grid sizes (8, 16, 32, 64) based on typical object size
 - **Pool monitoring**: Watch `_pool` size stabilization during development
 - **Viewport optimization**: Use `loc.query(screen_bounds)` for rendering culling
-- **Benchmark-driven optimization**: Use `benchmark_compact.lua` to find optimal grid sizes for your specific object patterns
+- **Benchmark-driven optimization**: Use `benchmarks/benchmark_grid_tuning.lua` to find optimal grid sizes for your specific object patterns
 - **Testing Protocol**: All functionality validation must be done in Picotron environment with unitron framework
 - **Console Testing**: When creating console test scripts, always use `printh()` for proper Picotron output

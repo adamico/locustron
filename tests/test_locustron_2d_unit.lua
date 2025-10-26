@@ -2,8 +2,8 @@
 -- Drag and drop this file into unitron window to run tests
 
 -- Include the 2D locustron implementation
-include "src/lib/require.lua"
-local locustron_2d = require("src/lib/locustron_2d")
+include "../src/lib/require.lua"
+local locustron_2d = require("../src/lib/locustron_2d")
 
 -- Include custom helpers after locustron is loaded
 include "test_helpers.lua"

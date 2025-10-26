@@ -8,13 +8,13 @@
 -- 
 -- HOW TO RUN FROM PICOTRON CONSOLE:
 -- 1. cd("/desktop/projects/locustron")  -- or wherever your project is
--- 2. include("benchmark_2d_comparison.lua")
+-- 2. include("benchmarks/benchmark_2d_comparison.lua")
 -- 
 -- OR drag and drop this file into the Picotron console
 
-include("src/lib/require.lua")
-local locustron_1d = require("src/lib/locustron")
-local locustron_2d = require("src/lib/locustron_2d")
+include("../src/lib/require.lua")
+local locustron_1d = require("../src/lib/locustron")
+local locustron_2d = require("../src/lib/locustron_2d")
 
 printh("=== Locustron 1D vs 2D Performance Benchmark ===")
 printh("Comparing performance between 1D and 2D userdata implementations...")

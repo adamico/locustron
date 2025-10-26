@@ -158,7 +158,7 @@ function is_enemy(obj)
 end
 
 -- create a grid with optimized cell size for small objects
--- (use benchmark_compact.lua to find optimal size for your objects)
+-- (use benchmarks/benchmark_grid_tuning.lua to find optimal size for your objects)
 local loc = locus(128)
 
 -- add objects to the grid
@@ -184,7 +184,7 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `test_locustron.lua` for a complete interactive example with moving objects and `benchmark_compact.lua` for performance analysis tools. 
+See `test_locustron.lua` for a complete interactive example with moving objects and `benchmarks/benchmark_grid_tuning.lua` for performance analysis tools. 
 
 
 # Performance
@@ -232,19 +232,9 @@ Locustron includes a comprehensive benchmark tool to help you choose optimal gri
 
 ### Running Benchmarks
 
-**Method 1: Direct execution in Picotron console**
+**Running Grid Tuning Benchmark:**
 ```lua
-include("benchmark_compact.lua")
-```
-
-**Method 2: Integration with your game**
-```lua
-local benchmark = require("lib/benchmark_compact")
-
--- In your _update() function:
-if btnp(4) then  -- Press X button
-  benchmark.run_compact_benchmark()
-end
+include("benchmarks/benchmark_grid_tuning.lua")
 ```
 
 ### Benchmark Output
@@ -458,7 +448,7 @@ You can visualize the spatial grid by drawing it on screen. The included `test_l
 You can also run the included benchmark in the Picotron console to analyze performance and validate your grid size choice:
 
 ```lua
-include("benchmark_compact.lua")
+include("benchmarks/benchmark_grid_tuning.lua")
 -- This will show grid efficiency analysis and query precision metrics
 ```
 
@@ -474,10 +464,10 @@ For debugging specific issues:
 Locustron includes a comprehensive unit test suite using the unitron framework:
 
 ```
-test_locustron_unit.lua    -- 18 test cases covering all functionality
+tests/test_locustron_unit.lua    -- 20 test cases covering all functionality
 ```
 
-**Running Tests**: Drag and drop `test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
+**Running Tests**: Drag and drop `tests/test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
 
 **Test Coverage**:
 - Object creation and lifecycle (add, update, delete)

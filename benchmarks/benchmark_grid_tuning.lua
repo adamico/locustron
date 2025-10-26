@@ -1,9 +1,9 @@
--- Compact Benchmark Suite for Locustron
+-- Grid Size Tuning Benchmark for Locustron
 -- Tests memory allocation vs query optimization trade-offs
--- Run in Picotron console: include("benchmark_compact.lua")
+-- Run in Picotron console: include("benchmarks/benchmark_grid_tuning.lua")
 
-include("lib/require.lua")
-local locustron = require("lib/locustron")
+include("../src/lib/require.lua")
+local locustron = require("../src/lib/locustron")
 
 -- Benchmark Configuration
 local GRID_SIZES = {16, 32, 64, 128}

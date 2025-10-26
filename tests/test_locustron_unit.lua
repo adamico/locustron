@@ -2,8 +2,9 @@
 -- Drag and drop this file into unitron window to run tests
 
 -- Include the actual locustron implementation
-include "src/lib/require.lua"
-local locustron = require("src/lib/locustron")
+include "../src/lib/require.lua"
+local locustron = require("../src/lib/locustron")
+include "test_helpers.lua"
 
 -- Test: Basic Creation
 test("create locustron instance with default size", function()
@@ -227,8 +228,9 @@ test("error on unknown object update", function()
    local obj = {id = "test1"}
    
    -- Try to update unknown object, should fail
-   loc.update(obj, 10, 10, 8, 8)
-   test_fail("Expected error when updating unknown object")
+   assert_unknown_object_error(function() 
+      loc.update(obj, 10, 10, 8, 8) 
+   end)
 end)
 
 test("error on unknown object delete", function()
@@ -236,8 +238,9 @@ test("error on unknown object delete", function()
    local obj = {id = "test1"}
    
    -- Try to delete unknown object, should fail
-   loc.del(obj)
-   test_fail("Expected error when deleting unknown object")
+   assert_unknown_object_error(function() 
+      loc.del(obj) 
+   end)
 end)
 
 -- Test: Grid Coordinate System
