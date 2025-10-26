@@ -1,6 +1,6 @@
 --- @diagnostic disable:unknown-symbol, action-after-return, exp-in-action, miss-symbol
 -- Locustron: Picotron Userdata-Optimized Spatial Hash
--- Uses Picotron userdata for efficient bounding box storage
+-- High-performance spatial hash using 2D userdata for efficient cell storage
 
 local locustron = function(size)
    size = size or 32
@@ -28,19 +28,19 @@ local locustron = function(size)
       return obj_to_id[obj]
    end
 
-   -- Userdata Bounding Box Storage
+   -- 2D Userdata Bounding Box Storage
    local MAX_OBJECTS = 10000
    local bbox_count = 0
-   local bbox_data = userdata("f32", MAX_OBJECTS * 4)
+   local bbox_data_2d = userdata("f64", MAX_OBJECTS, 4) -- 2D: [obj_id][coord] where coord = x,y,w,h
    local bbox_map = {} -- obj_id -> bbox_index mapping
 
-   -- Userdata Cell Storage System
+   -- 2D Userdata Cell Storage System
    local MAX_CELLS = 5000 -- Maximum grid cells that can exist
    local MAX_CELL_CAPACITY = 100 -- Maximum objects per cell
    local cell_pool_size = 0
    local cell_pool = {}
-   local cell_data = userdata("i32", MAX_CELLS * MAX_CELL_CAPACITY)
-   local cell_counts = userdata("i32", MAX_CELLS) -- Track object count per cell
+   local cell_data_2d = userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY) -- 2D: [cell_idx][obj_position]
+   local cell_counts = userdata("i32", MAX_CELLS, 1) -- 2D for consistency: [cell_idx][0]
    local cell_map = {} -- Maps cell userdata to its index
 
    -- Query Result Storage - Use regular tables since we need to store object references
@@ -49,293 +49,298 @@ local locustron = function(size)
    
    -- Initialize query result pool with regular tables
    for i = 1, 20 do -- Pre-allocate some query result tables
-      query_pool[i] = {}
+      query_pool[query_pool_size + 1] = {}
+      query_pool_size = query_pool_size + 1
    end
-   query_pool_size = 20
 
-   local function frompool_query()
+   local function get_from_pool_query()
       if query_pool_size > 0 then
          local result = query_pool[query_pool_size]
          query_pool_size = query_pool_size - 1
+         -- Clear any existing data
+         for k in pairs(result) do
+            result[k] = nil
+         end
          return result
+      else
+         return {} -- Create new if pool is empty
       end
-      
-      -- Allocate new query result table
-      return {}
    end
 
    local function return_to_pool_query(result_table)
-      if result_table then
-         -- Clear the table for reuse
-         for k in pairs(result_table) do
-            result_table[k] = nil
-         end
+      if query_pool_size < 50 then -- Limit pool size to prevent memory bloat
          query_pool_size = query_pool_size + 1
          query_pool[query_pool_size] = result_table
       end
    end
 
-   local function frompool_cell()
+   local function get_from_pool_cell()
       if cell_pool_size > 0 then
          local cell_idx = cell_pool[cell_pool_size]
          cell_pool_size = cell_pool_size - 1
-         cell_counts[cell_idx] = 0 -- Reset count
+         -- Initialize cell count to 0
+         cell_counts:set(cell_idx, 0, 0)
          return cell_idx
       end
-      
-      -- Need to allocate new cell
-      for i = 0, MAX_CELLS - 1 do
-         if cell_counts[i] == -1 then -- -1 means unused
-            cell_counts[i] = 0
-            return i
-         end
-      end
-      error("Maximum cell capacity reached")
+      return nil
    end
 
    local function return_to_pool_cell(cell_idx)
-      if cell_idx then
-         cell_counts[cell_idx] = -1 -- Mark as unused
-         cell_pool_size = cell_pool_size + 1
-         cell_pool[cell_pool_size] = cell_idx
-      end
+      cell_pool_size = cell_pool_size + 1
+      cell_pool[cell_pool_size] = cell_idx
    end
 
-   -- Cell manipulation functions
-   local function cell_add_obj(cell_idx, obj_id)
-      local count = cell_counts[cell_idx]
-      if count >= MAX_CELL_CAPACITY then
-         error("Cell capacity exceeded")
+   local function new_cell()
+      local cell_idx = get_from_pool_cell()
+      if not cell_idx then
+         local total_cells = 0
+         for _ in pairs(cell_map) do
+            total_cells = total_cells + 1
+         end
+         cell_idx = total_cells
+         cell_map[cell_idx] = true
       end
-      
-      local base = cell_idx * MAX_CELL_CAPACITY
-      cell_data[base + count] = obj_id
-      cell_counts[cell_idx] = count + 1
+      return cell_idx
+   end
+
+   -- 2D Userdata Cell Functions
+   local function cell_add_obj(cell_idx, obj_id)
+      local count = cell_counts:get(cell_idx, 0, 1)
+      if count < MAX_CELL_CAPACITY then
+         cell_data_2d:set(cell_idx, count, obj_id) -- 2D: direct indexing
+         cell_counts:set(cell_idx, 0, count + 1)
+      end
    end
 
    local function cell_remove_obj(cell_idx, obj_id)
-      local count = cell_counts[cell_idx]
-      local base = cell_idx * MAX_CELL_CAPACITY
-      
-      -- Find and remove object
+      local count = cell_counts:get(cell_idx, 0, 1)
       for i = 0, count - 1 do
-         if cell_data[base + i] == obj_id then
-            -- Move last element to this position
-            cell_data[base + i] = cell_data[base + count - 1]
-            cell_counts[cell_idx] = count - 1
-            return true
+         if cell_data_2d:get(cell_idx, i, 1) == obj_id then -- 2D: direct indexing
+            -- Move last object to fill the gap
+            cell_data_2d:set(cell_idx, i, cell_data_2d:get(cell_idx, count - 1, 1)) -- 2D: direct indexing
+            cell_counts:set(cell_idx, 0, count - 1)
+            return
          end
       end
-      return false
    end
 
    local function cell_is_empty(cell_idx)
-      return cell_counts[cell_idx] == 0
+      return cell_counts:get(cell_idx, 0, 1) == 0 -- 2D: direct indexing
    end
 
    local function cell_iterate(cell_idx, callback)
-      local count = cell_counts[cell_idx]
-      local base = cell_idx * MAX_CELL_CAPACITY
+      local count = cell_counts:get(cell_idx, 0, 1) -- 2D: direct indexing
       for i = 0, count - 1 do
-         callback(cell_data[base + i])
+         callback(cell_data_2d:get(cell_idx, i, 1)) -- 2D: direct indexing
       end
    end
 
-   -- Initialize cell counts to -1 (unused)
-   for i = 0, MAX_CELLS - 1 do
-      cell_counts[i] = -1
-   end
-
-   local function get_cell_bounds(x, y, w, h)
-      local l = x \ size + 1
-      local t = y \ size + 1
-      local r = (x + w) \ size + 1
-      local b = (y + h) \ size + 1
-      return l, t, r, b
-   end
-   
-   -- Alias for backward compatibility
-   local box2grid = get_cell_bounds
-
-   -- Optimized bounding box management with userdata
-   local function store_bbox(obj, x, y, w, h)
-      local obj_id = get_obj_id(obj)
-      local index = bbox_map[obj_id]
-      if not index then
-         index = bbox_count
+   -- 2D Userdata Bounding Box Functions
+   local function store_bbox(obj_id, x, y, w, h)
+      local bbox_idx = bbox_map[obj_id]
+      if not bbox_idx then
+         bbox_idx = bbox_count
          bbox_count = bbox_count + 1
-         bbox_map[obj_id] = index
+         bbox_map[obj_id] = bbox_idx
       end
-
-      local base = index * 4
-      bbox_data[base] = x
-      bbox_data[base + 1] = y
-      bbox_data[base + 2] = w
-      bbox_data[base + 3] = h
+      
+      -- Store using 2D indexing: [obj_id][coordinate]
+      bbox_data_2d:set(bbox_idx, 0, x) -- x coordinate
+      bbox_data_2d:set(bbox_idx, 1, y) -- y coordinate
+      bbox_data_2d:set(bbox_idx, 2, w) -- width
+      bbox_data_2d:set(bbox_idx, 3, h) -- height
    end
 
-   local function get_bbox(obj)
-      local obj_id = get_existing_obj_id(obj)
-      if not obj_id then return nil end
-      local index = bbox_map[obj_id]
-      if not index then return nil end
-      local base = index * 4
-      return bbox_data[base], bbox_data[base + 1],
-         bbox_data[base + 2], bbox_data[base + 3]
+   local function get_bbox(obj_id)
+      local bbox_idx = bbox_map[obj_id]
+      if bbox_idx then
+         -- Retrieve using 2D indexing: [obj_id][coordinate]
+         return bbox_data_2d:get(bbox_idx, 0, 1), bbox_data_2d:get(bbox_idx, 1, 1),
+                bbox_data_2d:get(bbox_idx, 2, 1), bbox_data_2d:get(bbox_idx, 3, 1)
+      end
+      return nil
    end
 
-   local function remove_bbox(obj)
-      local obj_id = get_existing_obj_id(obj)
-      if not obj_id then return end
+   local function free_bbox(obj_id)
+      local bbox_idx = bbox_map[obj_id]
+      if bbox_idx then
+         bbox_map[obj_id] = nil
+         -- Note: We don't compact the bbox array to avoid object ID invalidation
+      end
+   end
 
-      bbox_map[obj_id] = nil
+   local function get_cell(gx, gy)
+      local row = rows[gy]
+      if row then
+         return row[gx]
+      end
+      return nil
+   end
+
+   local function set_cell(gx, gy, cell_idx)
+      local row = rows[gy]
+      if not row then
+         row = {}
+         rows[gy] = row
+      end
+      row[gx] = cell_idx
+   end
+
+   local function clear_cell(gx, gy)
+      local row = rows[gy]
+      if row then
+         row[gx] = nil
+         -- Clean up empty rows
+         local has_cells = false
+         for _ in pairs(row) do
+            has_cells = true
+            break
+         end
+         if not has_cells then
+            rows[gy] = nil
+         end
+      end
+   end
+
+   local function add_to_cells(obj, obj_id, gx0, gy0, gx1, gy1)
+      for gy = gy0, gy1 do
+         for gx = gx0, gx1 do
+            local cell_idx = get_cell(gx, gy)
+            if not cell_idx then
+               cell_idx = new_cell()
+               set_cell(gx, gy, cell_idx)
+            end
+            cell_add_obj(cell_idx, obj_id)
+         end
+      end
+   end
+
+   local function remove_from_cells(obj, obj_id, gx0, gy0, gx1, gy1)
+      for gy = gy0, gy1 do
+         for gx = gx0, gx1 do
+            local cell_idx = get_cell(gx, gy)
+            if cell_idx then
+               cell_remove_obj(cell_idx, obj_id)
+               if cell_is_empty(cell_idx) then
+                  return_to_pool_cell(cell_idx)
+                  clear_cell(gx, gy)
+               end
+            end
+         end
+      end
+   end
+
+   -- Public API - identical to original locustron
+   local function add(obj, x, y, w, h)
+      if get_existing_obj_id(obj) then
+         error("object already in spatial hash")
+      end
+      
+      local obj_id = get_obj_id(obj)
+      store_bbox(obj_id, x, y, w, h)
+      
+      local gx0, gy0 = x \ size, y \ size
+      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      
+      add_to_cells(obj, obj_id, gx0, gy0, gx1, gy1)
+   end
+
+   local function del(obj)
+      local obj_id = get_existing_obj_id(obj)
+      if not obj_id then
+         error("unknown object")
+      end
+      
+      local x, y, w, h = get_bbox(obj_id)
+      if not x then
+         error("unknown object")
+      end
+      
+      local gx0, gy0 = x \ size, y \ size
+      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      
+      remove_from_cells(obj, obj_id, gx0, gy0, gx1, gy1)
+      
+      free_bbox(obj_id)
       obj_to_id[obj] = nil
       id_to_obj[obj_id] = nil
       active_obj_count = active_obj_count - 1
    end
 
-   -- Specialized functions maintain same logic but use optimized storage
-   local function add_to_cells(obj, l, t, r, b)
-      local obj_id = get_obj_id(obj)
-      local row, cell_idx
-      for cy = t, b do
-         if not rows[cy] then
-            rows[cy] = {}
-         end
-         row = rows[cy]
-         for cx = l, r do
-            if not row[cx] then
-               row[cx] = frompool_cell()
-            end
-            cell_add_obj(row[cx], obj_id)
-         end
-      end
-   end
-
-   local function del_from_cells(obj, l, t, r, b)
+   local function update(obj, x, y, w, h)
       local obj_id = get_existing_obj_id(obj)
-      if not obj_id then return end
-
-      local row, cell_idx
-      for cy = t, b do
-         row = rows[cy]
-         if row then
-            for cx = l, r do
-               cell_idx = row[cx]
-               if cell_idx then
-                  cell_remove_obj(cell_idx, obj_id)
-               end
-            end
-         end
+      if not obj_id then
+         error("unknown object")
       end
-   end
-
-   local function free_empty_cells(l, t, r, b)
-      local row, cell_idx
-      for cy = t, b do
-         row = rows[cy]
-         if row then
-            for cx = l, r do
-               cell_idx = row[cx]
-               if cell_idx and cell_is_empty(cell_idx) then
-                  row[cx] = nil
-                  return_to_pool_cell(cell_idx)
-               end
-            end
-            if not next(row) then
-               rows[cy] = nil
-            end
-         end
-      end
-   end
-
-   local function query_cells(result_table, l, t, r, b, filter)
-      local row, cell_idx
       
-      for cy = t, b do
-         row = rows[cy]
-         if row then
-            for cx = l, r do
-               cell_idx = row[cx]
-               if cell_idx then
-                  cell_iterate(cell_idx, function(obj_id)
-                     local obj = id_to_obj[obj_id]
-                     if obj and not result_table[obj] then
-                        if not filter or filter(obj) then
-                           result_table[obj] = true
-                        end
-                     end
-                  end)
-               end
+      local old_x, old_y, old_w, old_h = get_bbox(obj_id)
+      if not old_x then
+         error("unknown object")
+      end
+      
+      local old_gx0, old_gy0 = old_x \ size, old_y \ size
+      local old_gx1, old_gy1 = (old_x + old_w - 1) \ size, (old_y + old_h - 1) \ size
+      
+      local new_gx0, new_gy0 = x \ size, y \ size
+      local new_gx1, new_gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      
+      -- Only update cells if grid position changed
+      if old_gx0 ~= new_gx0 or old_gy0 ~= new_gy0 or old_gx1 ~= new_gx1 or old_gy1 ~= new_gy1 then
+         remove_from_cells(obj, obj_id, old_gx0, old_gy0, old_gx1, old_gy1)
+         add_to_cells(obj, obj_id, new_gx0, new_gy0, new_gx1, new_gy1)
+      end
+      
+      store_bbox(obj_id, x, y, w, h)
+   end
+
+   local function query(x, y, w, h, filter_fn)
+      local result = get_from_pool_query()
+      
+      local gx0, gy0 = x \ size, y \ size
+      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      
+      for gy = gy0, gy1 do
+         for gx = gx0, gx1 do
+            local cell_idx = get_cell(gx, gy)
+            if cell_idx then
+               cell_iterate(cell_idx, function(obj_id)
+                  local obj = id_to_obj[obj_id]
+                  if obj and (not filter_fn or filter_fn(obj)) then
+                     result[obj] = true -- Deduplicate automatically
+                  end
+               end)
             end
          end
       end
       
-      return result_table
+      return result
    end
 
+   local function get_bbox_public(obj)
+      local obj_id = get_existing_obj_id(obj)
+      if obj_id then
+         return get_bbox(obj_id)
+      end
+      return nil
+   end
+
+   local function get_obj_id_public(obj)
+      return get_existing_obj_id(obj)
+   end
+
+   -- Return public API
    return {
-      _bbox_data = bbox_data,
-      _obj_count = function() return active_obj_count end,
-      _box2grid = box2grid,
-      _cell_pool_size = function() return cell_pool_size end,
-      _query_pool_size = function() return query_pool_size end,
-      _rows = rows,
+      add = add,
+      del = del,
+      update = update,
+      query = query,
+      get_bbox = get_bbox_public,
+      get_obj_id = get_obj_id_public,
       _size = size,
-
-      add = function(obj, x, y, w, h)
-         store_bbox(obj, x, y, w, h)
-         add_to_cells(obj, box2grid(x, y, w, h))
-         return obj
-      end,
-
-      del = function(obj)
-         local x, y, w, h = get_bbox(obj)
-         if not x then error("unknown object") end
-
-         local l, t, r, b = box2grid(x, y, w, h)
-         del_from_cells(obj, l, t, r, b)
-         free_empty_cells(l, t, r, b)
-         remove_bbox(obj)
-         return obj
-      end,
-
-      update = function(obj, x, y, w, h)
-         local old_x, old_y, old_w, old_h = get_bbox(obj)
-         if not old_x then error("unknown object") end
-
-         local l0, t0, r0, b0 = box2grid(old_x, old_y, old_w, old_h)
-         local l1, t1, r1, b1 = box2grid(x, y, w, h)
-
-         if l0 ~= l1 or t0 ~= t1 or r0 ~= r1 or b0 ~= b1 then
-            del_from_cells(obj, l0, t0, r0, b0)
-            add_to_cells(obj, l1, t1, r1, b1)
-            free_empty_cells(l0, t0, r0, b0)
-         end
-
-         store_bbox(obj, x, y, w, h)
-         return obj
-      end,
-
-      query = function(x, y, w, h, filter)
-         local result = frompool_query()
-         local l, t, r, b = box2grid(x, y, w, h)
-         query_cells(result, l, t, r, b, filter)
-         
-         -- Set up metatable to automatically return table to pool when garbage collected
-         local result_mt = {
-            __gc = function()
-               return_to_pool_query(result)
-            end
-         }
-         
-         setmetatable(result, result_mt)
-         return result
-      end,
-
-      -- Debug information
-      get_bbox = get_bbox,
-      get_obj_id = get_existing_obj_id
+      _pool = function() return query_pool_size end,
+      _cell_pool_size = function() return cell_pool_size end,
+      _obj_count = function() return active_obj_count end,
+      _bbox_count = function() return bbox_count end
    }
 end
 
