@@ -134,6 +134,9 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
   - **Installation command**: `yotta add #locustron` copies `exports/` contents to user's `/lib/locustron/`
   - **Package source**: `exports/` directory contains the distributable library files
   - **Local development**: `lib/locustron/` contains the installed yotta package for testing and local usage
+- **Export Workflow**: Use `include("export_package.lua")` to prepare and export cartridge for BBS publication
+  - **Build process**: `exports/` → ready for publication → `export locustron.p64.png` → BBS upload
+  - **Distribution**: Users install via yotta from published cartridge
 - **Module loading**: Custom `require()` function loads from local filesystem with `../lib/locustron/` paths
 - **Error reporting**: Uses `send_message(3, {event="report_error"})` for syntax errors
 - **Token optimization**: Uses closure-based API instead of `:` syntax to save tokens
