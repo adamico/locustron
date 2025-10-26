@@ -16,34 +16,30 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
 
 ### Key Components
-- `src/lib/locustron.lua`: Core spatial hash implementation with 1D userdata-optimized cell storage
-- `src/lib/locustron_2d.lua`: 2D userdata alternative implementation with direct cell indexing (identical performance to 1D)
+- `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
 - `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
 - `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
 - `benchmarks/benchmark_grid_tuning.lua`: Performance analysis tool for grid size optimization
-- `tests/test_locustron_unit.lua`: Comprehensive unit test suite for original implementation (20 test cases)
-- `tests/test_locustron_2d_unit.lua`: Comprehensive unit test suite for 2D implementation (22 test cases)
+- `tests/test_locustron_unit.lua`: Comprehensive unit test suite (25+ test cases)
 - `tests/test_helpers.lua`: Custom assert functions library with proper error handling patterns
-- `benchmarks/benchmark_2d_comparison.lua`: A/B performance testing between 1D and 2D implementations
+- `benchmarks/benchmark_grid_tuning.lua`: Performance analysis tool for grid size optimization
 - `test_locustron.p64`: Picotron cartridge containing the packaged library and demo
 
 ### Memory Management Pattern
 ```lua
--- Current 1D userdata optimization for cells and bounding boxes:
-loc._bbox_data    -- userdata("f32", MAX_OBJECTS * 4) - packed AABB storage
+-- Userdata-optimized memory management for cells and bounding boxes:
+loc._bbox_data    -- userdata("f64", MAX_OBJECTS, 4) - AABB storage [obj_id][coord]
 obj_to_id         -- Object -> unique ID mapping
 id_to_obj         -- ID -> object reverse mapping
 bbox_map          -- obj_id -> bbox_index mapping
 
--- Cell storage uses 1D userdata with manual base calculations:
-cell_data         -- userdata("i32", MAX_CELLS * MAX_CELL_CAPACITY) - object IDs in cells
-cell_counts       -- userdata("i32", MAX_CELLS) - track object count per cell
+-- Cell storage uses userdata with direct indexing:
+cell_data_2d      -- userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY) - object IDs in cells
+cell_counts       -- userdata("i32", MAX_CELLS, 1) - track object count per cell
 
--- Completed 2D userdata implementation (PERFORMANCE TESTED):
--- Picotron supports 2D userdata with method-based access:
--- cell_data_2d = userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY)
--- cell_data_2d:set(cell_idx, count, obj_id)  -- instead of cell_data[base + count] = obj_id
--- obj_id = cell_data_2d:get(cell_idx, count, 1)  -- instead of obj_id = cell_data[base + count]
+-- Picotron userdata access patterns:
+-- cell_data_2d:set(cell_idx, count, obj_id)  -- writing objects to cells
+-- obj_id = cell_data_2d:get(cell_idx, count, 1)  -- reading objects from cells
 
 -- Query results use standard Lua tables:
 -- {[obj] = true} format for compatibility and deduplication
@@ -124,7 +120,7 @@ clip()
 - Custom `include()` mapped to `require()` for Picotron compatibility
 - Error handling via `send_message()` for syntax errors in module loading
 - Picotron runtime symbols: `!=`, `+=`, `-=`, etc. enabled via `nonstandardSymbol`
-- **Unit Testing**: Comprehensive test coverage with unitron framework (20 test cases for 1D, 22 test cases for 2D)
+- **Unit Testing**: Comprehensive test coverage with unitron framework (25+ test cases)
 - **Test Results**: All tests passing as of current implementation
 - **Unitron API Reference**: Always use https://github.com/elgopher/unitron as the main reference for unitron API
 - **Test Directory**: All test files are in `tests/` directory
@@ -203,10 +199,6 @@ clip()
   - `ud:set(x, y, value)` for writing
   - `ud:get(x, y, n)` for reading (n = number of values to return)
   - **NOT** bracket syntax: `ud[x][y]` is unsupported
-- **2D Locustron Implementation**: Complete alternative using 2D userdata arrays for improved code clarity
-  - `src/lib/locustron_2d.lua`: Direct cell indexing eliminates manual base calculations
-  - Performance tested: Identical performance to 1D implementation (0.0% difference)
-  - API compatible: Same interface as original locustron with internal 2D optimization
 
 ## API Usage Patterns
 
@@ -254,7 +246,7 @@ Required guidance:
 
 Examples:
 
-- `feat(locustron): add 2d userdata implementation`
+- `feat(locustron): add spatial hash optimization`
 - `fix(tests): handle unknown object error in delete tests`
 - `docs: update README to reference benchmarks/ directory`
 
@@ -265,9 +257,9 @@ For commits that need detailed descriptions, use separate `-m` flags (reference:
 ```bash
 git commit -m "feat(locustron): add spatial hash optimization" \
            -m "" \
-           -m "Implement 2D userdata for improved code readability" \
+           -m "Implement userdata for improved code readability" \
            -m "- Direct cell indexing eliminates manual base calculations" \
-           -m "- Maintains identical performance to 1D implementation" \
+           -m "- Optimized performance for typical Picotron games" \
            -m "- Full API compatibility preserved"
 ```
 
@@ -290,14 +282,14 @@ This repository's contributors should follow Conventional Commits for all local 
 - **Balanced Pool Management**: Cell tables recycled efficiently, query results use standard table format
 - **Native Math Functions**: Use Picotron's built-in functions (`rnd()`, `max()`, `min()`, `flr()`) instead of `math.*` for C-level performance
 - **Integer Division**: Use `a \ b` instead of `flr(a / b)` for optimal performance and token savings
-- **Benchmark results**: Both 1D and 2D implementations achieve identical performance - 1M-10M operations/sec for spatial operations, 1.024M ops/sec for queries
+- **Benchmark results**: Operations achieve 1M-10M operations/sec for spatial operations, 1.024M ops/sec for queries
 - **Memory Limits**: Picotron has 32MB RAM limit. Support for up to 10,000 simultaneous objects with userdata optimization (uses ~6-7MB for 10k objects)
-- **Implementation Choice**: Both 1D and 2D userdata implementations perform identically in Picotron. Choose 2D for cleaner code or 1D for traditional array patterns without performance penalty.
+- **Userdata Implementation**: Picotron's userdata provides optimal performance for cell storage with direct 2D indexing
 - **Benchmark Memory Constraints**: Picotron's 32MB RAM limit requires careful memory management. Use single-iteration intensive operations rather than high iteration counts. Focus on measuring aggregate time for complex operations that stress 1D vs 2D userdata access patterns. Memory reported by `stat(3)` is in kilobytes.
 - **Benchmark Timing Strategy**: Instead of increasing iterations, increase operation complexity per single iteration. Measure time for intensive workloads like: bulk queries across grid, complex update patterns, large-scale object reorganization. Target workloads that highlight 1D array indexing vs 2D userdata method calls.
 - **Picotron Timing Limitations**: `time()` function only updates once per frame and measures seconds since program start. Cannot measure sub-frame operations accurately. For performance benchmarking, use operation counting with throughput measurement (operations per second) rather than attempting microsecond timing precision.
 - **Operations-per-Second Benchmarking**: Count individual operations (add/query/update/delete) during single intensive workloads. Calculate ops/sec using `operation_counter / elapsed_time` where elapsed_time comes from `time()` difference. This provides meaningful relative performance comparisons between implementations while working within Picotron's timing constraints.
-- **Benchmark Results (1D vs 2D Userdata)**: Comprehensive performance testing shows identical performance (0.0% difference) between 1D and 2D userdata implementations. Operations achieve 1M-10M ops/sec for add/update/delete, 1.024M ops/sec for queries. Memory usage scales appropriately (1k objects: ~3MB, 5k objects: ~4-5MB, 10k objects: ~6-7MB). Both implementations are equally viable with no performance penalty for 2D userdata's cleaner code patterns.
+- **Benchmark Results**: Comprehensive performance testing shows excellent performance. Operations achieve 1M-10M ops/sec for add/update/delete, 1.024M ops/sec for queries. Memory usage scales appropriately (1k objects: ~3MB, 5k objects: ~4-5MB, 10k objects: ~6-7MB). The userdata implementation provides optimal performance with clean, readable code patterns.
 
 ### Traditional Guidelines  
 - Objects spanning multiple cells reduce efficiency

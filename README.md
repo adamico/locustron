@@ -166,7 +166,7 @@ This will enforce the following commit message format:
 
 **Examples:**
 ```bash
-git commit -m "feat(locustron): add 2d userdata implementation"
+git commit -m "feat(locustron): add spatial hash optimization"
 git commit -m "fix(tests): handle unknown object error in delete tests"  
 git commit -m "docs: update README with setup instructions"
 ```

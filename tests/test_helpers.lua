@@ -35,7 +35,7 @@ function assert_obj_count(loc, expected_count, message)
    local actual_count = loc._obj_count()
    if actual_count == nil then
       test_fail(message or "Object count function returned nil")
-   elseif actual_count != expected_count then
+   elseif actual_count ~= expected_count then
       local error_msg = message or ("Expected " .. tostring(expected_count) .. " objects, got " .. tostring(actual_count))
       test_fail(error_msg)
    end
@@ -48,7 +48,7 @@ function assert_bbox(loc, obj, expected_x, expected_y, expected_w, expected_h, m
    local x, y, w, h = loc.get_bbox(obj)
    if x == nil or y == nil or w == nil or h == nil then
       test_fail(message or "Expected bbox values but got nil - object may not exist")
-   elseif x != expected_x or y != expected_y or w != expected_w or h != expected_h then
+   elseif x ~= expected_x or y ~= expected_y or w ~= expected_w or h ~= expected_h then
       local expected_str = tostring(expected_x) .. "," .. tostring(expected_y) .. "," .. tostring(expected_w) .. "," .. tostring(expected_h)
       local actual_str = tostring(x) .. "," .. tostring(y) .. "," .. tostring(w) .. "," .. tostring(h)
       local error_msg = message or ("Expected bbox (" .. expected_str .. "), got (" .. actual_str .. ")")
@@ -85,7 +85,7 @@ function assert_query_count(results, expected_count, message)
       actual_count = actual_count + 1
    end
    
-   if actual_count != expected_count then
+   if actual_count ~= expected_count then
       local error_msg = message or ("Expected " .. tostring(expected_count) .. " objects in query results, got " .. tostring(actual_count))
       test_fail(error_msg)
    end

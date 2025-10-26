@@ -1,6 +1,7 @@
 --- @diagnostic disable:unknown-symbol, action-after-return, exp-in-action, miss-symbol
--- Locustron: Picotron Userdata-Optimized Spatial Hash
--- High-performance spatial hash using 2D userdata for efficient cell storage
+-- Locustron: Spatial Hash Library for Picotron
+-- Port of locus.p8 with object pooling and userdata optimizations
+-- High-performance spatial hash using userdata for efficient cell storage
 
 local locustron = function(size)
    size = size or 32
@@ -28,19 +29,19 @@ local locustron = function(size)
       return obj_to_id[obj]
    end
 
-   -- 2D Userdata Bounding Box Storage
+   -- Userdata Bounding Box Storage
    local MAX_OBJECTS = 10000
    local bbox_count = 0
-   local bbox_data_2d = userdata("f64", MAX_OBJECTS, 4) -- 2D: [obj_id][coord] where coord = x,y,w,h
+   local bbox_data_2d = userdata("f64", MAX_OBJECTS, 4) -- [obj_id][coord] where coord = x,y,w,h
    local bbox_map = {} -- obj_id -> bbox_index mapping
 
-   -- 2D Userdata Cell Storage System
+   -- Userdata Cell Storage System
    local MAX_CELLS = 5000 -- Maximum grid cells that can exist
    local MAX_CELL_CAPACITY = 100 -- Maximum objects per cell
    local cell_pool_size = 0
    local cell_pool = {}
-   local cell_data_2d = userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY) -- 2D: [cell_idx][obj_position]
-   local cell_counts = userdata("i32", MAX_CELLS, 1) -- 2D for consistency: [cell_idx][0]
+   local cell_data_2d = userdata("i32", MAX_CELLS, MAX_CELL_CAPACITY) -- [cell_idx][obj_position]
+   local cell_counts = userdata("i32", MAX_CELLS, 1) -- [cell_idx][0]
    local cell_map = {} -- Maps cell userdata to its index
 
    -- Query Result Storage - Use regular tables since we need to store object references
@@ -103,11 +104,11 @@ local locustron = function(size)
       return cell_idx
    end
 
-   -- 2D Userdata Cell Functions
+   -- Userdata Cell Functions
    local function cell_add_obj(cell_idx, obj_id)
       local count = cell_counts:get(cell_idx, 0, 1)
       if count < MAX_CELL_CAPACITY then
-         cell_data_2d:set(cell_idx, count, obj_id) -- 2D: direct indexing
+         cell_data_2d:set(cell_idx, count, obj_id) -- direct indexing
          cell_counts:set(cell_idx, 0, count + 1)
       end
    end
@@ -115,9 +116,9 @@ local locustron = function(size)
    local function cell_remove_obj(cell_idx, obj_id)
       local count = cell_counts:get(cell_idx, 0, 1)
       for i = 0, count - 1 do
-         if cell_data_2d:get(cell_idx, i, 1) == obj_id then -- 2D: direct indexing
+         if cell_data_2d:get(cell_idx, i, 1) == obj_id then -- direct indexing
             -- Move last object to fill the gap
-            cell_data_2d:set(cell_idx, i, cell_data_2d:get(cell_idx, count - 1, 1)) -- 2D: direct indexing
+            cell_data_2d:set(cell_idx, i, cell_data_2d:get(cell_idx, count - 1, 1)) -- direct indexing
             cell_counts:set(cell_idx, 0, count - 1)
             return
          end
@@ -125,17 +126,17 @@ local locustron = function(size)
    end
 
    local function cell_is_empty(cell_idx)
-      return cell_counts:get(cell_idx, 0, 1) == 0 -- 2D: direct indexing
+      return cell_counts:get(cell_idx, 0, 1) == 0 -- direct indexing
    end
 
    local function cell_iterate(cell_idx, callback)
-      local count = cell_counts:get(cell_idx, 0, 1) -- 2D: direct indexing
+      local count = cell_counts:get(cell_idx, 0, 1) -- direct indexing
       for i = 0, count - 1 do
-         callback(cell_data_2d:get(cell_idx, i, 1)) -- 2D: direct indexing
+         callback(cell_data_2d:get(cell_idx, i, 1)) -- direct indexing
       end
    end
 
-   -- 2D Userdata Bounding Box Functions
+   -- Userdata Bounding Box Functions
    local function store_bbox(obj_id, x, y, w, h)
       local bbox_idx = bbox_map[obj_id]
       if not bbox_idx then
@@ -239,10 +240,11 @@ local locustron = function(size)
       local obj_id = get_obj_id(obj)
       store_bbox(obj_id, x, y, w, h)
       
-      local gx0, gy0 = x \ size, y \ size
-      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      local gx0, gy0 = flr(x / size), flr(y / size)
+      local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
       
       add_to_cells(obj, obj_id, gx0, gy0, gx1, gy1)
+      return obj
    end
 
    local function del(obj)
@@ -256,8 +258,8 @@ local locustron = function(size)
          error("unknown object")
       end
       
-      local gx0, gy0 = x \ size, y \ size
-      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      local gx0, gy0 = flr(x / size), flr(y / size)
+      local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
       
       remove_from_cells(obj, obj_id, gx0, gy0, gx1, gy1)
       
@@ -265,6 +267,7 @@ local locustron = function(size)
       obj_to_id[obj] = nil
       id_to_obj[obj_id] = nil
       active_obj_count = active_obj_count - 1
+      return obj
    end
 
    local function update(obj, x, y, w, h)
@@ -278,11 +281,11 @@ local locustron = function(size)
          error("unknown object")
       end
       
-      local old_gx0, old_gy0 = old_x \ size, old_y \ size
-      local old_gx1, old_gy1 = (old_x + old_w - 1) \ size, (old_y + old_h - 1) \ size
+      local old_gx0, old_gy0 = flr(old_x / size), flr(old_y / size)
+      local old_gx1, old_gy1 = flr((old_x + old_w - 1) / size), flr((old_y + old_h - 1) / size)
       
-      local new_gx0, new_gy0 = x \ size, y \ size
-      local new_gx1, new_gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      local new_gx0, new_gy0 = flr(x / size), flr(y / size)
+      local new_gx1, new_gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
       
       -- Only update cells if grid position changed
       if old_gx0 ~= new_gx0 or old_gy0 ~= new_gy0 or old_gx1 ~= new_gx1 or old_gy1 ~= new_gy1 then
@@ -291,13 +294,14 @@ local locustron = function(size)
       end
       
       store_bbox(obj_id, x, y, w, h)
+      return obj
    end
 
    local function query(x, y, w, h, filter_fn)
       local result = get_from_pool_query()
       
-      local gx0, gy0 = x \ size, y \ size
-      local gx1, gy1 = (x + w - 1) \ size, (y + h - 1) \ size
+      local gx0, gy0 = flr(x / size), flr(y / size)
+      local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
       
       for gy = gy0, gy1 do
          for gx = gx0, gx1 do
@@ -328,6 +332,22 @@ local locustron = function(size)
       return get_existing_obj_id(obj)
    end
 
+   -- Box to grid coordinate conversion (for debugging/visualization)
+   local function box2grid(x, y, w, h)
+      local gx0, gy0 = flr(x / size), flr(y / size)
+      local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
+      return gx0, gy0, gx1, gy1
+   end
+
+   -- Get cell count for visualization (returns 0 if no cell exists)
+   local function get_cell_count(gx, gy)
+      local cell_idx = get_cell(gx, gy)
+      if cell_idx then
+         return cell_counts:get(cell_idx, 0, 1)
+      end
+      return 0
+   end
+
    -- Return public API
    return {
       add = add,
@@ -340,7 +360,9 @@ local locustron = function(size)
       _pool = function() return query_pool_size end,
       _cell_pool_size = function() return cell_pool_size end,
       _obj_count = function() return active_obj_count end,
-      _bbox_count = function() return bbox_count end
+      _bbox_count = function() return bbox_count end,
+      _box2grid = box2grid,
+      _get_cell_count = get_cell_count
    }
 end
 
