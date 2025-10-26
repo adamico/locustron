@@ -61,21 +61,15 @@ end
 function draw_grid_cells(loc, color)
    local cl, ct, cr, cb = loc._box2grid(0, 0, GRID_SIZE, GRID_SIZE)
    local size = loc._size
-   local row, cell
 
    -- draw the cells within the grid area
    for cy = ct, cb do
-      row = loc._rows[cy]
-      if row then
-         for cx = cl, cr do
-            cell = row[cx]
-            if cell then
-               local x, y = GRID_X + (cx - 1) * size, GRID_Y + (cy - 1) * size
-               rrect(x, y, size, size)
-               local count = 0
-               for _ in pairs(cell) do count += 1 end
-               print(count, x + 2, y + 2, color or 1)
-            end
+      for cx = cl, cr do
+         local count = loc._get_cell_count(cx, cy)
+         if count > 0 then
+            local x, y = GRID_X + cx * size, GRID_Y + cy * size
+            rrect(x, y, size, size)
+            print(count, x + 2, y + 2, color or 1)
          end
       end
    end
@@ -100,9 +94,7 @@ function draw_locus(loc)
    print("Objects in locus: "..tostr(loc._obj_count()), INFO_X, info_y, 7)
    info_y += line_height
 
-   local poolsize = 0
-   for _ in pairs(loc._pool) do poolsize += 1 end
-   print("Objects in pool: "..tostr(poolsize), INFO_X, info_y, 7)
+   print("Query pool size: "..tostr(loc._pool()), INFO_X, info_y, 7)
    info_y += line_height * 2
 
    print("Grid size: "..tostr(loc._size).."px", INFO_X, info_y, 6)
@@ -127,9 +119,7 @@ function draw_locus(loc)
    print("MEM: "..tostr(flr(stat(3) / 1024)).." KB", INFO_X, info_y, 6)
    info_y += line_height
 
-   local active_cells = 0
-   for _ in pairs(loc._rows) do active_cells += 1 end
-   print("Active rows: "..active_cells, INFO_X, info_y, 6)
+   print("Cell pool size: "..tostr(loc._cell_pool_size()), INFO_X, info_y, 6)
    info_y += line_height
 end
 

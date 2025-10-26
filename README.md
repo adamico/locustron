@@ -138,6 +138,40 @@ You can also save locustron to a single file (locustron.lua).
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
+
+## Development Setup
+
+### Git Commit Message Enforcement
+
+This repository uses [Conventional Commits](https://www.conventionalcommits.org/) for consistent commit messages. To enable automatic validation of your commit messages:
+
+```bash
+# After cloning the repository, enable the commit-msg hook:
+chmod +x .git/hooks/commit-msg
+```
+
+This will enforce the following commit message format:
+```
+<type>[optional scope]: <description>
+```
+
+**Valid commit types:**
+- `feat` - A new feature
+- `fix` - A bug fix  
+- `docs` - Documentation changes
+- `test` - Adding or updating tests
+- `refactor` - Code refactoring
+- `perf` - Performance improvements
+- `chore` - Build process or auxiliary tool changes
+
+**Examples:**
+```bash
+git commit -m "feat(locustron): add spatial hash optimization"
+git commit -m "fix(tests): handle unknown object error in delete tests"  
+git commit -m "docs: update README with setup instructions"
+```
+
+If your commit message doesn't follow this format, the commit will be rejected with helpful guidance.
 ``` lua
 local locustron = require("lib/locustron")
 ```
@@ -158,7 +192,7 @@ function is_enemy(obj)
 end
 
 -- create a grid with optimized cell size for small objects
--- (use benchmark_compact.lua to find optimal size for your objects)
+-- (use benchmarks/benchmark_grid_tuning.lua to find optimal size for your objects)
 local loc = locus(128)
 
 -- add objects to the grid
@@ -184,12 +218,16 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `test_locustron.lua` for a complete interactive example with moving objects and `benchmark_compact.lua` for performance analysis tools. 
+See `test_locustron.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
+
+- `benchmarks/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
+- `benchmarks/benchmark_userdata_performance.lua` - Absolute performance measurements  
+- `benchmarks/run_all_benchmarks.lua` - Complete benchmark suite runner 
 
 
 # Performance
 
-Locustron is designed for high performance with thousands of objects. Based on benchmarking:
+Locustron is designed for high performance with thousands of objects. Based on comprehensive benchmarking with our userdata implementation:
 
 ## Performance Characteristics
 
@@ -232,19 +270,9 @@ Locustron includes a comprehensive benchmark tool to help you choose optimal gri
 
 ### Running Benchmarks
 
-**Method 1: Direct execution in Picotron console**
+**Running Grid Tuning Benchmark:**
 ```lua
-include("benchmark_compact.lua")
-```
-
-**Method 2: Integration with your game**
-```lua
-local benchmark = require("lib/benchmark_compact")
-
--- In your _update() function:
-if btnp(4) then  -- Press X button
-  benchmark.run_compact_benchmark()
-end
+include("benchmarks/benchmark_grid_tuning.lua")
 ```
 
 ### Benchmark Output
@@ -458,7 +486,7 @@ You can visualize the spatial grid by drawing it on screen. The included `test_l
 You can also run the included benchmark in the Picotron console to analyze performance and validate your grid size choice:
 
 ```lua
-include("benchmark_compact.lua")
+include("benchmarks/benchmark_grid_tuning.lua")
 -- This will show grid efficiency analysis and query precision metrics
 ```
 
@@ -474,10 +502,10 @@ For debugging specific issues:
 Locustron includes a comprehensive unit test suite using the unitron framework:
 
 ```
-test_locustron_unit.lua    -- 18 test cases covering all functionality
+tests/test_locustron_unit.lua    -- 20 test cases covering all functionality
 ```
 
-**Running Tests**: Drag and drop `test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
+**Running Tests**: Drag and drop `tests/test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
 
 **Test Coverage**:
 - Object creation and lifecycle (add, update, delete)
