@@ -14,7 +14,7 @@ local OBJECT_SIZES = {
    {name = "medium", w = 16, h = 16},
    {name = "large", w = 32, h = 32}
 }
-local OBJECT_COUNT = 100 -- Increased for userdata efficiency testing
+local OBJECT_COUNT = 100
 local QUERY_SIZE = 64
 
 -- Utility functions
@@ -121,9 +121,9 @@ function measure_operation_performance(loc, objects)
 end
 
 function run_compact_benchmark()
-   printh("=== LOCUSTRON USERDATA BENCHMARK ===")
+   printh("\27[1m\27[36m=== LOCUSTRON USERDATA BENCHMARK ===\27[0m")
    printh("Testing grid vs object size trade-offs with performance metrics")
-   printh()
+   printh("\n")
 
    for _, obj_size in pairs(OBJECT_SIZES) do
       printh("OBJECT SIZE: "..obj_size.name.." ("..obj_size.w.."x"..obj_size.h..")")
@@ -133,67 +133,74 @@ function run_compact_benchmark()
       local objects = create_test_objects(OBJECT_COUNT, obj_size)
 
       for _, grid_size in pairs(GRID_SIZES) do
-         local loc = locustron(grid_size)
+         
+         local loc_success, loc_error = pcall(function()
+            local loc = locustron(grid_size)
 
-         -- Add all objects
-         for _, obj in pairs(objects) do
-            loc.add(obj, obj.x, obj.y, obj.w, obj.h)
+            -- Add all objects
+            for _, obj in pairs(objects) do
+               loc.add(obj, obj.x, obj.y, obj.w, obj.h)
+            end
+
+            -- Measure memory efficiency
+            local cells, total_objs, max_per_cell = count_cells_and_objects(loc)
+            local obj_per_cell = cells > 0 and (total_objs / cells) or 0
+
+            -- Measure query precision
+            local avg_candidates, avg_actual, precision = measure_query_precision(loc, objects, QUERY_SIZE)
+            
+            -- Measure operation performance
+            local ops_per_second = measure_operation_performance(loc, objects)
+
+            -- Determine rating
+            local rating = ""
+            local score = 0
+            
+            -- Precision score (50% weight)
+            if precision > 80 then score = score + 50
+            elseif precision > 60 then score = score + 35
+            elseif precision > 40 then score = score + 25
+            else score = score + 10 end
+            
+            -- Memory efficiency score (30% weight)
+            if cells < 15 and obj_per_cell > 2 then score = score + 30
+            elseif cells < 25 and obj_per_cell > 1.5 then score = score + 20
+            elseif cells < 35 then score = score + 15
+            else score = score + 5 end
+            
+            -- Performance score (20% weight)
+            if ops_per_second > 500 then score = score + 20
+            elseif ops_per_second > 200 then score = score + 15
+            elseif ops_per_second > 100 then score = score + 10
+            else score = score + 5 end
+            
+            if score >= 85 then rating = "EXCELLENT"
+            elseif score >= 70 then rating = "VERY GOOD"
+            elseif score >= 55 then rating = "GOOD"
+            elseif score >= 40 then rating = "OK"
+            else rating = "POOR" end
+
+            printh(string.format("%4d | %5d | %8.1f | %7d | %8.1f%% | %7.0f | %s",
+               grid_size, cells, obj_per_cell, max_per_cell, precision, ops_per_second, rating))
+         end)
+         
+         if not loc_success then
+            printh("\27[31mERROR testing grid size " .. grid_size .. ": " .. tostring(loc_error) .. "\27[0m")
          end
-
-         -- Measure memory efficiency
-         local cells, total_objs, max_per_cell = count_cells_and_objects(loc)
-         local obj_per_cell = cells > 0 and (total_objs / cells) or 0
-
-         -- Measure query precision
-         local avg_candidates, avg_actual, precision = measure_query_precision(loc, objects, QUERY_SIZE)
-         
-         -- Measure operation performance
-         local ops_per_second = measure_operation_performance(loc, objects)
-
-         -- Determine rating
-         local rating = ""
-         local score = 0
-         
-         -- Precision score (50% weight)
-         if precision > 80 then score = score + 50
-         elseif precision > 60 then score = score + 35
-         elseif precision > 40 then score = score + 25
-         else score = score + 10 end
-         
-         -- Memory efficiency score (30% weight)
-         if cells < 15 and obj_per_cell > 2 then score = score + 30
-         elseif cells < 25 and obj_per_cell > 1.5 then score = score + 20
-         elseif cells < 35 then score = score + 15
-         else score = score + 5 end
-         
-         -- Performance score (20% weight)
-         if ops_per_second > 500 then score = score + 20
-         elseif ops_per_second > 200 then score = score + 15
-         elseif ops_per_second > 100 then score = score + 10
-         else score = score + 5 end
-         
-         if score >= 85 then rating = "EXCELLENT"
-         elseif score >= 70 then rating = "VERY GOOD"
-         elseif score >= 55 then rating = "GOOD"
-         elseif score >= 40 then rating = "OK"
-         else rating = "POOR" end
-
-         printh(string.format("%4d | %5d | %8.1f | %7d | %8.1f%% | %7.0f | %s",
-            grid_size, cells, obj_per_cell, max_per_cell, precision, ops_per_second, rating))
       end
-      printh()
+      printh("\n")
    end
 
-   printh("=== PERFORMANCE METRICS ===")
-   printh("Precision: Query accuracy (higher = better spatial filtering)")
+   printh("\27[1m\27[34m=== PERFORMANCE METRICS ===\27[0m")
+   printh("Grid: Grid cell size | Obj: Object size | Memory: KB used")
    printh("Ops/Sec: Combined update/query operations per second")
    printh("MaxCell: Maximum objects in any single cell")
-   printh()
-   printh("=== RECOMMENDATIONS ===")
-   printh("EXCELLENT: Optimal balance of precision, performance, and memory")
-   printh("VERY GOOD: Good performance with minor trade-offs")
+   printh("\n")
+   printh("\27[1m\27[34m=== RECOMMENDATIONS ===\27[0m")
+   printh("\27[32mEXCELLENT: Optimal balance of precision, performance, and memory\27[0m")
+   printh("\27[33mVERY GOOD: Good performance with minor trade-offs\27[0m")
    printh("GOOD: Acceptable performance for most use cases")
-   printh()
+   printh("\n")
    printh("GUIDELINES:")
    printh("- Grid ≈ object size = best precision")
    printh("- Grid > object size = fewer cells, more false positives")

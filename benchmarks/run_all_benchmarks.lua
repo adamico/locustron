@@ -2,35 +2,64 @@
 -- Runs all available benchmarks with timing information
 -- Run in Picotron console: include("benchmarks/run_all_benchmarks.lua")
 
-printh("=== LOCUSTRON BENCHMARK SUITE ===")
+printh("\27[1m\27[36m=== LOCUSTRON BENCHMARK SUITE ===\27[0m")
 printh("Running comprehensive performance analysis...")
 printh("Start time: " .. time())
-printh()
+printh("\n")
 
--- Run Grid Tuning Benchmark
-printh(">>> STARTING GRID TUNING BENCHMARK <<<")
-local start_grid = time()
-include("benchmark_grid_tuning.lua")
-local end_grid = time()
-printh("Grid tuning benchmark completed in " .. string.format("%.2f", end_grid - start_grid) .. " seconds")
-printh()
+-- Helper function to run benchmarks safely
+function run_benchmark_safely(name, filename)
+   local start_time = time()
+   
+   local success, error_msg = pcall(function()
+      include(filename)
+   end)
+   
+   local end_time = time()
+   local duration = end_time - start_time
+   
+   if success then
+      printh(name .. " (" .. string.format("%.3f", duration) .. "s)")
+   else
+      printh("\27[31mERROR in " .. name .. ": " .. tostring(error_msg) .. "\27[0m")
+      printh("Duration: " .. string.format("%.3f", duration) .. " seconds")
+   end
+   printh("\n")
+   
+   return success, duration
+end
 
--- Run Userdata Performance Benchmark  
-printh(">>> STARTING USERDATA PERFORMANCE BENCHMARK <<<")
-local start_userdata = time()
-include("benchmark_userdata_performance.lua")
-local end_userdata = time()
-printh("Userdata performance benchmark completed in " .. string.format("%.2f", end_userdata - start_userdata) .. " seconds")
-printh()
+-- Run benchmarks
+local start_total = time()
+local grid_success, grid_time = run_benchmark_safely("GRID TUNING BENCHMARK", "benchmark_grid_tuning.lua")
+local perf_success, perf_time = run_benchmark_safely("USERDATA PERFORMANCE BENCHMARK", "benchmark_userdata_performance.lua")
+local total_time = time() - start_total
 
 -- Summary
-local total_time = time() - start_grid
-printh("=== BENCHMARK SUITE COMPLETE ===")
-printh("Total execution time: " .. string.format("%.2f", total_time) .. " seconds")
-printh("Memory usage: " .. string.format("%.1f", stat(3)) .. " KB")
-printh()
+printh("\27[1m\27[36m=== BENCHMARK SUITE COMPLETE ===\27[0m")
+printh("Total execution time: " .. string.format("%.3f", total_time) .. " seconds")
+printh("Grid tuning: " .. (grid_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m") .. " (" .. string.format("%.3f", grid_time) .. "s)")
+printh("Performance: " .. (perf_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m") .. " (" .. string.format("%.3f", perf_time) .. "s)")
+
+local memory_bytes = stat(3)
+local memory_kb = memory_bytes / 1024
+if memory_kb > 32768 then
+   printh("Memory usage: " .. string.format("%.1f", memory_kb / 1024) .. " MB \27[33m(WARNING: High usage)\27[0m")
+else
+   printh("Memory usage: " .. string.format("%.1f", memory_kb) .. " KB")
+end
+
+printh("\n")
 printh("NEXT STEPS:")
 printh("1. Review grid size recommendations for your object sizes")
 printh("2. Consider performance trade-offs based on your game's needs")
 printh("3. Test with your actual game objects and query patterns")
 printh("4. Monitor memory usage during development")
+
+if not grid_success or not perf_success then
+   printh("\n")
+   printh("TROUBLESHOOTING:")
+   printh("- Ensure you're running from the benchmarks/ directory")
+   printh("- Check that all required files exist in ../src/lib/")
+   printh("- Try running individual benchmarks to isolate issues")
+end

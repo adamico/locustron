@@ -41,9 +41,9 @@ function benchmark_add_operations(object_count)
    
    local elapsed = time() - start_time
    local ops_per_second = operations / max(elapsed, 0.001)
-   local memory_kb = stat(3)
+   local memory_bytes = stat(3)
    
-   return ops_per_second, memory_kb, operations
+   return ops_per_second, memory_bytes, operations
 end
 
 function benchmark_update_operations(object_count)
@@ -168,22 +168,22 @@ function benchmark_delete_operations(object_count)
 end
 
 function run_userdata_performance_benchmark()
-   printh("=== LOCUSTRON USERDATA PERFORMANCE BENCHMARK ===")
+   printh("\27[1m\27[36m=== LOCUSTRON USERDATA PERFORMANCE BENCHMARK ===\27[0m")
    printh("Measuring absolute performance of userdata implementation")
    printh("Grid size: " .. GRID_SIZE)
-   printh()
+   printh("\n")
    
-   printh("=== ADD OPERATIONS ===")
+   printh("\27[1m\27[34m=== ADD OPERATIONS ===\27[0m")
    printh("Objects | Ops/Sec | Memory | Operations")
    printh("--------|---------|--------|----------")
    
    for _, count in pairs(OBJECT_COUNTS) do
-      local ops_per_sec, memory_kb, operations = benchmark_add_operations(count)
-      printh(string.format("%7d | %7.0f | %6.1fK | %9d", count, ops_per_sec, memory_kb, operations))
+      local ops_per_sec, memory_bytes, operations = benchmark_add_operations(count)
+      printh(string.format("%7d | %7.0f | %6.1fK | %9d", count, ops_per_sec, memory_bytes / 1024, operations))
    end
-   printh()
+   printh("\n")
    
-   printh("=== UPDATE OPERATIONS ===")
+   printh("\27[1m\27[34m=== UPDATE OPERATIONS ===\27[0m")
    printh("Objects | Ops/Sec | Operations")
    printh("--------|---------|----------")
    
@@ -191,9 +191,9 @@ function run_userdata_performance_benchmark()
       local ops_per_sec, operations = benchmark_update_operations(count)
       printh(string.format("%7d | %7.0f | %9d", count, ops_per_sec, operations))
    end
-   printh()
+   printh("\n")
    
-   printh("=== QUERY OPERATIONS ===")
+   printh("\27[1m\27[34m=== QUERY OPERATIONS ===\27[0m")
    printh("Objects | Ops/Sec | Avg Results | Operations")
    printh("--------|---------|-------------|----------")
    
@@ -201,9 +201,9 @@ function run_userdata_performance_benchmark()
       local ops_per_sec, avg_results, operations = benchmark_query_operations(count)
       printh(string.format("%7d | %7.0f | %11.1f | %9d", count, ops_per_sec, avg_results, operations))
    end
-   printh()
+   printh("\n")
    
-   printh("=== FILTERED QUERY OPERATIONS ===")
+   printh("\27[1m\27[34m=== FILTERED QUERY OPERATIONS ===\27[0m")
    printh("Objects | Ops/Sec | Avg Results | Operations")
    printh("--------|---------|-------------|----------")
    
@@ -211,9 +211,9 @@ function run_userdata_performance_benchmark()
       local ops_per_sec, avg_results, operations = benchmark_filtered_query_operations(count)
       printh(string.format("%7d | %7.0f | %11.1f | %9d", count, ops_per_sec, avg_results, operations))
    end
-   printh()
+   printh("\n")
    
-   printh("=== DELETE OPERATIONS ===")
+   printh("\27[1m\27[34m=== DELETE OPERATIONS ===\27[0m")
    printh("Objects | Ops/Sec | Operations")
    printh("--------|---------|----------")
    
@@ -221,14 +221,14 @@ function run_userdata_performance_benchmark()
       local ops_per_sec, operations = benchmark_delete_operations(count)
       printh(string.format("%7d | %7.0f | %9d", count, ops_per_sec, operations))
    end
-   printh()
+   printh("\n")
    
-   printh("=== PERFORMANCE ANALYSIS ===")
+   printh("\27[1m\27[36m=== PERFORMANCE ANALYSIS ===\27[0m")
    printh("This benchmark measures the raw performance of userdata operations.")
    printh("Higher operations/second indicates better performance.")
    printh("Memory usage shows Picotron RAM consumption during operations.")
    printh("Results demonstrate userdata efficiency for spatial hash operations.")
-   printh()
+   printh("\n")
    printh("TYPICAL PERFORMANCE EXPECTATIONS:")
    printh("- Add operations: 500-2000 ops/sec")
    printh("- Update operations: 300-1000 ops/sec") 
