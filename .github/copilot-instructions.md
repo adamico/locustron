@@ -13,48 +13,58 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
 
 ### Key Components
-- `src/lib/locus.lua`: Core spatial hash implementation with closure-based API
+- `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized storage
 - `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
-- `src/test_locus.lua`: Interactive demo showing 50 moving objects with viewport culling and collision detection
-- `locustron.p64`: Picotron cartridge containing the packaged library and demo
+- `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
+- `src/benchmark_compact.lua`: Performance analysis tool for grid size optimization
+- `test_locustron.p64`: Picotron cartridge containing the packaged library and demo
 
 ### Memory Management Pattern
 ```lua
+-- Userdata-optimized storage for bounding boxes:
+loc._bbox_data    -- userdata("f32", MAX_OBJECTS * 4) - packed AABB storage
+obj_to_id         -- Object -> unique ID mapping
+id_to_obj         -- ID -> object reverse mapping
+bbox_map          -- obj_id -> bbox_index mapping
+
 -- Pool usage is asymmetric by design:
 -- add/del/update: balanced pool usage (take and return tables)
 -- query: pool sink (only takes tables for results)
 
--- Internal structure (exposed for debugging):
-loc._pool     -- Recycled table pool to minimize GC
-loc._boxes    -- {[obj] = {x,y,w,h}} - object bounding boxes
-loc._rows     -- Sparse grid: {[cy] = {[cx] = {[obj] = true}}}
-loc._size     -- Grid cell dimensions (default 32)
+-- Sparse grid structure:
+loc._rows         -- {[cy] = {[cx] = {[obj_id] = true}}} - uses IDs not objects
+loc._pool         -- Recycled table pool to minimize GC
+loc._size         -- Grid cell dimensions (default 32)
 ```
 
 ## Development Conventions
 
 ### Performance Guidelines
-- **Grid size**: Should match typical object size (8, 16, or 32 pixels recommended)
+- **Grid size**: Should match typical object size (32-128 pixels recommended for userdata optimization)
 - **Query results**: Returned as `{[obj]=true}` hash tables for deduplication
 - **Update efficiency**: Only modifies grid when object crosses cell boundaries
 - **Pool monitoring**: Track `_pool` size during development to verify memory management
+- **Userdata capacity**: Limited to MAX_OBJECTS (10,000) simultaneous objects
 
 ### Integration Patterns
 ```lua
--- Collision detection workflow:
+-- Collision detection workflow (userdata-optimized):
 local candidates = loc.query(x, y, w, h, filter_function)
 for obj in pairs(candidates) do
-  -- Additional intersection check required
-  if rectintersect(player.x, player.y, player.w, player.h,
-                   obj.x, obj.y, obj.w, obj.h) then
+  -- Get bbox directly from userdata for consistency
+  local ox, oy, ow, oh = loc.get_bbox(obj)
+  if rectintersect(player.x, player.y, player.w, player.h, ox, oy, ow, oh) then
     -- Handle collision
   end
 end
 
--- Viewport culling (from test_locus.lua):
+-- Viewport culling (from test_locustron.lua):
+clip(viewport.x, viewport.y, viewport.w, viewport.h)
 for obj in pairs(loc.query(viewport.x, viewport.y, viewport.w, viewport.h)) do
-  rrectfill(obj.x, obj.y, obj.w, obj.h, 0, obj.col)
+  local x, y, w, h = loc.get_bbox(obj)
+  if x then rrectfill(grid_x + x, grid_y + y, w, h, 0, obj.col) end
 end
+clip()
 ```
 
 ## File Structure & Dependencies
@@ -66,9 +76,11 @@ end
 - **Token optimization**: Uses closure-based API instead of `:` syntax to save tokens
 
 ### Testing & Debugging
-- `test_locus.lua`: Interactive demo with moving objects and viewport culling
+- `test_locustron.lua`: Interactive demo with moving objects and viewport culling
+- `benchmark_compact.lua`: Performance analysis and grid size optimization tool
 - `draw_locus()`: Visualization function showing grid cells and object counts
 - Pool monitoring: Track `_pool` size to verify memory management
+- Userdata debugging: Use `loc.get_bbox(obj)` and `loc.get_obj_id(obj)` for inspection
 
 ### Development Environment
 - `.luarc.json`: Lua Language Server config with Picotron-specific symbols
@@ -101,6 +113,7 @@ loc.del(obj)
 - `"unknown object"` thrown when operating on non-added objects
 - Always pair `loc.add()` with `loc.del()` to prevent memory leaks
 - Validate grid size against typical object dimensions during setup
+- Userdata capacity: MAX_OBJECTS (10,000) limit enforced
 
 ## Performance Considerations
 
@@ -126,3 +139,4 @@ loc.del(obj)
 - **Grid size tuning**: Test with different grid sizes (8, 16, 32, 64) based on typical object size
 - **Pool monitoring**: Watch `_pool` size stabilization during development
 - **Viewport optimization**: Use `loc.query(screen_bounds)` for rendering culling
+- **Benchmark-driven optimization**: Use `benchmark_compact.lua` to find optimal grid sizes for your specific object patterns
