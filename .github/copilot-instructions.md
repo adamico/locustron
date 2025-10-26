@@ -19,7 +19,9 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
 - `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
 - `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
-- `benchmarks/benchmark_grid_tuning.lua`: Performance analysis tool for grid size optimization
+- `benchmarks/benchmark_grid_tuning.lua`: Grid size optimization tool for different object sizes with comprehensive metrics
+- `benchmarks/benchmark_userdata_performance.lua`: Absolute performance measurements for userdata operations
+- `benchmarks/run_all_benchmarks.lua`: Complete benchmark suite runner for comprehensive analysis
 - `tests/test_locustron_unit.lua`: Comprehensive unit test suite (25+ test cases)
 - `tests/test_helpers.lua`: Custom assert functions library with proper error handling patterns
 - `benchmarks/benchmark_grid_tuning.lua`: Performance analysis tool for grid size optimization

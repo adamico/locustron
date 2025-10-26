@@ -218,12 +218,16 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `test_locustron.lua` for a complete interactive example with moving objects and `benchmarks/benchmark_grid_tuning.lua` for performance analysis tools. 
+See `test_locustron.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
+
+- `benchmarks/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
+- `benchmarks/benchmark_userdata_performance.lua` - Absolute performance measurements  
+- `benchmarks/run_all_benchmarks.lua` - Complete benchmark suite runner 
 
 
 # Performance
 
-Locustron is designed for high performance with thousands of objects. Based on benchmarking:
+Locustron is designed for high performance with thousands of objects. Based on comprehensive benchmarking with our userdata implementation:
 
 ## Performance Characteristics
 
