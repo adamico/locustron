@@ -1,39 +1,47 @@
 # Locustron Copilot Instructions
 
 ## Project Overview
-Locustron is a **2D spatial hash library** for Picotron games, optimized for performance. It provides efficient collision detection and spatial queries using an unbounded, sparse grid system with object pooling to minimize garbage collection.
+Locustron is a **2D spatial hash library** for Picotron games, optimized for performance. It provides efficient collision detection and spatial queries using an unbounded, sparse grid system with userdata optimization and object pooling to minimize garbage collection.
 
 ## Architecture & Core Concepts
 
 ### Spatial Hash Design
 - **Grid-based**: Objects stored in squared cells (default 32x32 pixels)
 - **Sparse allocation**: Cells created only when containing objects  
-- **Object pooling**: Tables recycled via `pool` to minimize GC pressure
+- **Userdata optimization**: Cell storage uses Picotron userdata for memory efficiency
+- **Standard query results**: Returns `{[obj]=true}` hash tables for compatibility
 - **AABB representation**: Objects defined by `(x,y,w,h)` bounding boxes
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
 
 ### Key Components
-- `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized storage
+- `src/lib/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
 - `src/lib/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
 - `src/test_locustron.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
 - `src/benchmark_compact.lua`: Performance analysis tool for grid size optimization
+- `test_locustron_unit.lua`: Comprehensive unit test suite using unitron framework (18 test cases)
 - `test_locustron.p64`: Picotron cartridge containing the packaged library and demo
 
 ### Memory Management Pattern
 ```lua
--- Userdata-optimized storage for bounding boxes:
+-- Userdata-optimized storage for cells and bounding boxes:
 loc._bbox_data    -- userdata("f32", MAX_OBJECTS * 4) - packed AABB storage
 obj_to_id         -- Object -> unique ID mapping
 id_to_obj         -- ID -> object reverse mapping
 bbox_map          -- obj_id -> bbox_index mapping
 
--- Pool usage is asymmetric by design:
+-- Cell storage uses userdata for efficiency:
+cell_data         -- userdata("i32", MAX_CELLS * MAX_CELL_CAPACITY) - object IDs in cells
+cell_counts       -- userdata("i32", MAX_CELLS) - track object count per cell
+
+-- Query results use standard Lua tables:
+-- {[obj] = true} format for compatibility and deduplication
+
+-- Pool usage patterns:
 -- add/del/update: balanced pool usage (take and return tables)
--- query: pool sink (only takes tables for results)
+-- query: returns standard {[obj]=true} tables with automatic cleanup
 
 -- Sparse grid structure:
-loc._rows         -- {[cy] = {[cx] = {[obj_id] = true}}} - uses IDs not objects
-loc._pool         -- Recycled table pool to minimize GC
+loc._rows         -- {[cy] = {[cx] = cell_idx}} - maps coordinates to userdata cell indices
 loc._size         -- Grid cell dimensions (default 32)
 ```
 
@@ -45,6 +53,13 @@ loc._size         -- Grid cell dimensions (default 32)
 - **Update efficiency**: Only modifies grid when object crosses cell boundaries
 - **Pool monitoring**: Track `_pool` size during development to verify memory management
 - **Userdata capacity**: Limited to MAX_OBJECTS (10,000) simultaneous objects
+
+### Picotron-Specific Development
+- **Testing Environment**: ALL tests must be run in Picotron with unitron - NEVER attempt to run in vanilla Lua
+- **Userdata Functions**: `userdata()` function only exists in Picotron runtime
+- **Custom Require**: Uses custom `require()` system, not standard Lua modules
+- **Error Handling**: Uses `send_message()` for error reporting instead of standard Lua error handling
+- **Runtime Dependencies**: Code depends on Picotron-specific APIs and cannot run outside Picotron
 
 ### Integration Patterns
 ```lua
@@ -87,6 +102,8 @@ clip()
 - Custom `include()` mapped to `require()` for Picotron compatibility
 - Error handling via `send_message()` for syntax errors in module loading
 - Picotron runtime symbols: `!=`, `+=`, `-=`, etc. enabled via `nonstandardSymbol`
+- **Unit Testing**: Comprehensive test coverage with unitron framework (18 test cases covering all functionality)
+- **Test Results**: All tests passing as of current implementation
 
 ## API Usage Patterns
 
@@ -118,10 +135,12 @@ loc.del(obj)
 ## Performance Considerations
 
 ### Optimized for Picotron Scale
-- **Specialized functions**: Replaced token-optimized `each()` with dedicated `add_to_cells()`, `del_from_cells()`, `free_empty_cells()`, and `query_cells()` for better performance
-- **Eliminates string comparisons**: No runtime operation type checking
-- **Reduced branching**: Each function has a single, focused responsibility
+- **Userdata Storage**: Cell data stored in userdata arrays for memory efficiency and reduced GC pressure
+- **Standard Query Format**: Returns `{[obj]=true}` hash tables for compatibility with existing code patterns
+- **Automatic Deduplication**: Objects spanning multiple cells appear only once in query results
+- **Balanced Pool Management**: Cell tables recycled efficiently, query results use standard table format
 - **Benchmark results**: Handles 10,000+ objects efficiently (11ms for 10k additions, 13ms for 1k queries)
+- **Memory Limits**: Support for up to 10,000 simultaneous objects with userdata optimization
 
 ### Traditional Guidelines  
 - Objects spanning multiple cells reduce efficiency
@@ -133,6 +152,7 @@ loc.del(obj)
 ## Debugging & Development Workflows
 
 - **Grid visualization**: Use `draw_locus()` to visualize cell occupancy and object distribution
+- **Picotron Testing Only**: Never attempt to run locustron code in vanilla Lua - it requires Picotron's userdata and custom runtime
 
 ### Common Development Patterns
 - **Object management**: Always call `loc.del()` for cleanup to prevent memory leaks
@@ -140,3 +160,4 @@ loc.del(obj)
 - **Pool monitoring**: Watch `_pool` size stabilization during development
 - **Viewport optimization**: Use `loc.query(screen_bounds)` for rendering culling
 - **Benchmark-driven optimization**: Use `benchmark_compact.lua` to find optimal grid sizes for your specific object patterns
+- **Testing Protocol**: All functionality validation must be done in Picotron environment with unitron framework

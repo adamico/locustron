@@ -1,15 +1,15 @@
 # Locustron
 
 Locustron is a *Two-dimensional*, *unbounded*, *sparse*, *efficient*, *grid* spatial hash for Picotron.
-This is a port of [locus.p8](https://github.com/kikito/locus.p8) for Picotron, with performance optimizations and object pooling to minimize garbage collection.
+This is a port of [locus.p8](https://github.com/kikito/locus.p8) for Picotron, with userdata optimizations and object pooling to minimize garbage collection.
 
 * Two-Dimensional: The cell grids are squared, and organized in rows and columns.
-* Spatial Hash: Locus can be used to *store* objects on it, potentially moving them around, and then *making queries* related with where those objects are.
-* Unbounded: A locus grid does not need any initial/final dimensions. It grows or shrinks depending on the objects it contains.
+* Spatial Hash: Locustron can be used to *store* objects on it, potentially moving them around, and then *making queries* related with where those objects are.
+* Unbounded: A locustron grid does not need any initial/final dimensions. It grows or shrinks depending on the objects it contains.
 * Sparse: Cells inside the grid are allocated only when they contain an object. Otherwise they are recycled.
-* Efficient: Locus tries very hard to limit the number of table allocations and deallocations it does in order to minimize garbage collection
+* Efficient: Locustron uses userdata for cell storage and standard Lua tables for query results to minimize garbage collection
 
-Objects in locus are represented by "axis-aligned bounding boxes", which we will refer to as "boxes". Objects are usually Lua tables representing game objects like enemies, bullets, coins, etc. They can be added, updated, and removed.
+Objects in locustron are represented by "axis-aligned bounding boxes", which we will refer to as "boxes". Objects are usually Lua tables representing game objects like enemies, bullets, coins, etc. They can be added, updated, and removed.
 
 **Object Capacity**: Locustron can handle up to **10,000 simultaneous objects** due to its userdata-optimized storage system. This limit provides excellent performance for typical Picotron games while maintaining memory efficiency.
 
@@ -17,24 +17,24 @@ The library uses a grid of squared cells and keeps track of which objects "touch
 
 This is useful in several scenarios:
 * It can tell "Which objects are in a given rectangular section" quite efficiently
-* This is useful for collision detection; instead of checking n-to-n interactions, locus can be used to restrict the amount of objects to be checked, sometimes dramatically reducing the number of checks.
-* Given that the query area is rectangular, locus can be used to optimize the draw stage, by "only rendering objects that intersect with the screen"
+* This is useful for collision detection; instead of checking n-to-n interactions, locustron can be used to restrict the amount of objects to be checked, sometimes dramatically reducing the number of checks.
+* Given that the query area is rectangular, locustron can be used to optimize the draw stage, by "only rendering objects that intersect with the screen"
 
 
 [![locustron demo](https://www.lexaloffle.com/bbs/cposts/lo/locustron-0.p64.png)](https://www.lexaloffle.com/bbs/?tid=152310)
 
 # API
 
-## Creating a locus instance
+## Creating a locustron instance
 
 ``` lua
 local loc=locustron([size])
 ```
 Parameters:
-- `size`: An optional parameter that specifies the dimensions (width and height) of the squared cells inside this locus instance. Defaults to `32` when not specified.
+- `size`: An optional parameter that specifies the dimensions (width and height) of the squared cells inside this locustron instance. Defaults to `32` when not specified.
 
 Return values:
-- `loc`: The newly created locus instance, containing a spatial grid
+- `loc`: The newly created locustron instance, containing a spatial grid
 
 It is recommended that the grid size is at least as big as one of the "typical" objects in a game, or a multiple of it. For Picotron this may be 16, 32, 64, or 128.
 
@@ -433,12 +433,14 @@ Notes:
 
 Yes! Locustron is specifically designed for Picotron with several optimizations:
 
-- **Object pooling**: Minimizes garbage collection pressure which is important in Picotron
-- **Specialized functions**: Token-optimized internal functions for better performance
+- **Userdata storage**: Uses Picotron's userdata for efficient cell storage and reduced garbage collection
+- **Standard query format**: Returns `{[obj]=true}` hash tables for maximum compatibility
 - **Custom require system**: Includes error handling via `send_message()` for Picotron
 - **Performance profiling**: Includes benchmarking tools adapted for Picotron's timer resolution
+- **10,000 object capacity**: Handles large numbers of objects efficiently within Picotron's constraints
+- **Comprehensive testing**: Full unit test suite using unitron framework with 18 test cases
 
-The library handles thousands of objects efficiently while staying within Picotron's resource constraints.
+The library handles thousands of objects efficiently while staying within Picotron's resource constraints and provides excellent performance for typical game scenarios.
 
 ## Can locustron have rectangular (non-squared) grid cells?
 
@@ -466,4 +468,24 @@ For debugging specific issues:
 - **Validate coordinates**: Check that bounding box coordinates are correct
 - **Monitor memory usage**: Watch pool size to detect memory leaks
 - **Test query precision**: Use benchmark precision metrics to understand false positive rates
+
+## Testing
+
+Locustron includes a comprehensive unit test suite using the unitron framework:
+
+```
+test_locustron_unit.lua    -- 18 test cases covering all functionality
+```
+
+**Running Tests**: Drag and drop `test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
+
+**Test Coverage**:
+- Object creation and lifecycle (add, update, delete)
+- Query functionality (single objects, multiple objects, filtering)
+- Grid coordinate calculations and boundary handling
+- Memory management and pool usage
+- Edge cases (zero-size objects, negative coordinates)
+- Performance characteristics (deduplication, large objects)
+
+All tests are currently passing, ensuring the library's reliability and correctness.
 

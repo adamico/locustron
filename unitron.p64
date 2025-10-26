@@ -1,0 +1,2543 @@
+picotron cartridge // www.picotron.net
+version 2
+
+:: .info.pod
+b64$LS1bW3BvZCxhdXRob3I9IkphY2VrIE9sc3phayIsY3JlYXRlZD0iMjAyNC0wNC0wOCAxOTow
+NTozMyIsaWNvbj11c2VyZGF0YSgidTgiLDE2LDE2LCIwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwMDAwMTAxMDEwMTAxMDEwMTAxMDEwMTAxMDAwMDAwMDAwMDAxMDEw
+MTAxMDEwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDEwMTAxMDEwMTAxMDEwMTBkMDEwMTAwMDAwMDAw
+MDAwMTAxMDEwMTAxMDEwMTBkMDcwMTAxMDAwMDAwMDAwMDAxMDEwZDAxMDEwMTBkMDcwMTAxMDEw
+MDAwMDAwMDAwMDEwMTA3MGQwMTBkMDcwMTAxMDEwMTAwMDAwMDAwMDAwMTAxMDEwNzBkMDcwMTAx
+MDEwMTAxMDAwMDAwMDAwMDAxMDEwMTAxMDcwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDEwMTAxMDEw
+MTAxMDEwMTAxMDEwMTAwMDAwMDAwMDAwMTAxMDEwMTAxMDEwMTAxMDEwMTAxMDAwMDAwMDAwMDAx
+MDEwMTAxMDEwMTAxMDEwMTAxMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw
+MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIpLGxvd2NvbF9pY29uPXRydWUsbW9kaWZp
+ZWQ9IjIwMjUtMTAtMjYgMDg6MzU6MzkiLG5vdGVzPSJVbml0IFRlc3RpbmcgaW4gUGljb3Ryb24i
+LHJ1bnRpbWU9MjEsc3RvcmVkPSIyMDI0LTA0LTE0IDA1OjU1OjM0Iix0aXRsZT0iVW5pdHJvbiIs
+dmVyc2lvbj0iMC41LjEiLHdvcmtzcGFjZXM9e3tsb2NhdGlvbj0iZ3VpLmx1YSM5MyIsd29ya3Nw
+YWNlX2luZGV4PTF9LHtsb2NhdGlvbj0iZ3VpX3Rlc3RfdHJlZS5sdWEjNSIsd29ya3NwYWNlX2lu
+ZGV4PTF9LHtsb2NhdGlvbj0icnVubmVyLmx1YSM4Iix3b3Jrc3BhY2VfaW5kZXg9MX0se2xvY2F0
+aW9uPSJnZngvMC5nZngiLHdvcmtzcGFjZV9pbmRleD0yfSx7bG9jYXRpb249Im1hcC8wLm1hcCIs
+d29ya3NwYWNlX2luZGV4PTN9LHtsb2NhdGlvbj0ic2Z4LzAuc2Z4Iix3b3Jrc3BhY2VfaW5kZXg9
+NH19XV0=
+:: LICENSE
+b64$TUlUIExpY2Vuc2UNCg0KQ29weXJpZ2h0IChjKSAyMDI0IEphY2VrIE9sc3phaw0KDQpQZXJt
+aXNzaW9uIGlzIGhlcmVieSBncmFudGVkLCBmcmVlIG9mIGNoYXJnZSwgdG8gYW55IHBlcnNvbiBv
+YnRhaW5pbmcgYSBjb3B5DQpvZiB0aGlzIHNvZnR3YXJlIGFuZCBhc3NvY2lhdGVkIGRvY3VtZW50
+YXRpb24gZmlsZXMgKHRoZSAiU29mdHdhcmUiKSwgdG8gZGVhbA0KaW4gdGhlIFNvZnR3YXJlIHdp
+dGhvdXQgcmVzdHJpY3Rpb24sIGluY2x1ZGluZyB3aXRob3V0IGxpbWl0YXRpb24gdGhlIHJpZ2h0
+cw0KdG8gdXNlLCBjb3B5LCBtb2RpZnksIG1lcmdlLCBwdWJsaXNoLCBkaXN0cmlidXRlLCBzdWJs
+aWNlbnNlLCBhbmQvb3Igc2VsbA0KY29waWVzIG9mIHRoZSBTb2Z0d2FyZSwgYW5kIHRvIHBlcm1p
+dCBwZXJzb25zIHRvIHdob20gdGhlIFNvZnR3YXJlIGlzDQpmdXJuaXNoZWQgdG8gZG8gc28sIHN1
+YmplY3QgdG8gdGhlIGZvbGxvd2luZyBjb25kaXRpb25zOg0KDQpUaGUgYWJvdmUgY29weXJpZ2h0
+IG5vdGljZSBhbmQgdGhpcyBwZXJtaXNzaW9uIG5vdGljZSBzaGFsbCBiZSBpbmNsdWRlZCBpbiBh
+bGwNCmNvcGllcyBvciBzdWJzdGFudGlhbCBwb3J0aW9ucyBvZiB0aGUgU29mdHdhcmUuDQoNClRI
+RSBTT0ZUV0FSRSBJUyBQUk9WSURFRCAiQVMgSVMiLCBXSVRIT1VUIFdBUlJBTlRZIE9GIEFOWSBL
+SU5ELCBFWFBSRVNTIE9SDQpJTVBMSUVELCBJTkNMVURJTkcgQlVUIE5PVCBMSU1JVEVEIFRPIFRI
+RSBXQVJSQU5USUVTIE9GIE1FUkNIQU5UQUJJTElUWSwNCkZJVE5FU1MgRk9SIEEgUEFSVElDVUxB
+UiBQVVJQT1NFIEFORCBOT05JTkZSSU5HRU1FTlQuIElOIE5PIEVWRU5UIFNIQUxMIFRIRQ0KQVVU
+SE9SUyBPUiBDT1BZUklHSFQgSE9MREVSUyBCRSBMSUFCTEUgRk9SIEFOWSBDTEFJTSwgREFNQUdF
+UyBPUiBPVEhFUg0KTElBQklMSVRZLCBXSEVUSEVSIElOIEFOIEFDVElPTiBPRiBDT05UUkFDVCwg
+VE9SVCBPUiBPVEhFUldJU0UsIEFSSVNJTkcgRlJPTSwNCk9VVCBPRiBPUiBJTiBDT05ORUNUSU9O
+IFdJVEggVEhFIFNPRlRXQVJFIE9SIFRIRSBVU0UgT1IgT1RIRVIgREVBTElOR1MgSU4gVEhFDQpT
+T0ZUV0FSRS4NCg==
+:: README.md
+b64$dW5pdHJvbiANCj09PT09PT0NCg0KVW5pdCB0ZXN0aW5nIGluIFBpY290cm9uLiBNYWtlIHN1
+cmUgeW91ciBjb2RlIHdvcmtzIGFzIGV4cGVjdGVkLg0KDQohW1NjcmVlbnNob3RdKGh0dHBzOi8v
+d3d3LmxleGFsb2ZmbGUuY29tL21lZGlhLzgxMTU3L3VuaXRyb24tMC4zLjAuZ2lmICJ1bml0cm9u
+IikNCg0KSG93IHRvIHVzZT8NCj09PT09PT09PT09DQoNCiogZG93bmxvYWQgY2FydCBwbmcgZnJv
+bSBbcmVsZWFzZXMgcGFnZV0oaHR0cHM6Ly9naXRodWIuY29tL2VsZ29waGVyL3VuaXRyb24vcmVs
+ZWFzZXMpIGFuZCBwdXQgaXQgc29tZXdoZXJlIG9uIFBpY290cm9uIGRyaXZlIChkZXNrdG9wIGZv
+ciBleGFtcGxlKQ0KKiBydW4gdGhlIGNhcnQgYnkgZG91YmxlIGNsaWNraW5nIA0KKiBjcmVhdGUg
+YSBMdWEgZmlsZSB3aXRoIGZvbGxvd2luZyB0ZXN0IGNvZGU6DQoNCmBgYGx1YQ0KYXNzZXJ0X2Vx
+KCJoZWxsbyIsICJoZWxsbyIpDQpgYGANCg0KKiBkcmFnIGFuZCBkcm9wIHRoZSBmaWxlIHRvIHVu
+aXRyb24gd2luZG93DQoqICoqc2VlIFtleGFtcGxlc10oZXhhbXBsZXMpIGZvbGRlciBmb3IgZGV0
+YWlscyBob3cgdG8gd3JpdGUgdGVzdHMqKg0KDQpXaHkgdG8gd3JpdGUgdW5pdCB0ZXN0cz8NCj09
+PT09PT09PT09PT09PT09PT09PT09PQ0KDQpCZWNhdXNlIHlvdSB3YW50IHRvIG1ha2Ugc3VyZSB0
+aGF0IHRoZSBmdW5jdGlvbnMgeW91IHVzZSBpbiB5b3VyIGdhbWUgd29yayBhcyBpbnRlbmRlZCBh
+bmQgZG8gbm90IGNhdXNlIGVycm9ycyB0aGF0IHRoZSBwbGF5ZXIgaGltc2VsZiB3aWxsIG5vdGlj
+ZS4gQnkgb2JzZXJ2aW5nIHRoZSBvcGVyYXRpb24gb2YgdGhlIGVudGlyZSBwcm9ncmFtLCBpdCBp
+cyBkaWZmaWN1bHQgdG8gdmVyaWZ5IHdoZXRoZXIgYSBmdW5jdGlvbiB1c2VkIHNvbWV3aGVyZSBh
+dCB0aGUgYm90dG9tIG9mIHlvdXIgcHJvZ3JhbSBhY3R1YWxseSB3b3Jrcy4gVW5pdCB0ZXN0cyBh
+bGxvdyB5b3UgdG8gdmVyaWZ5IHdoZXRoZXIgYSBmdW5jdGlvbiB3b3JrcyBhcyBpbnRlbmRlZCBh
+bmQgaG93IGl0IGRlYWxzIHdpdGggZWRnZSBjYXNlcy4NCg0KT3ZlciB0aW1lLCB0aGUgY29kZSBv
+ZiB5b3VyIGZ1bmN0aW9ucyBiZWNvbWVzIG1vcmUgYW5kIG1vcmUgY29tcGxleC4gRnVuY3Rpb25z
+IHRoYXQgd2VyZSBzaW1wbGUgYXQgdGhlIGJlZ2lubmluZyBzdGFydCB0byBsb29rIGxpa2Ugc3Bh
+Z2hldHRpIC0gd2hldGhlciBpdCdzIGR1ZSB0byBzdWJzZXF1ZW50IGlmIHN0YXRlbWVudHMgYWRk
+ZWQgb3Igb3B0aW1pemF0aW9ucyB5b3UgaW50cm9kdWNlZCB0byBtYWtlIHRoZSBnYW1lIHJ1biBh
+dCA2MCBmcHMuIFNvIHlvdSBuZWVkIHRvIGdvIGJhY2sgdG8gdGhhdCBjb2RlIGV2ZXJ5IG5vdyBh
+bmQgdGhlbiBhbmQgY2xlYW4gaXQgdXAuIEhvd2V2ZXIsIG1ha2luZyBjaGFuZ2VzIHRvIGV4aXN0
+aW5nIGNvZGUgaW52b2x2ZXMgdGhlIHJpc2sgb2YgbWFraW5nIG1pc3Rha2VzLiBTbyB5b3UgaGF2
+ZSB0byBiZSB2ZXJ5IGNhcmVmdWwgd2hlbiBtYWtpbmcgY2hhbmdlcyBhbmQgdGhlbiBtYW51YWxs
+eSB2ZXJpZnlpbmcgdGhlbS4gSG93ZXZlciwgaWYgeW91IGhhdmUgdW5pdCB0ZXN0cyBmb3IgdGhp
+cyBjb2RlLCB5b3UganVzdCBuZWVkIHRvIHJ1biB0aGVzZSB0ZXN0cyBhZ2FpbiBhZnRlciBlYWNo
+IGNoYW5nZSB0byB0aGUgY29kZS4gVGhlIHRlc3RzIGFyZSBxdWljayBhbmQgd2lsbCBnaXZlIHlv
+dSByZXN1bHRzIGluIGEgZnJhY3Rpb24gb2YgYSBzZWNvbmQuIE1hbnVhbCB0ZXN0aW5nIHdvdWxk
+IHRha2UgbXVjaCBsb25nZXIuIEhhdmluZyB1bml0IHRlc3RzIGFjdHVhbGx5IGVuY291cmFnZXMg
+eW91IHRvIGNvbWUgYmFjayB0byB5b3VyIGNvZGUgb2Z0ZW4gYW5kIGltcHJvdmUgaXQuDQoNCldo
+aWNoIGNvZGUgc2hvdWxkIGJlIHVuaXQgdGVzdGVkPw0KPT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09DQoNCk9ubHkgdGhlIGNvZGUgd2hvc2UgYmVoYXZpb3IgY2hhbmdlcyB2ZXJ5IHJh
+cmVseS4gQmVoYXZpb3IgZGVzY3JpYmVzIHRoZSBlZmZlY3Qgb2YgZXhlY3V0aW5nIHNvbWUgY29k
+ZSAtIGZvciBleGFtcGxlLCBydW5uaW5nIHRoZSBgYWRkYCBmdW5jdGlvbiBvbiB0d28gbnVtYmVy
+cyBhZGRzIHRoZXNlIG51bWJlcnMgdG9nZXRoZXIgYW5kIHJldHVybnMgdGhlIHJlc3VsdC4gV2hh
+dCB0aGUgcmVzdWx0IHdpbGwgYmUgaXMgcHJlZGV0ZXJtaW5lZCAtIHRoZSBhcml0aG1ldGljIHdp
+bGwgbmV2ZXIgY2hhbmdlIGhlcmUuIEFueSByZXVzYWJsZSBmdW5jdGlvbnMgYW5kIG9iamVjdHMg
+dGhhdCB5b3UgY3VycmVudGx5IHVzZSBpbiBtdWx0aXBsZSBwbGFjZXMgaW4geW91ciBnYW1lcyBh
+cmUgcG90ZW50aWFsbHkgY29kZSB0aGF0IHlvdSBjYW4gd3JpdGUgdW5pdCB0ZXN0cyBhZ2FpbnN0
+LiBUaGV5IGFyZSBzbyBnZW5lcmljIHRoYXQgdGhleSBhcmUgdW5saWtlbHkgdG8gY2hhbmdlIHZl
+cnkgb2Z0ZW4uIE1vcmVvdmVyLCBvdmVyIHRpbWUsIHlvdXIgZ2FtZSdzIGNvZGUgd2lsbCBiZWNv
+bWUgbW9yZSBhbmQgbW9yZSBzdGFibGUgLSB0aGF0IGlzLCBpdCB3aWxsIG5vdCBjaGFuZ2Ugc2ln
+bmlmaWNhbnRseS4gVGhlbiB5b3UgY2FuIGV4dHJhY3QgZnVuY3Rpb25zIGFuZCBvYmplY3RzIGZy
+b20gaXQgYW5kIHdyaXRlIHRlc3RzIGZvciB0aGVtLiANCg0KSW4gbXkgb3Bpbmlvbiwgd3JpdGlu
+ZyB0ZXN0cyB3aGlsZSBwcm90b3R5cGluZyBhIGdhbWUgbWFrZXMgbm8gc2Vuc2UuIFRoZSBvbmx5
+IGV4Y2VwdGlvbiBpcyB3cml0aW5nIHRlc3RzIGp1c3QgZm9yIGVkdWNhdGlvbmFsIHB1cnBvc2Vz
+IDopDQoNClRlc3QgQVBJDQo9PT09PT09PQ0KDQoqIFtJbnRyb2R1Y3Rpb25dKCNpbnRyb2R1Y3Rp
+b24pDQoqIFt0ZXN0XSgjdGVzdCkNCiogW2Fzc2VydF9lcV0oI2Fzc2VydF9lcSkNCiogW2Fzc2Vy
+dF9ub3RfZXFdKCNhc3NlcnRfbm90X2VxKQ0KKiBbYXNzZXJ0X2Nsb3NlXSgjYXNzZXJ0X2Nsb3Nl
+KQ0KKiBbYXNzZXJ0X25vdF9jbG9zZV0oI2Fzc2VydF9ub3RfY2xvc2UpDQoqIFthc3NlcnRfbmls
+XSgjYXNzZXJ0X25pbCkNCiogW2Fzc2VydF9ub3RfbmlsXSgjYXNzZXJ0X25vdF9uaWwpDQoqIFt0
+ZXN0X2hlbHBlcl0oI3Rlc3RfaGVscGVyKQ0KKiBbdGVzdF9mYWlsXSgjdGVzdF9mYWlsKQ0KDQpJ
+bnRyb2R1Y3Rpb24gDQotLS0tLS0tLS0tLS0NCg0KVGVzdCBBUEkgcHJvdmlkZXMgZnVuY3Rpb25z
+IGZvciB3cml0aW5nIHlvdXIgb3duIHRlc3RzLiBZb3UgZG9uJ3QgaGF2ZSB0byBgaW5jbHVkZWAg
+YW55IEx1YSBmaWxlcyBpbiB5b3VyIHRlc3QgZmlsZXMuIFVuaXRyb24gYXV0b21hdGljYWxseSBp
+bmNsdWRlcyBhbGwgdGhlIG5lY2Vzc2FyeSBmaWxlcyBmb3IgeW91LCB3aGVuIHlvdSBkcmFnIGFu
+ZCBkcm9wIHlvdXIgZmlsZSBpbnRvIHVuaXRyb24ncyB3aW5kb3cuDQoNClRlc3RzIGNhbiBiZSBz
+bG93LiBUaGF0J3Mgd2h5IHVuaXRyb24gcnVucyB0aGVtIGluIHRoZSBiYWNrZ3JvdW5kIC0gaW4g
+YSBzZXBhcmF0ZSBwcm9jZXNzLiBUaGFua3MgdG8gdGhhdCB1bml0cm9uIHdpbmRvdyBpcyBhbHdh
+eXMgcmVzcG9uc2l2ZS4NCg0KVGVzdHMgY2FuIGRvIHdoYXRldmVyIHRoZXkgd2FudCAtIHRoZXkg
+Y2FuIHVzZSBhbnkgZnVuY3Rpb24gcHJvdmlkZWQgYnkgUGljb3Ryb24uIEZvciBleGFtcGxlLCB0
+aGV5IGNhbiBkcmF3IG9uIHNjcmVlbi4gVGhlIGVmZmVjdCB3aWxsIG5vdCBiZSB2aXNpYmxlLCBi
+ZWNhdXNlIHRlc3RzIGFyZSBleGVjdXRlZCBpbiBhIHNlcGFyYXRlIHByb2Nlc3MuDQoNCldoZW4g
+YXNzZXJ0aW9uIGluc2lkZSB0ZXN0IGZhaWxlZCwgdGhlIHRlc3QgaXMgc3RvcHBlZCBpbW1lZGlh
+dGVseS4gRnVuY3Rpb25zIHN0b3AgYW5kIG5vIG1vcmUgY29kZSBpcyBleGVjdXRlZCBmcm9tIHRo
+ZSB0ZXN0LiBJZiB0ZXN0IGhhZCBtb3JlIGFzc2VydGlvbnMgdGhleSBhcmUgbm90IGV4ZWN1dGVk
+LiBJZiB0ZXN0IGhhZCBtb3JlIHN1YnRlc3RzIHRoZXkgYXJlIG5vdCBleGVjdXRlZCBhcyB3ZWxs
+LiBQYXJlbnQgdGVzdCBpcyBtYXJrZWQgYXMgZmFpbGVkLCBhcyB3ZWxsIGFzIHBhcmVudCBvZiB0
+aGUgcGFyZW50IChhbGwgd2F5IHVwIHRvIHRoZSByb290KS4gT24gdGhlIG90aGVyIGhhbmQsIHBh
+cmVudCdzIHN1YnRlc3RzIGFyZSBleGVjdXRlZCBub3JtYWxseS4NCg0KU2VlIFtleGFtcGxlc10o
+ZXhhbXBsZXMpIGZvciB0dXRvcmlhbC1saWtlIGluc3RydWN0aW9ucyBob3cgdG8gd3JpdGUgdW5p
+dCB0ZXN0cyBpbiB1bml0cm9uLg0KDQpbQmFjayB0byBUT0NdKCN0ZXN0LWFwaSkNCg0KdGVzdA0K
+LS0tLQ0KDQoqKnN5bnRheDoqKiAqdGVzdChuYW1lX29mX3RoZV90ZXN0LCBmdW5jdGlvbigpIC4u
+LiBlbmQpKg0KDQpTdGFydHMgYSB0ZXN0IHdpdGggYSBnaXZlbiBuYW1lIGFuZCBjb2RlLiBUZXN0
+IGNvZGUgaXMgaW5zaWRlIGFub255bW91cyBmdW5jdGlvbi4NCg0KYGBgbHVhDQp0ZXN0KCJuYW1l
+IG9mIHRoZSB0ZXN0IiwgZnVuY3Rpb24oKQ0KICAgIC0tIGhlcmUgZ29lcyB0aGUgdGVzdCBjb2Rl
+DQplbmQpDQpgYGANCg0KVGVzdHMgYXJlIGV4ZWN1dGVkIHNlcXVlbnRpYWxseS4NCg0KVGVzdHMg
+Y2FuIGJlIG5lc3RlZC4gV2hlbiBuZXN0ZWQgdGVzdCBmYWlscywgdGhlIHBhcmVudCBhbHNvIGZh
+aWxzLg0KDQpbQmFjayB0byBUT0NdKCN0ZXN0LWFwaSkNCg0KYXNzZXJ0X2VxDQotLS0tLS0tLS0N
+Cg0KKipzeW50YXg6KiogKmFzc2VydF9lcShleHBlY3RlZCwgYWN0dWFsLCBtZXNzYWdlPykqDQoN
+CkFzc2VydHMgdGhhdCBgZXhwZWN0ZWRgIGFuZCBgYWN0dWFsYCBhcmUgZXF1YWwuIFZhbHVlcyBt
+dXN0IGhhdmUgdGhlIHNhbWUgdHlwZS4NCg0KRm9yIHN0cmluZ3MsIG51bWJlcnMgYW5kIGJvb2xl
+YW5zIGA9PWAgb3BlcmF0b3IgaXMgdXNlZC4NCg0KRm9yIHRhYmxlcywgYWxsIGtleXMgYW5kIHZh
+bHVlcyBhcmUgY29tcGFyZWQgZGVlcGx5LiANCklmIHlvdSB3YW50IHRvIGNoZWNrIGlmIHR3byB2
+YXJpYWJsZXMgcmVmZXJlbmNlIHRvIHRoZSBzYW1lIHRhYmxlIGluIG1lbW9yeQ0KcGxlYXNlIHVz
+ZSBgYXNzZXJ0KGE9PWIpYCBpbnN0ZWFkLg0KVGFibGVzIGNvdWxkIGhhdmUgY3ljbGVzLg0KDQpG
+b3IgdXNlcmRhdGEsIGFsbCBkYXRhIGlzIGNvbXBhcmVkIGFuZCB1c2VyZGF0YSBtdXN0IGJlIG9m
+IHRoZSBzYW1lIHR5cGUsIHdpZHRoIGFuZCBoZWlnaHQuDQoNCltCYWNrIHRvIFRPQ10oI3Rlc3Qt
+YXBpKQ0KDQphc3NlcnRfbm90X2VxDQotLS0tLS0tLS0tLS0tDQoNCioqc3ludGF4OioqICphc3Nl
+cnRfbm90X2VxKGV4cGVjdGVkLCBhY3R1YWwsIG1lc3NhZ2U-KSoNCg0KQXNzZXJ0cyB0aGF0IGBl
+eHBlY3RlZGAgYW5kIGBhY3R1YWxgIGFyZSAqKm5vdCoqIGVxdWFsLiBUaGUgZnVuY3Rpb24gaGFz
+IHNpbWlsYXIgYmVoYXZpb3IgdG8gW2Fzc2VydF9lcV0oI2Fzc2VydF9lcSkuDQoNCltCYWNrIHRv
+IFRPQ10oI3Rlc3QtYXBpKQ0KDQphc3NlcnRfY2xvc2UNCi0tLS0tLS0tLS0tLQ0KDQoqKnN5bnRh
+eDoqKiAqYXNzZXJ0X2Nsb3NlKGV4cGVjdGVkLCBhY3R1YWwsIGRlbHRhLCBtZXNzYWdlPykqDQoN
+CkFzc2VydHMgdGhhdCBgZXhwZWN0ZWRgIG51bWJlciBpcyBjbG9zZSB0byBgYWN0dWFsYCBudW1i
+ZXIuIFRoZSBtYXhpbXVtIGVycm9yIGlzIGBkZWx0YWAuDQoNCltCYWNrIHRvIFRPQ10oI3Rlc3Qt
+YXBpKQ0KDQphc3NlcnRfbm90X2Nsb3NlDQotLS0tLS0tLS0tLS0tLS0tDQoNCioqc3ludGF4Oioq
+ICphc3NlcnRfbm90X2Nsb3NlKG5vdF9leHBlY3RlZCwgYWN0dWFsLCBkZWx0YSwgbWVzc2FnZT8p
+Kg0KDQpBc3NlcnRzIHRoYXQgYG5vdF9leHBlY3RlZGAgbnVtYmVyIGlzIG5vdCBjbG9zZSB0byBg
+YWN0dWFsYCBudW1iZXIuIA0KDQpbQmFjayB0byBUT0NdKCN0ZXN0LWFwaSkNCg0KYXNzZXJ0X25p
+bA0KLS0tLS0tLS0tLQ0KDQoqKnN5bnRheDoqKiAqYXNzZXJ0X25pbChhY3R1YWwsIG1lc3NhZ2U-
+KSoNCg0KQXNzZXJ0cyB0aGF0IGBhY3R1YWxgIGlzIGBuaWxgLg0KDQpbQmFjayB0byBUT0NdKCN0
+ZXN0LWFwaSkNCg0KYXNzZXJ0X25vdF9uaWwNCi0tLS0tLS0tLS0tLS0tDQoNCioqc3ludGF4Oioq
+ICphc3NlcnRfbm90X25pbChhY3R1YWwsIG1lc3NhZ2U-KSoNCg0KQXNzZXJ0cyB0aGF0IGBhY3R1
+YWxgIGlzIG5vdCBgbmlsYC4NCg0KW0JhY2sgdG8gVE9DXSgjdGVzdC1hcGkpDQoNCnRlc3RfaGVs
+cGVyDQotLS0tLS0tLS0tLQ0KDQoqKnN5bnRheDoqKiAqdGVzdF9oZWxwZXIoKSoNCg0KYHRlc3Rf
+aGVscGVyYCBtYXJrcyB0aGUgY2FsbGluZyBmdW5jdGlvbiBhcyBhIHRlc3QgaGVscGVyIGZ1bmN0
+aW9uLg0KV2hlbiBwcmludGluZyBmaWxlIGFuZCBsaW5lIGluZm9ybWF0aW9uIGluIEdVSSwgdGhh
+dCBmdW5jdGlvbiB3aWxsIGJlDQpza2lwcGVkLg0KDQpbQmFjayB0byBUT0NdKCN0ZXN0LWFwaSkN
+Cg0KdGVzdF9mYWlsDQotLS0tLS0tLS0NCg0KKipzeW50YXg6KiogKnRlc3RfZmFpbChlcnIpKg0K
+DQpHZW5lcmF0ZXMgdGVzdCBlcnJvciB3aGljaCBzdG9wcyBjdXJyZW50IHRlc3QgZXhlY3V0aW9u
+IGFuZCBzaG93cyBlcnJvciB0bw0KdGhlIHVzZXIuIEluIHRoZSBHVUksIHRoZSBlcnJvciB3aWxs
+IGJlIHByZXNlbnRlZCB0b2dldGhlciB3aXRoIGEgZmlsZSBuYW1lDQphbmQgbGluZSBudW1iZXIg
+d2hlcmUgdGhlIGB0ZXN0X2ZhaWxgIGZ1bmN0aW9uIHdhcyBleGVjdXRlZC4gSWYgeW91IHJ1bg0K
+YHRlc3RfZmFpbGAgZnJvbSB5b3VyIG93biBhc3NlcnQgZnVuY3Rpb24sIGFuZCB3YW50IHRvIHNl
+ZSBhIHBsYWNlIHdoZXJlIHRoaXMNCmFzc2VydCBmdW5jdGlvbiB3YXMgZXhlY3V0ZWQgaW5zdGVh
+ZCwgcGxlYXNlIHJ1biB0aGUgW3Rlc3RfaGVscGVyKCldKCN0ZXN0X2hlbHBlcikgZnVuY3Rpb24g
+aW4gdGhlIGJlZ2lubmluZyBvZiB5b3VyIGFzc2VydCBmdW5jdGlvbjoNCmBgYGx1YQ0KZnVuY3Rp
+b24gY3VzdG9tX2Fzc2VydCguLi4uKQ0KICAgIHRlc3RfaGVscGVyKCkgLS0gbWFyayBjdXN0b21f
+YXNzZXJ0IGZ1bmN0aW9uIGFzIHRlc3QgaGVscGVyDQogICAgaWYgLi4uLiB0aGVuDQogICAgICAg
+IHRlc3RfZmFpbCgibWVzc2FnZSIpDQogICAgZW5kDQplbmQNCmBgYA0KDQpgZXJyYCBpcyBhbiBl
+cnJvciBtZXNzYWdlIGFzIGEgc3RyaW5nIG9yIGEgdGFibGUuIEFsbCB0YWJsZSBmaWVsZHMgd2ls
+bCBiZSBwcmVzZW50ZWQgaW4gdGhlIEdVSS4gVGFibGUgY291bGQgY29udGFpbiBzcGVjaWFsIGBt
+c2dgIGZpZWxkIHdoaWNoIHdpbGwgYWx3YXlzIGJlIHByZXNlbnRlZCBmaXJzdC4NCg0KW0JhY2sg
+dG8gVE9DXSgjdGVzdC1hcGkpDQoNCkRldmVsb3BtZW50IC0gaG93IHRvIHdvcmsgb24gdW5pdHJv
+bg0KPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09DQoNCiogY2xvbmUgcmVwb3Np
+dG9yeSB0byBQaWNvdHJvbiBkcml2ZSBhbmQgbmFtZSBpdCB1bml0cm9uLnNyYy5wNjQNCiAgICAq
+IGBnaXQgY2xvbmUgaHR0cHM6Ly9naXRodWIuY29tL2VsZ29waGVyL3VuaXRyb24gdW5pdHJvbi5z
+cmMucDY0YA0KICAgICogZWRpdCB0aGUgc291cmNlIGNvZGUgaW4gZWRpdG9yIG9mIGNob2ljZSAo
+c3VjaCBhcyBWUyBDb2RlIHdpdGggc3VtbmVrbydzIEx1YSBMYW5ndWFnZSBTZXJ2ZXIpDQoqIHRv
+IHJlbGVhc2UgY2FydHJpZGdlDQogICAgKiBnbyB0byBQaWNvdHJvbiB0ZXJtaW5hbCBhbmQgdHlw
+ZQ0KICAgICAgICAqIGBjcCB1bml0cm9uLnNyYy5wNjQgdW5pdHJvbi5wNjQucG5nYA0KICAgICog
+cHVibGlzaCBwb3N0IG9uIEJCUw0K
+:: api.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- table_len returns number of elements in a table t.
+-- Keys with nil value are not counted
+local function table_len(t)
+	local count = 0
+	for _ in pairs(t) do count = count + 1 end
+	return count
+end
+
+local function equal(expected, actual, visited_values)
+	if expected == nil or actual == nil then
+		return expected == actual
+	end
+
+	if visited_values == nil then
+		visited_values = {}
+		visited_values[expected] = true
+	elseif visited_values[expected] == true then
+		-- do not compare already visited values
+		-- (avoid stack overflow for cycle references)
+		return true
+	end
+
+	local function tables_equal(expected, actual)
+		if table_len(expected) != table_len(actual) then
+			return false
+		end
+
+		for k, v in pairs(expected) do
+			if not equal(v, actual[k], visited_values) then
+				return false
+			end
+		end
+
+		return true
+	end
+
+	local function userdata_type(u)
+		_, _, t = u:attribs()
+		return t
+	end
+
+	if type(expected) != type(actual) then
+		return false
+	end
+
+	if type(expected) == "userdata" then
+		if userdata_type(expected) != userdata_type(actual) then
+			return false
+		end
+
+		if expected:width() != actual:width() then
+			return false
+		end
+
+		if expected:height() != actual:height() then
+			return false
+		end
+
+		for i = 0, #expected do
+			if expected[i] != actual[i] then
+				return false
+			end
+		end
+
+		return true
+	end
+
+	if type(expected) == "table" then
+		return tables_equal(expected, actual)
+	end
+
+	return expected == actual
+end
+
+local function msg_or(msg, default)
+	if msg == nil then
+		return default
+	end
+	return tostring(msg)
+end
+
+---Asserts that expected and actual are equal. Values must have the same type.
+---
+---For strings, numbers and booleans '==' operator is used.
+---
+---For tables, all keys and values are compared deeply.
+---If you want to check if two variables reference to the same table in memory
+---please use assert(a==b) instead.
+---Tables could have cycles.
+---
+---For userdata, all data is compared and userdata must be of the same type,
+---width and height.
+---
+---@param expected any
+---@param actual any
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_eq(expected, actual, msg)
+	test_helper()
+
+	if not equal(expected, actual) then
+		test_fail {
+			msg = msg_or(msg, "Args not equal"),
+			expect = expected,
+			actual = actual
+		}
+	end
+end
+
+---@param not_expected any
+---@param actual any
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_not_eq(not_expected, actual, msg)
+	test_helper()
+
+	if equal(not_expected, actual) then
+		test_fail {
+			msg = msg_or(msg, "Args are equal"),
+			not_expect = not_expected,
+			actual = actual,
+		}
+	end
+end
+
+---@param expected number
+---@param actual number
+---@param delta number
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_close(expected, actual, delta, msg)
+	test_helper()
+
+	local invalid_args = expected == nil or actual == nil or delta == nil
+	if invalid_args or abs(expected - actual) > delta then
+		test_fail {
+			msg = msg_or(msg, "Args not close"),
+			expect = expected,
+			actual = actual,
+			delta = delta,
+		}
+	end
+end
+
+---@param not_expected number
+---@param actual number
+---@param delta number
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_not_close(not_expected, actual, delta, msg)
+	test_helper()
+
+	local invalid_args = not_expected == nil or actual == nil or delta == nil
+	if invalid_args or abs(not_expected - actual) <= delta then
+		test_fail {
+			msg = msg_or(msg, "Args too close"),
+			not_expect = not_expected,
+			actual = actual,
+			delta = delta,
+		}
+	end
+end
+
+---@param actual any
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_not_nil(actual, msg)
+	test_helper()
+
+	if actual == nil then
+		test_fail {
+			msg = msg_or(msg, "Arg is nil")
+		}
+	end
+end
+
+---@param actual any
+---@param msg? any message which will be presented in the unitron ui, instead of standard message
+function assert_nil(actual, msg)
+	test_helper()
+
+	if actual != nil then
+		test_fail {
+			msg = msg_or(msg, "Arg is not nil"),
+			actual = actual
+		}
+	end
+end
+
+:: cli.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+local work_dir = env().path
+local test_file = env().argv[1]
+
+print("Running " .. test_file .. "...")
+
+local executed = 0
+local failed = 0
+
+on_event("test_started", function(e)
+	executed += 1
+end)
+
+on_event("test_finished", function(e)
+	if e.error != nil then
+		failed += 1
+	end
+end)
+
+on_event("print", function(e)
+	-- print to stdout, because Picotron's terminal has limited size.
+	printh("test " .. e.test.id .. ": " .. e.text)
+end)
+
+on_event("done", function(e)
+	if failed > 0 then
+		print(string.format("\f8Failed tests: %d/%d", failed, executed))
+		exit(1)
+	elseif executed > 0 then
+		print(string.format("\fbAll %d tests successful", executed))
+		exit(0)
+	else
+		print(string.format("\f3No tests found"))
+		exit(0)
+	end
+end)
+
+
+runner_pid = create_process(
+	"runner.lua",
+	{
+		argv = { test_file },
+		path = work_dir,
+		window_attribs = { autoclose = true }
+	}
+)
+
+
+function _update() -- run in the background
+end
+
+:: examples/
+:: examples/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSJdXQ==
+:: examples/subject.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- this file is "production" code which will be tested by subject_test.lua
+
+---@param left string
+---@param right string
+---@return string
+function concat(left, right)
+	return left .. right
+end
+
+---@param left number
+---@param right number
+---@return number
+function divide(left, right)
+	return left / right
+end
+
+---@param left number
+---@param right number
+---@return number
+function add_numbers(left, right)
+	return left + right
+end
+
+---@return table
+function new_player()
+	local player = { position = 0 }
+	function player:collides(other_player)
+		return player.position == other_player.position
+	end
+
+	return player
+end
+
+:: examples/subject_test.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+include "subject.lua" -- include the "production" code which will be tested here
+
+-- test function starts a test with given name. Code of the test is provided
+-- in the anonymous function:
+test("compare strings", function()
+	local s = concat("hello ", "world")
+	assert_eq("hello world", s) -- change total assert_not_eq to get test error
+	-- assertions can have optional message which is presented in the unitron's
+	-- user interface:
+	assert_eq("hello world", s, "should return \"hello world\"")
+end)
+
+test("compare tables", function()
+	local expected = {
+		a = "a value",
+		b = "b value",
+	}
+	local actual = {
+		a = "a value",
+		b = "b value",
+	}
+	assert_eq(expected, actual) -- tables are compared deeply
+end)
+
+test("compare numbers", function()
+	local sum = divide(10.444, 9.99)
+	local delta = 0.0001
+	assert_close(1.0454, sum, delta)
+end)
+
+test("compare userdata", function()
+	local u1 = userdata("u8", 2, 2, "00010203")
+	local u2 = userdata("u8", 2, 2, "00010203")
+	assert_eq(u1, u2)
+end)
+
+test("assert nil", function()
+	local v = nil
+	assert_nil(v)
+end)
+
+-- standard assert function can be used too to verify if argument is true
+-- or not nil
+test("standard assert", function()
+	assert(true)
+end)
+
+-- sometimes you want to be sure that two variables are referencing to the same
+-- table in memory
+test("compare references", function()
+	local t = { key = "value" }
+	local reference_to_t = t
+	assert(t == reference_to_t)
+end)
+
+-- you can nest tests multiple times. This is useful in grouping similar tests.
+test("nesting tests", function()
+	test("nested test", function()
+		assert(true)
+	end)
+	test("another nested test", function()
+		test("yet another", function()
+			assert(true)
+		end)
+	end)
+end)
+
+-- table driven tests are the kind of nested tests which use tests defined
+-- in tables. This greatly reduces amount of code.
+test("table driven tests", function()
+	local tests = {
+		-- first test case with name "2+2=4".
+		-- You can drop square brackets and quotes when key does not have
+		-- special characters.
+		["2+2=4"] = { left = 2, right = 2, expected_sum = 4 },
+		["0+1=1"] = { left = 0, right = 1, expected_sum = 1 } -- second test case
+	}
+
+	for test_name, test_case in pairs(tests) do
+		-- start nested test with test case name so when there is an error
+		-- you will know which specific test case failed:
+		test(test_name, function()
+			local sum = add_numbers(test_case.left, test_case.right)
+			assert_eq(test_case.expected_sum, sum)
+		end)
+	end
+end)
+
+-- you can write your own custom assert functions
+test("custom assert function", function()
+	local function assert_even(n)
+		-- test_helper() marks the assert_even function as a test helper function.
+		-- When printing file and line information in GUI, this function will be
+		-- skipped.
+		test_helper()
+
+		if n % 2 != 0 then
+			test_fail {
+				-- msg will be presented in the GUI when assertion failed:
+				msg = "Arg is not even",
+				-- you can add as many fields as you want. All will be presented
+				-- in the GUI along with msg:
+				actual = n
+			}
+		end
+	end
+
+	assert_even(3) -- change to even number in order to remove assertion error
+end)
+
+-- test can be slow, but don't worry - it does not block the unitron ui
+test("slow test", function()
+	for i = 1, 1000000 do
+		spr(0, 30, 30) -- drawing sprites also does not break the unitron ui
+	end
+end)
+
+-- sometimes you want to reuse variables in multiple tests. Reusing
+-- state between tests is not a good idea, because tests should be
+-- independent. However, there is a way to reuse variables and still
+-- have independent tests. You can use a setup function which will
+-- re-initialize these variables on the beginning of each test.
+test("test with setup function", function()
+	local player1, player2 -- these variables will be reused
+
+	-- setup will be run on the beginning of each test:
+	local function setup()
+		player1 = new_player()
+		player1.position = 1
+		player2 = new_player()
+		player2.position = 2
+	end
+
+	test("players should collide", function()
+		setup() -- initialize players
+		-- following line modifies player2, so the next test will be
+		-- affected, if the player2 is not re-initialized
+		player2.position = player1.position
+		assert(player1:collides(player2))
+	end)
+
+	test("players should not collide", function()
+		-- initialize players again. setup will override local player variables:
+		setup()
+		assert(not player1:collides(player2))
+	end)
+end)
+
+:: gfx/
+:: gfx/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
+:: gfx/0.gfx
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTAyIDA4OjIxOjQzIixtb2RpZmllZD0iMjAyNC0w
+NC0xNCAwNTo1NTozNCIscmV2aXNpb249MTQ0OF1dbHo0AMUAAABIMQAA8BJ7WzBdPXtibXA9cHh1
+AEMgCAgEKBAIIBggCAAIAAgwGFACAAAKAPMDCCA4ECxmbGFncz0wLHBhbl94CADKeT0wLHpvb209
+OH0sSQBD8AFIIAIAH5A7AB3fBhhAGAAYEBggOEAYsD0AGf8LEBAE8hZvGPIICAJIEghSKFII0hjC
+GNII8mNGABwv8PAxAP----------------------------------------------------------
+-----0RQbT04fX0=
+:: gui/
+:: gui/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSJdXQ==
+:: gui/gui.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- this file contains code controlling GUI of test runner
+
+include "gui/text_output.lua"
+include "gui/lights.lua"
+include "gui/test_summary.lua"
+include "gui/test_toolbar.lua"
+include "gui/printed_lines.lua"
+include "gui/tree.lua"
+
+local width <const> = 280
+local height <const> = 200
+
+local gui, test_tree, lights, test_summary, runner_pid, selected_test_id
+
+local printed_lines <const> = new_printed_lines()
+
+local function print_line(test, message)
+	printed_lines:print(test.id, message)
+
+	local prefix = "  "
+	local parent = test.parent
+	while parent != nil do
+		printed_lines:print(parent.id, prefix .. message)
+		parent = parent.parent
+		prefix = prefix .. "  "
+	end
+end
+
+local function stop_test()
+	if runner_pid != nil then
+		send_message(
+			2,
+			{ event = "kill_process", proc_id = runner_pid, exit_code = 1 }
+		)
+		runner_pid = nil
+	end
+end
+
+-- item has filename and fullpath attributes
+local function start_test(item)
+	if runner_pid != nil then
+		return
+	end
+
+	gui = create_gui()
+
+	cls(7)
+
+	local test_file = item.filename
+	local work_dir = item.fullpath:sub(1, #item.fullpath - #item.filename)
+
+	window { title = item.fullpath }
+
+	local function find_lua_file_in_text(text)
+		return text:match("[^ ]*%.lua:%d+")
+	end
+
+	local text_output = attach_text_output(
+		gui,
+		{
+			x = 0,
+			y = 97,
+			width = width,
+			height = 103,
+			bg_color = 0,
+			lines_len = function()
+				if selected_test_id == nil then return 0 end
+				return printed_lines:lines_len(selected_test_id)
+			end,
+			get_line = function(line_no)
+				return {
+					text = printed_lines:line(selected_test_id, line_no),
+					bg_color = 0,
+					fg_color = 7,
+				}
+			end,
+			is_link = function(line_no)
+				local text = printed_lines:line(selected_test_id, line_no)
+				return find_lua_file_in_text(text) != nil
+			end,
+			link_click = function(line_no, msg)
+				local text = printed_lines:line(selected_test_id, line_no)
+
+				local file = find_lua_file_in_text(text)
+				if file != nil then
+					file = file:gsub(":", "#")
+					-- TODO if file is already open in text editor then this
+					-- command does not go to the specific line number.
+					-- Please note though, that in case of an unhandled error,
+					-- Picotron also opens the text editor in the same way.
+					create_process("/system/util/open.lua", { argv = { file } })
+				end
+			end
+		}
+	)
+
+	test_summary = attach_test_summary(
+		gui,
+		{ x = 8, y = 102, width = 150, height = 10 }
+	)
+
+	local function select_test(test_id)
+		selected_test_id = test_id
+
+		if test_id != nil then
+			text_output:scroll_to_line(1)
+
+			test_summary:set_visible(false)
+			lights:set_visible(false)
+		else
+			test_summary:set_visible(true)
+			lights:set_visible(true)
+		end
+	end
+
+	lights = attach_lights(
+		gui,
+		{
+			x = 8,
+			y = 115,
+			width = 264,
+			height = 79,
+			select = function(selected_test)
+				select_test(selected_test)
+				test_tree:select_child(selected_test)
+			end
+		}
+	)
+
+	test_tree = attach_tree(
+		gui,
+		{
+			x = 0,
+			y = 16,
+			width = width,
+			height = 80,
+			select = select_test
+		}
+	)
+
+	attach_toolbar(
+		gui,
+		{
+			x = 0,
+			y = 0,
+			width = width,
+			height = 16,
+			start_test = function()
+				start_test(item)
+			end,
+			stop_test = stop_test,
+			is_running = function()
+				return runner_pid != nil
+			end
+		}
+	)
+
+	selected_test_id = nil
+	printed_lines:reset()
+
+	local function run_tests_in_seperate_process()
+		runner_pid = create_process(
+			"runner.lua",
+			{
+				argv = { test_file },
+				path = work_dir,
+				window_attribs = { autoclose = true }
+			}
+		)
+	end
+
+	run_tests_in_seperate_process()
+end
+
+-- test_started event is published by the runner process for each started test
+on_event("test_started", function(e)
+	if e._from != runner_pid then
+		-- discard events from old runners
+		return
+	end
+
+	lights:set_light(e.test.id, 5)
+
+	local parent_id
+	if e.test.parent != nil then parent_id = e.test.parent.id end
+	test_tree:add_child(e.test.id, e.test.name .. " (running)", parent_id)
+
+	print_line(e.test, "\f6> \f7" .. e.test.name)
+	sfx(1)
+end)
+
+---@param v any
+local function format_value(v)
+	local s = pod(v)
+	-- no need to escape ] because meta data is not serialized:
+	return s:gsub("\\093", "]") -- TODO unescape all special characters
+end
+
+-- test_finished event is published by the runner process for each started test
+on_event("test_finished", function(e)
+	if e._from != runner_pid then
+		-- discard events from old runners
+		return
+	end
+
+	local err = e.error
+
+	if err == nil then
+		lights:set_light(e.test.id, 26)
+		test_summary:inc_succeeded()
+	else
+		lights:set_light(e.test.id, 8)
+		test_summary:inc_failed()
+	end
+
+	local color
+	local message
+
+	if err == nil then
+		message = "\fbTest successful"
+		color = "\fb"
+	else
+		if err.__traceback != nil and #err.__traceback > 0 then
+			local file = err.__traceback[1]
+			print_line(e.test, "\f8Error \f7at " .. file)
+
+			-- print additional message provided by user
+			if err.msg != nil then
+				print_line(e.test, err.msg)
+			end
+
+			-- always print expected first
+			if err.expect != nil then
+				print_line(e.test, "\f5 expect=\f6" .. format_value(err.expect))
+			end
+			-- then actual
+			if err.actual != nil then
+				print_line(e.test, "\f5 actual=\f6" .. format_value(err.actual))
+			end
+
+			-- TODO sort alphabetically?
+			for k, v in pairs(err) do
+				if k != "msg" and k != "expect" and k != "actual" and k != "__traceback" then
+					print_line(e.test, "\f5 " .. k .. "=\f6" .. format_value(v))
+				end
+			end
+		end
+
+		message = "\f8Test failed"
+		color = "\f8"
+	end
+
+	print_line(e.test, message)
+	print_line(e.test, "")
+
+	test_tree:update_child_text(e.test.id, color .. e.test.name)
+	-- update text for all parents
+end)
+
+-- print event is published by the runner process for each print command
+-- executed by test
+on_event("print", function(e)
+	if e._from != runner_pid then
+		-- discard events from old runners
+		return
+	end
+
+	printed_lines:print(e.test.id, e.text)
+end)
+
+-- done event is published by the runner process when all test have finished
+on_event("done", function(e)
+	if e._from != runner_pid then
+		-- discard events from old runners
+		return
+	end
+
+	runner_pid = nil
+end)
+
+function _init()
+	window {
+		width = width,
+		height = height,
+		userdata "[gfx]08087770000070700000777000000700777007777070070077700000000000000000[/gfx]",
+		title = "unitron",
+		resizeable = false
+	}
+
+	-- menuitem {
+	-- 	id = "open_file",
+	-- 	label = "\^:7f4141417f616500 Open File",
+	-- 	shortcut = "CTRL-O", -- ctrl-s is handled by window manager
+	-- 	action = function()
+	-- 		create_process(
+	--         "/system/apps/filenav.p64",
+	--         {
+	--              intention="save_file_as",
+	--              window_attribs={workspace = "current", autoclose=true}
+	--         }
+	--        )
+	-- 	end
+	-- }
+
+	local run_from_the_browser = env().parent_pid == 1
+	if run_from_the_browser then
+		start_test {
+			filename = "subject_test.lua",
+			fullpath = "examples/subject_test.lua",
+		}
+	else
+		print("Please drag'n'drop test file here", 59, 95, 7)
+		on_event("drop_items", function(msg)
+			stop_test()
+			local item = msg.items[1]
+			start_test(item)
+		end)
+	end
+end
+
+function _update()
+	if gui != nil then
+		gui:update_all()
+	end
+end
+
+function _draw()
+	if gui != nil then
+		cls()
+		gui:draw_all()
+		-- debug fps and memory usage:
+		-- local debug_msg = string.format("%.2f", stat(1)) ..
+		-- 	 " - " .. stat(7) .. "FPS, " .. ceil(stat(0) / 1024 / 1024) .. "MB"
+		-- print(debug_msg, 150, 5, 1)
+	end
+end
+
+:: gui/lights.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- lights is a gui component showing lights of different color :)
+
+---@param el {x:number,y:number,width:number,height:number,select:function}
+function attach_lights(parent, el)
+	local lights <const> = {}
+	local lights_max = 0
+	local size <const> = 3 -- light size in pixels
+	local margin <const> = 1
+
+	el = parent:attach(el)
+	el.height_before_hide = el.height
+
+	---@param no integer Starting from 1
+	function el:set_light(no, color)
+		lights[no] = color
+		lights_max = max(lights_max, no)
+	end
+
+	-- Picotron's hidden field is broken
+	function el:set_visible(v)
+		if not v then
+			el.height = 0
+		else
+			el.height = el.height_before_hide
+		end
+	end
+
+	local function light_at_cursor_pointer(msg)
+		if msg.mx == nil and msg.my == nil then
+			return
+		end
+		local cell = flr(msg.mx / (size + margin))
+		local row = flr(msg.my / (size + margin))
+		local number_of_cells_in_a_row = flr(el.width / (size + margin))
+		local light = row * number_of_cells_in_a_row + cell + 1 -- lights start at 1
+
+		if light > 0 and light <= lights_max then
+			return light
+		end
+		return nil
+	end
+
+	function el:update(msg)
+		if light_at_cursor_pointer(msg) != nil then
+			el.cursor = "pointer"
+		else
+			el.cursor = ""
+		end
+	end
+
+	function el:click(msg)
+		local light = light_at_cursor_pointer(msg)
+		if light != nil then
+			el.select(light)
+		end
+	end
+
+	function el:draw()
+		rectfill(0, 0, el.width, el.height, 0)
+		local x, y = 0, 0
+
+		for i = 1, lights_max do
+			local light = lights[i]
+			if light == nil then
+				light = 0
+			end
+
+			rectfill(x, y, x + size - 1, y + size - 1, light)
+
+			if x + size + margin >= el.width then
+				x = 0
+				y += size + margin
+				if y >= el.height then
+					return
+				end
+			else
+				x += size + margin
+			end
+		end
+	end
+
+	return el
+end
+
+:: gui/printed_lines.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- new_printed_lines returns object which holds lines printed for given test
+function new_printed_lines()
+   local by_test_id = {}
+
+   local printed_lines <const> = {}
+
+   function printed_lines:print(test_id, text)
+      if by_test_id[test_id] == nil then
+         by_test_id[test_id] = {}
+      end
+      table.insert(by_test_id[test_id], text)
+   end
+
+   function printed_lines:line(test_id, line_no)
+      if by_test_id[test_id] == nil then
+         return ""
+      end
+
+      return by_test_id[test_id][line_no] or ""
+   end
+
+   function printed_lines:lines_len(test_id, line_no)
+      if by_test_id[test_id] == nil then
+         return 0
+      end
+
+      return #by_test_id[test_id] or 0
+   end
+
+   function printed_lines:reset()
+      by_test_id = {}
+   end
+
+   return printed_lines
+end
+
+:: gui/test_summary.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+---@param el {x:number,y:number,width:number,height:number}
+function attach_test_summary(parent, el)
+	local succeeded, failed = 0, 0
+
+	el = parent:attach(el)
+	el.height_before_hide = el.height
+
+	-- Picotron's hidden field is broken
+	function el:set_visible(v)
+		if not v then
+			el.height = 0
+		else
+			el.height = el.height_before_hide
+		end
+	end
+
+	function el:draw()
+		rectfill(0, 0, el.width, el.height, 0)
+
+		color(26)
+		print("Succeeded: " .. succeeded .. " \f8 Failed: " .. failed)
+	end
+
+	function el:inc_succeeded()
+		succeeded += 1
+	end
+
+	function el:inc_failed()
+		failed += 1
+	end
+
+	return el
+end
+
+:: gui/test_toolbar.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+---@param el {x:number,y:number,width:number,height:number,start_test:function,stop_test:function,is_running:function}
+function attach_toolbar(parent, el)
+   local toolbar_color <const> = 6
+   local disabled_color <const> = 13
+   local enabled_color <const> = 0
+   local icon_color <const> = 8
+
+   el = parent:attach(el)
+   function el:draw()
+      rectfill(0, 0, self.width, self.height, toolbar_color)
+   end
+
+   local run_btn <const> = el:attach_button { x = 6, y = 4, width = 10 }
+   function run_btn:click()
+      if not el.is_running() then
+         el.start_test()
+      end
+   end
+
+   function run_btn:update()
+      if el.is_running() then
+         self.cursor = nil
+      else
+         self.cursor = "pointer"
+      end
+   end
+
+   function run_btn:draw()
+      local col = disabled_color
+      if not el.is_running() then
+         col = enabled_color
+      end
+      pal(icon_color, col)
+      spr(0)
+      pal()
+   end
+
+   local stop_btn <const> = el:attach_button { x = 22, y = 4, width = 10 }
+   function stop_btn:click()
+      el.stop_test()
+   end
+
+   function stop_btn:update()
+      if not el.is_running() then
+         self.cursor = nil
+      else
+         self.cursor = "pointer"
+      end
+   end
+
+   function stop_btn:draw()
+      local col = disabled_color
+      if el.is_running() then
+         col = enabled_color
+      end
+      pal(icon_color, col)
+      spr(1)
+      pal()
+   end
+
+   -- local toggle_btn <const> = toolbar:attach_button { x = 35, y = 4, width = 10 }
+   -- function toggle_btn:draw()
+   -- 	pal(icon_color, enabled_color)
+   -- 	spr(2)
+   -- 	pal()
+   -- end
+
+   return el
+end
+
+:: gui/text_output.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+---@param el {x:number, y:number, width:number, height:number, bg_color:integer, is_link:function, link_click:function, get_line:function, lines_len:function}
+function attach_text_output(parent, el)
+	local line_height <const> = 10
+
+	local lines_len = 0
+
+	el = parent:attach(el)
+	local text_output <const> = el:attach(
+		{ x = 0, y = 0, width = el.width, height = 0 }
+	)
+	el:attach_scrollbars { autohide = true }
+
+	local function line_at_mouse_position(msg)
+		return ceil(msg.my / line_height)
+	end
+
+	local function is_link(line_no)
+		return line_no >= 1 and line_no <= lines_len
+			 and el.is_link != nil and el.is_link(line_no)
+	end
+
+	function text_output:update(msg)
+		lines_len = el.lines_len()
+
+		text_output.height = line_height * lines_len
+
+		-- If text_output has decreased, adjust the y position.
+		if text_output.height - el.height < -text_output.y then
+			text_output.y = min(-text_output.height + el.height, 0) -- test this
+		end
+
+		if msg.my == nil then return end -- outside the window
+		local cursor = ""
+		local line = line_at_mouse_position(msg)
+		if is_link(line) then
+			cursor = "pointer"
+		end
+		text_output.cursor = cursor
+	end
+
+	function text_output:click(msg)
+		local line = line_at_mouse_position(msg)
+		if is_link(line) and el.link_click != nil then
+			el.link_click(line, msg)
+		end
+	end
+
+	-- for performance reasons draw only visible lines
+	function text_output:draw()
+		local line_no = flr(-text_output.y / line_height)
+
+		local last_line = line_no + ceil(el.height / line_height)
+		last_line = min(last_line, lines_len - 1)
+
+		for i = line_no, last_line do
+			local line = el.get_line(i + 1)
+			rectfill(0, i * line_height,
+				text_output.width, (i + 1) * line_height + 1,
+				line.bg_color)
+			print(line.text, 1, i * line_height + 1, line.fg_color)
+		end
+	end
+
+	function el:scroll_to_line(line_no)
+		text_output.y = -(line_height * (line_no - 1))
+		if text_output.y == 0 then
+			return
+		end
+		text_output.y += el.height / 2 - line_height
+		if -text_output.y + el.height > text_output.height then
+			text_output.y = -text_output.height + el.height
+		end
+		if text_output.y > 0 then
+			text_output.y = 0
+		end
+	end
+
+	function el:draw()
+		-- draw background (needed when tree height is too low)
+		rectfill(0, 0, el.width, el.height, el.bg_color)
+	end
+
+	return el
+end
+
+:: gui/tree.lua
+-- This code is licensed under MIT license (see LICENSE for details)
+
+---@param el {x:number,y:number,width:number,height:number,select:function}
+function attach_tree(parent_el, el)
+	include "gui/tree_provider.lua"
+
+	local char_width <const> = 5
+
+	local provider <const> = new_tree_provider()
+
+	local selected_line = nil
+
+	-- return indent of node in chars
+	local function indent(node)
+		return node.depth * 2
+	end
+
+	local tree = attach_text_output(parent_el, {
+		x = el.x,
+		y = el.y,
+		width = el.width,
+		height = el.height,
+		bg_color = 7,
+		get_line = function(line_no)
+			local node = provider:get_node(line_no)
+			local whitespace = " "
+
+			local fg_color = 13
+			local bg_color = 7
+			if selected_line != nil and selected_line == line_no then
+				fg_color = 7
+				bg_color = 1
+			end
+
+			local prefix = whitespace:rep(indent(node))
+			if node.has_children then
+				if not node.collapsed then
+					prefix = prefix .. "[-] "
+				else
+					prefix = prefix .. "[+] "
+				end
+			else
+				prefix = prefix .. "    "
+			end
+
+			local text = prefix .. node.text
+
+			return {
+				text = text,
+				bg_color = bg_color,
+				fg_color = fg_color,
+			}
+		end,
+		is_link = function(line_no)
+			return true
+		end,
+		link_click = function(line_no, msg)
+			local node = provider:get_node(line_no)
+			if node.has_children and
+				 msg.mx >= indent(node) * char_width and
+				 msg.mx <= (indent(node) + 3) * char_width then
+				provider:toggle_line(line_no)
+
+				selected_line = line_no
+				el.select(node.id)
+				return
+			end
+
+			if selected_line != line_no then
+				selected_line = line_no
+				el.select(node.id)
+			else
+				selected_line = nil
+				el.select(nil)
+			end
+		end,
+		lines_len = function()
+			return provider:nodes_len()
+		end
+	})
+
+	function tree:add_child(id, text, parent_id)
+		provider:append_node(parent_id, id, text)
+	end
+
+	function tree:update_child_text(id, text)
+		provider:update_node_text(id, text)
+	end
+
+	function tree:select_child(id)
+		local line = provider:get_line_no(id)
+		selected_line = line
+		tree:scroll_to_line(line)
+	end
+
+	return tree
+end
+
+:: gui/tree_provider.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+--- returns a new instance of data structure holding tree of nodes. This object
+--- is used by tree component. The code was extracted from the tree component
+--- because the component was to complex (and will be even more complex
+--- when tree will have node collapsing and hiding functionality).
+function new_tree_provider()
+   local p                                     = {}
+
+   local nodes_by_line                         = {}
+   local nodes_by_id <const>                   = {}
+   local collapsed_children_by_node_id <const> = {}
+
+   function p:nodes_len()
+      return #nodes_by_line
+   end
+
+   function p:get_node(line_no)
+      return nodes_by_line[line_no]
+   end
+
+   function p:get_line_no(id)
+      for line_no, node in ipairs(nodes_by_line) do
+         if node.id == id then
+            return line_no
+         end
+      end
+
+      return nil
+   end
+
+   local function collapse(line_no, node)
+      local first_line_no = line_no + 1
+      local last_line_no = line_no
+      for i = first_line_no, #nodes_by_line do
+         local potential_child = nodes_by_line[i]
+         if potential_child.depth <= node.depth then
+            break
+         end
+         last_line_no = i
+      end
+
+      collapsed_children_by_node_id[node.id] = {}
+      nodes_by_line = move_table(
+         nodes_by_line, first_line_no, last_line_no,
+         collapsed_children_by_node_id[node.id], 1)
+   end
+
+   local function expand(line_no, node)
+      local src = collapsed_children_by_node_id[node.id]
+      insert_table(src, line_no + 1, nodes_by_line)
+
+      collapsed_children_by_node_id[node.id] = nil
+   end
+
+   function p:toggle_line(line_no)
+      local node <const> = nodes_by_line[line_no]
+      if node.collapsed then
+         expand(line_no, node)
+      else
+         collapse(line_no, node)
+      end
+      node.collapsed = not node.collapsed
+   end
+
+   -- append node to the end of the tree
+   function p:append_node(parent_id, id, text)
+      local node = {
+         text = text,
+         depth = 0,
+         parent_id = parent_id,
+         id = id,
+         has_children = false,
+         collapsed = false
+      }
+      local parent = nil
+      if parent_id != nil then
+         parent = nodes_by_id[parent_id]
+         parent.has_children = true
+         node.depth = parent.depth + 1
+      end
+      nodes_by_id[node.id] = node
+
+      local function find_collpased_node(n)
+         if n == nil then
+            return nil
+         end
+         if n.collapsed then
+            return n
+         end
+         return find_collpased_node(nodes_by_id[n.parent_id])
+      end
+
+      local collapsed_parent = find_collpased_node(parent)
+
+      if collapsed_parent == nil then
+         table.insert(nodes_by_line, node)
+      else
+         local children = collapsed_children_by_node_id[collapsed_parent.id]
+         table.insert(children, node)
+      end
+   end
+
+   function p:update_node_text(id, new_text)
+      nodes_by_id[id].text = new_text
+   end
+
+   return p
+end
+
+:: gui/tree_provider_test.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- run this file in unitron gui
+
+include "tree_provider.lua"
+include "../lib/tables.lua" -- TODO ugly way of importing dependencies
+
+test("new provider has 0 lines", function()
+   local p = new_tree_provider()
+   assert_eq(0, p:nodes_len())
+end)
+
+test("add root", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   assert_eq(1, p:nodes_len())
+   assert_eq(
+      {
+         text = "root",
+         depth = 0,
+         id = 1,
+         has_children = false,
+         collapsed = false
+      },
+      p:get_node(1)
+   )
+   assert_eq(1, p:get_line_no(1))
+end)
+
+test("add child node", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   -- when
+   p:append_node(1, 2, "child")
+   -- then
+   assert_eq(2, p:nodes_len())
+   assert_eq(
+      {
+         text = "child",
+         depth = 1,
+         id = 2,
+         parent_id = 1,
+         has_children = false,
+         collapsed = false
+      },
+      p:get_node(2)
+   )
+   assert_eq(2, p:get_line_no(2))
+   -- and
+   assert(p:get_node(1).has_children)
+end)
+
+test("update node text", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   -- when
+   p:update_node_text(1, "updated")
+   -- then
+   assert_eq("updated", p:get_node(1).text)
+end)
+
+test("toggle_line", function()
+   test("should collapse node", function()
+      local p = new_tree_provider()
+      p:append_node(nil, 1, "root")
+      p:append_node(1, 2, "child")
+      p:append_node(2, 3, "subchild")
+      -- when
+      p:toggle_line(1)
+      -- then
+      assert(p:get_node(1).collapsed)
+      assert_eq(1, p:nodes_len())
+
+      test("should expand node", function()
+         -- when
+         p:toggle_line(1)
+         -- then
+         assert(not p:get_node(1).collapsed)
+         assert_eq(3, p:nodes_len())
+         assert_eq("child", p:get_node(2).text)
+         assert_eq("subchild", p:get_node(3).text)
+      end)
+   end)
+end)
+
+test("append_node when parent node is collapsed", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   p:toggle_line(1) -- collapse root
+   -- when
+   p:append_node(1, 2, "child")
+   -- then
+   assert(p:nodes_len() == 1, "child should not be visible")
+end)
+
+test("append_node when parent of parent is collapsed", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   p:append_node(1, 2, "child")
+   p:toggle_line(1) -- collapse root
+   -- when
+   p:append_node(2, 3, "subchild")
+   -- then
+   assert(p:nodes_len() == 1, "subchild should not be visible")
+end)
+
+test("expand when node added when parent was collapsed", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   p:toggle_line(1) -- collapse root
+   p:append_node(1, 2, "child")
+   -- when
+   p:toggle_line(1) -- expand root
+   assert_eq(2, p:nodes_len(), "two elements expected")
+end)
+
+test("expand node after another child was added", function()
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+   p:append_node(1, 2, "child") -- line 2
+   p:append_node(2, 3, "subchild")
+   p:toggle_line(2)             -- collapse child
+   p:append_node(1, 4, "another child")
+   assert_eq(3, p:nodes_len())
+   p:toggle_line(2) -- expand child
+   assert_eq(4, p:nodes_len())
+end)
+
+test("thousands of children", function()
+   -- should finish in a second
+   local p = new_tree_provider()
+   p:append_node(nil, 1, "root")
+
+   test("append_node", function()
+      for id = 2, 10000 do
+         p:append_node(1, id, "child")
+      end
+   end)
+
+   test("toggle_line", function()
+      p:toggle_line(1)
+      p:toggle_line(1)
+   end)
+end)
+
+:: label.qoi
+b64$cW9pZgAAAeAAAAEOBAH-_PDo-P39-f39-f39-f39-f39-eH_gHCYxAT9-f39-f3ALMAEwCzA
+BMcswQTALMEEyyzBBMgsxATG-vhwqMb__PDoySwELATNLMUE-f39-f38LMAEwizABMYswQTALMEE
+xizCBCzBBMgsBMIsBMb__HCoxv748OjKLATSLAQsBP39-f39-CzABMIswATGLMEEwCzBBMYswgQs
+wQTILATCLATG-vhwqMb__PDoxizHBMoswQQswQT9-f39-fwswATCLMAExizGBMYswgTMLATCLATG
+-vhwqMb__PDoxizABMMswATKLAQsBP39-f39-cIswATCLMAExiwELMIELATGLMUEySwEwCzBBNYs
+wATDLMAEyizFBP39-f39-CzABMIswATGLAQswgQsBMYsxQTHLMEEwCzBBMb__HCoxv748OjGLMAE
+wyzABMssxAT9-f39-f0swATALMAExyzGBMYsxQTHLMEEy-74cKjA-vjw6ML__HCowP748OjGLMcE
+-f39-f39-f39-f39-f394-4AoKD9-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39
+-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39
+-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39
+-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39
+-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39_P4AAAD9-f393P4AoKD9
+-f3N-gAAAP74qMD9-f393BT_AKCg-f39y-4AAAAE-f39-d4U-gCgoP39-cr_AAAABP3R-uAIqATJ
+NATDNAT9xjQExTQEyjQExzQEzDQExTTABPQU-gCgoP39-cr_AAAABMT_cEiQxQT8NATDNATJNATD
+NATNNATnNATKNATSNATHNATMNATGNATrPMEExBT_AKCg-f39yv4AAAAE-cs0BME0wQTANMAEwTTB
+BDQEwDQENMIEwDTABMA0wQTCNATANMAENATANATANATFNMEEwDTABMA0wAQ0BME0wATCNATBNMEE
+NATANAQ0wQTCNMAEwDTABME0wQQ0wgTENMIEwDTABME0wQQ0wgTENATANATANATANMAE4DwEwTwE
+wxT_AKCg-f39yv4AAAAExDzFBPs0BME0BMA0BDQEwDQENATCNAQ0BME0BME0BMA0BDQEwDQEwDQE
+wTQENAQ0BDQEwDQExDQEwDQEwjQENAQ0BDQENATANATANATBNATCNATANAQ0BMA0BMI0BDQEwDQE
+NATDNATHNATBNATANAQ0BMM0BMY0BMA0BMA0BMI0BN88BME8BMMU-gCgoP39-cr_AAAABP3KNATB
+NATANAQ0wgTANMAEwDTABMI0BME0BMA0BDQEwDQEwDQEwTQENAQ0BDQEwDQENMIENATANATANMEE
+NAQ0BDQENMIEwDQEwjTABMA0BMA0BDQEwDQEwjQENMIENATDNATHNATBNMIEwDTABME0BMY0BMA0
+BMA0BMA0wQTfPATBPATDFP4AoKD9-f3K-gAAAATEPMUE_jQEwjQEwDQENATFNAQ0BDQEwTQEwTQE
+wDQENMEEwDQEwjQEwTQEwDTBBMU0wQQ0BMA0BDQEwTQENATCNATFNAQ0BMA0BDQEwDQEwjQENATC
+NATDNATHNATBNATFNATANATGNATANATANAQ0BMA0BOA8wQTEFP4AoKD9-f3K-gAAAAT9yTQEwzTB
+BMA0wQQ0wQTANATANATBNMAEwDTABMA0BMI0BMI0BME0BMI0BMc0BMA0wQQ0BME0BMA0wQQ0BMI0
+wQTBNMEENMEEwDQEwDQEwDTBBMA0wQTBNMAENMIEwTTABMA0wQQ0wQTCNMAEwDQEwTTABMA0wQTA
+NMEE6RT_AKCg-f39yv4AAAAE-ew0BM40wATGNMAE5TTABP3mFP4AoKD9-f3K-gAAAAT9-f393hT_
+AKCg-f39yv4AAAD9-f394P4AoKD9-f3K-gAAAP7AwMD9-f393v4AAAD_AKCg-f39yv4AAAD_wMDA
+-f39-d7_AAAA-gCgoP39-cr_AAAA-sDAwP39-f3e-gAAAP4AoKD9-f3K-gAAAP7AwMD9-f393v4A
+AAD_AKCg-f39yv4AAAD_wMDAxP4AAADB-sDAwMD_AAAA-sDAwP39-f3S-gAAAP4AoKD9-f3K-gAA
+AP7AwMDF-gAAAMD_wMDAwf4AAAD_wMDA-f39-dH_AAAA-gCgoP39-cr_AAAA-sDAwMT_AAAA-sDA
+wP4AAAD_wMDAwv4AAAD_wMDAxyzDFP39-f3C-gAAAP4AoKD9-f3K-gAAAP7AwMDE-gAAAP7AwMDE
+-gAAAP7AwMDHLMMU-f39-cL_AAAA-gCgoP39-cr_AAAA-sDAwMT_AAAA-sDAwMT_AAAA-sDAwMcs
+wxT9-f39wv4AAAD_AKCg-f39yv4AAAD_wMDAxP4AAAD_wMDAxP4AAAD_wMDAxyzDFP39-f3C-gAA
+AP4AoKD9-f3K-gAAAP7AwMDF-gAAAP7AwMDC-gAAAP7AwMDILMMU-f39-cL_AAAA-gCgoP39-cr_
+AAAA-sDAwMb_AAAAwv7AwMD9-f390v4AAAD_AKCg-f39yv4AAAD_wMDA-f39-d7_AAAA-gCgoP39
+-cr_AAAA-sDAwP39-f3e-gAAAP4AoKD9-f3K-gAAAP7AwMD9-f393v4AAAD_AKCg-f39yv4AAAD_
+wMDA-f39-d7_AAAA-gCgoP39-cr_AAAA-vjw6Of_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDoxf4A
+4DD__PDowP4A4DD__PDowf4A4DD__PDowv4A4DD__PDowP4A4DD__PDoxf4A4DD__PDowf4A4DD_
+_PDoxf4A4DD__PDowP4A4DD__PDo-f31LMYU-gCgoP39-cr_AAAABOf_AOAw-vjw6MD_AOAw-vjw
+6MD_AOAwwf748Oj_AOAwwf748OjC-gDgMMD__PDowP4A4DDB-vjw6MD_AOAwwf748OjG-gDgMMD_
+_PDowP4A4DDB-vjw6P4A4DDB-vjw6ML_AOAwwP748Oj9-fMsxhT_AKCg-f39yv4AAAAE-f39-dYs
+xhT_AKCg-f39yv4AAAAE-f39-dYsxhT_AKCg-f39yv4AAAAE-f39-dYsxhT_AKCg-f39yv4AAAAE
+0yzBBMYswQTU-gDgMP748OjB-gDgMP748Ojh-gDgMP748OjJ-gDgMP748OjF-gDgMP748OjM-gDg
+MP748Oj9-c0sxhT_AKCg-f39yv4AAAAE0ywEyiwE1P4A4DD__PDowf4A4DD__PDo4f4A4DD__PDo
+yf4A4DD__PDoxf4A4DD__PDozP4A4DD__PDo-f3NLMYU-gCgoP39-cr_AAAABNMsBMosBMX_AOAw
+wP748OjA-gDgMMH__PDowf4A4DDA-vjw6MD_AOAwwv748Oj_AOAwwf748OjB-gDgMMD__PDowP4A
+4DD__PDo-gDgMMD__PDoxP4A4DDB-vjw6MH_AOAwwP748OjB-gDgMMH__PDo-gDgMML__PDowP4A
+4DDA-vjw6MH_AOAwwf748OjE-gDgMML__PDowP4A4DDA-vjw6MH_AOAwwf748Oj_AOAwwv748Oj9
+-cssxhT_AKCg-f39yv4AAAAE0ywEyiwEx-4A4DD__PDo-gDgMP748OjA-gDgMP748Oj_AOAw-vjw
+6MD_AOAw-vjw6MD_AOAw-vjw6MH_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDo-gDg
+MMD__PDoxv4A4DD__PDowP4A4DD__PDo-gDgMP748OjA-gDgMP748Oj_AOAw-vjw6MP_AOAw-vjw
+6MH_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDoxf4A4DD__PDowf4A4DD__PDowP4A
+4DD__PDo-gDgMP748OjD-gDgMP748Oj9-c0sxhT_AKCg-f39yv4AAAAE0ywEwizCBMIsBMX_AOAw
+wf748Oj_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DD__PDowf4A4DD__PDo
+wP4A4DD__PDo-gDgMML__PDo-gDgMP748OjH-gDgMP748OjA-gDgMP748Oj_AOAwwv748OjA-gDg
+MMD__PDowf4A4DD__PDowf4A4DDC-vjw6P4A4DD__PDowP4A4DD__PDoxf4A4DD__PDowf4A4DDC
+-vjw6MD_AOAwwP748OjB-gDgMP748Oj9-c0sxhT_AKCg-f39yv4AAAAE0ywEyiwExP4A4DD__PDo
+wP4A4DD__PDo-gDgMP748OjA-gDgMP748Oj_AOAw-vjw6MD_AOAw-vjw6MD_AOAw-vjw6MH_AOAw
+-vjw6MD_AOAw-vjw6P4A4DD__PDowv4A4DD__PDox-4A4DD__PDowP4A4DD__PDo-gDgMP748OjF
+-gDgMP748OjA-gDgMP748OjB-gDgMP748OjC-gDgMP748OjA-gDgMP748OjF-gDgMP748OjB-gDg
+MP748OjF-gDgMP748OjA-gDgMP748Oj9-c0sxhT_AKCgxf5IKDj9-fUUyv4AAAAE0ywEyiwExf4A
+4DDB-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DDA-vjw6ML_AOAwwP748Oj_AOAw-vjw6MD_AOAw
+-vjw6MD_AOAwwf748Oj_AOAw-vjw6Mf_AOAw-vjw6MD_AOAw-vjw6MD_AOAwwf748Oj_AOAwwf74
+8OjC-gDgMMD__PDowP4A4DDB-vjw6MD_AOAwwf748OjG-gDgMMD__PDowP4A4DDB-vjw6P4A4DDB
+-vjw6ML_AOAwwP748Oj9-cssxhT_AKCgxDz_cEiQ-f31-kgoOBTJ-gAAAATTLMEExizBBP39-fEs
+xhT_AKCgwzz_cEiQ-f33-kgoOBTI-gAAAAT9-f391izGFP4AoKDDPP5wSJD9wv4YKFA8yRQ8wxQ8
+-eD_SCg4-gCgoMj_AAAABP39-f3WLMYU-gCgoMM8-nBIkMT_SCg4xf5wSJDt-hgoUDzDFDzJFDzD
+FDzNFDz9x-5IKDjB-nBIkMT_SCg4-gCgoMj_AAAABPz_AOAw-vjw6Nb_AOAw-vjw6MH_AOAw-vjw
+6P399izGFP4AoKDDPP5wSJD6-hgoUDzBFME8wBTAPMEUwTwUPMAUPBTCPMAUwDzAFME8whQ8wBTA
+PBQ8wBQ8wBQ8xRTBPMAUwDzAFMA8FDzBFMA83-5IKDj_cEiQwf5IKDj_cEiQw-5IKDj_AKCgyP4A
+AAAE-P4A4DD__PDo1v4A4DD__PDowf4A4DD__PDo-f32LMYU-gCgoMM8-nBIkMT_SCg4xf5wSJDs
+-hgoUDzBFDzAFDwUPMAUPBQ8whQ8FDzBFDzBFDzAFDwUPMAUPMAUPMEUPBQ8FDwUPMAUPMQUPMAU
+PMIUPBQ8FDwUPBQ8wBQ83v5IKDj_cEiQwf5IKDj_cEiQw-5IKDj_AKCgyP4AAAAE8f4A4DD__PDo
+wP4A4DD__PDowP4A4DDA-vjw6MD_AOAwwv748OjF-gDgMMD__PDowP4A4DDB-vjw6MH_AOAwwP74
+8OjA-gDgMML__PDo-gDgMMH__PDowf4A4DDA-vjw6MD_AOAw-vjw6P4A4DDA-vjw6P396SzGFP4A
+oKDDPP5wSJD5-hgoUDzBFDzAFDwUwjzAFMA8wBTAPMIUPMEUPMAUPBQ8wBQ8wBQ8wRQ8FDwUPBQ8
+wBQ8FMI8FDzAFDzAFME8FDwUPBQ8FMI83v5IKDj_cEiQwf5IKDj_cEiQw-5IKDj_AKCgyP4AAAAE
+8f4A4DD__PDowP4A4DD__PDo-gDgMP748OjA-gDgMP748OjA-gDgMP748OjJ-gDgMP748Oj_AOAw
+-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DD__PDowf4A4DD__PDowP4A4DD__PDo
+-gDgMP748OjA-gDgMP748Oj_AOAwwP748Oj9-essxhT_AKCgwzz_cEiQxP5IKDjF-nBIkOv_GChQ
+PMIUPMAUPBQ8xRQ8FDwUPMEUPMEUPMAUPBTBPMAUPMIUPMEUPMAUwTzFFME8FDzAFDwUPMEUPBQ8
+4v5IKDjB-nBIkMT_SCg4-gCgoMj_AAAABPH_AOAw-vjw6MD_AOAw-vjw6P4A4DDC-vjw6MD_AOAw
+-vjw6Mf_AOAwwf748Oj_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DD__PDo
+wf4A4DD__PDowP4A4DD__PDo-gDgMML__PDo-gDgMP748Oj9-ewsxhT_AKCgwzz_cEiQ_P4YKFA8
+wxTBPMAUwTwUwTzAFDzAFDzBFMA8wBTAPMAUPMIUPMIUPMEUPMIUPMcUPMAUwTwUPMEUPMAUwTzo
+-kgoOP4AoKDI-gAAAATy-gDgMMH__PDo-gDgMP748OjD-gDgMP748OjG-gDgMP748OjA-gDgMP74
+8Oj_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DD__PDowf4A4DD__PDowP4A
+4DD__PDo-gDgMP748OjC-gDgMP748Oj9-ewsxhT_AKCgwzz_cEiQ-d3_GChQPM4UwDzGFMA8_f5I
+KDj_AKCgyP4AAAAE9P4A4DD__PDowP4A4DDB-vjw6MH_AOAwwP748OjF-gDgMMH__PDo-gDgMP74
+8OjA-gDgMP748OjA-gDgMMD__PDowv4A4DDA-vjw6P4A4DD__PDowP4A4DD__PDowP4A4DDB-vjw
+6P4A4DD__PDo-f3sLMYU-gCgoMM8-nBIkP399-5IKDgUyP4AAAAE8v4A4DDA-vjw6P39-d4sxhT_
+AKCgwzz9-fkUyP4AAAAE-f39-dYsxhT_AKCgwzz_wMDA-f33PP4AoKDI-gAAAP4YKFD9-f391izG
+-gAAAP4AoKDDPP7AwMD9-fc8-gCgoMj_AAAA-hgoUMkEwRTGBMEUxf74AEgUxjQUwjTAFM00FMU0
+FNU0FMw0FP394yzA-sDAwMIswP4AAAD_AKCgwzz_wMDA4P4YKFD96-7AwMDmPP4AoKDI-gAAAP4Y
+KFDJBBTKBBTFNBTGNBTDNBTNNBTdNBTMNBT9-eMs-sDAwMQs-gAAAP4AoKDDPP7AwMDg-hgoUP3r
+-sDAwOY8-gCgoMj_AAAA-hgoUMkEFMoEFMQ0whTANMAUwDTBFME0FME0wBTGNMEUNBQ0wBQ0wBTA
+NBTANBTANMAUwDTBFMU0whTANMAUwTTBFDTCFMA0wRT9-dws-sDAwMQs-gAAAP4AoKDDPP7AwMDE
+LMEULMEU0-4YKFD96-7AwMDHLMYU1Tz_AKCgyP4AAAD_GChQyQQUygQUxTQUxDQUNBTANBTANBTA
+NBTANBTENBTANBQ0wBTCNBTANBTANBQ0FMA0FDQUwDQUxTQUwTQUwDQUNBTDNBTBNBT9-d8s-sDA
+wMQs-gAAAP4AoKDDPP7AwMDELMEULMEUxyzAFMj_GChQyv7AwMD_GChQyf7AwMD_GChQw-7AwMD_
+GChQ-cb_wMDA-hgoUMP_wMDAxywUxCwUyyzAFMY8-gCgoMj_AAAA-hgoUMkEFMIEwhTCBBTFNBTC
+NMEUNBTANBTANBTANMIUxDQUwDQUNBTDNBTANBTANBQ0whQ0FMA0FMU0FME0whTANMAUwTQUwjTA
+FP393Sz_wMDAxCz_AAAA-gCgoMM8-sDAwMQswRQswRTGLMIUx-4YKFDE-sDAwP4YKFDD-sDAwP4Y
+KFDJ-sDAwP4YKFDD-sDAwP4YKFDN-sDAwP4YKFDn-sDAwP4YKFDK-sDAwP4YKFDD-sDAwMcsFMQs
+FMoswBTHPP4AoKDI-gAAAP4YKFDJBBTKBBTFNBTBNBTANBQ0FMA0FMA0FMA0FMc0FMA0FDQUwzQU
+wDQUNBTANBTCNBTANBTFNBTBNBTFNBTANBTENBT9-dws-sDAwMQs-gAAAP4AoKDDPP7AwMDSLMQU
+xv4YKFDE-sDAwP4YKFDB-sDAwMH_GChQwP7AwMDA-hgoUMH_wMDAwf4YKFD_wMDA-hgoUMD_wMDA
+-hgoUP7AwMDC-hgoUMD_wMDAwP4YKFDA-sDAwMH_GChQwv7AwMD_GChQwP7AwMDA-hgoUP7AwMD_
+GChQwP7AwMD_GChQwP7AwMD_GChQxf7AwMDB-hgoUMD_wMDAwP4YKFDA-sDAwMD_GChQ-sDAwP4Y
+KFDB-sDAwMD_GChQwv7AwMD_GChQwf7AwMDB-hgoUP7AwMD_GChQwP7AwMD_GChQ-sDAwMH_GChQ
+wf7AwMDHLBTELBTJLMAUyDz_AKCgxP4YWKjAFMD_AAAA-hgoUMkEFMoEFMY0wBTANMEUNMEUwTTA
+FMA0wRTFNMEUNBTCNMEUNMAUwjTBFDQUwDQUxjTAFMA0wRQ0wRTCNMAUNMEU-f3d-oBwmP7AwMDE
+LP4AAAD_AKCgwzz_wMDAxCzBFCzBFMcswBTI-hgoUMP_wMDA-hgoUMH_wMDA-hgoUMD_wMDA-hgo
+UP7AwMD_GChQwP7AwMD_GChQ-sDAwP4YKFDC-sDAwP4YKFD_wMDA-hgoUMH_wMDA-hgoUMH_wMDA
+-hgoUMD_wMDA-hgoUP7AwMD_GChQwP7AwMD_GChQwP7AwMD_GChQwf7AwMD_GChQ-sDAwP4YKFD_
+wMDA-hgoUP7AwMD_GChQwP7AwMD_GChQxP7AwMD_GChQwP7AwMD_GChQwv7AwMD_GChQ-sDAwP4Y
+KFD_wMDA-hgoUP7AwMD_GChQ-sDAwP4YKFDA-sDAwP4YKFDA-sDAwP4YKFDB-sDAwP4YKFDC-sDA
+wP4YKFDA-sDAwP4YKFD_wMDA-hgoUMD_wMDA-hgoUMD_wMDAxyzGFMgswBTJPP4AoKDA-hhYqMAU
+LMIU-gAAAP4YKFDJBMEUxgTBFP39-fv_gHCY-sDAwMQs-gAAAP4AoKDDPP7AwMDELMEULMEUxyzA
+FMj_GChQw-7AwMD_GChQwf7AwMD_GChQwP7AwMD_GChQ-sDAwML_GChQwP7AwMDA-hgoUMD_wMDA
+wP4YKFDC-sDAwP4YKFDB-sDAwP4YKFDA-sDAwP4YKFD_wMDA-hgoUMD_wMDA-hgoUMD_wMDA-hgo
+UMH_wMDA-hgoUP7AwMD_GChQ-sDAwP4YKFD_wMDA-hgoUMD_wMDA-hgoUP7AwMDC-hgoUP7AwMD_
+GChQwP7AwMD_GChQwP7AwMDB-hgoUP7AwMD_GChQ-sDAwP4YKFD_wMDA-hgoUP7AwMDC-hgoUMD_
+wMDA-hgoUML_wMDAwP4YKFDA-sDAwP4YKFDA-sDAwP4YKFD_wMDA-hgoUMD_wMDA-hgoUMD_wMDA
+xywUwyzAFMcswBTKPP4AoKD_GFioxhT_AAAA-hgoUP39-f3W-oBwmP7AwMDELP4AAAD_AKCgwzz_
+wMDAxCzBFCzBFMcswhTG-hgoUML_wMDA-hgoUML_wMDA-hgoUMD_wMDA-hgoUP7AwMD_GChQxf7A
+wMD_GChQ-sDAwP4YKFD_wMDA-hgoUMH_wMDA-hgoUMH_wMDA-hgoUMD_wMDA-hgoUP7AwMDB-hgo
+UMD_wMDA-hgoUML_wMDA-hgoUMH_wMDA-hgoUMD_wMDAwf4YKFDF-sDAwMH_GChQ-sDAwP4YKFDA
+-sDAwP4YKFD_wMDA-hgoUMH_wMDA-hgoUP7AwMD_GChQwv7AwMD_GChQxf7AwMD_GChQ-sDAwP4Y
+KFDA-sDAwP4YKFD_wMDA-hgoUMD_wMDA-hgoUMD_wMDAxyzFFMcswBTLPP4AoKD_GFiox-4AAAAE
+-f39-db_gHCY-sDAwCzCFCz_AAAA-gCgoMM8-sDAwOD_GChQwv7AwMD_GChQw-7AwMDB-hgoUMD_
+wMDAwf4YKFD_wMDAwf4YKFDA-sDAwP4YKFDA-sDAwP4YKFDB-sDAwMD_GChQwP7AwMDA-hgoUMD_
+wMDA-hgoUML_wMDA-hgoUML_wMDA-hgoUMH_wMDA-hgoUML_wMDA-hgoUMf_wMDA-hgoUMD_wMDA
+wf4YKFD_wMDA-hgoUMH_wMDA-hgoUMD_wMDAwf4YKFD_wMDA-hgoUML_wMDAwf4YKFDB-sDAwMH_
+GChQ-sDAwMH_GChQwP7AwMDnPP4AoKD_GFiox-4AAAAE6DTABMc0BMY0wAT9-f3U-oBwmP7AwMDE
+LP4AAAD_AKCgwzz_wMDA4P4YKFDl-sDAwP4YKFDO-sDAwMD_GChQxv7AwMDA-hgoUOX_wMDA5jz_
+AKCg-hhYqMf_AAAABOc0BMA0BMU0wATFNATANAT9-f3T-oBwmP7AwMAswhQs-gAAAP4AoKDDPP7A
+wMDg-hgoUP3r-sDAwOY8-gCgoMD_GFioxv4AAAAE5zQENMAExjQEyDQE-f390-6AcJj_wMDAxCz_
+AAAA-gCgoMM8-sDAwP399zz_AKCgwv4YWKjE-gAAAATnNMAENATBNATCNATANMIEwTQE-f391P6A
+cJj_wMDAxCz_AAAA-gCgoMM8-sDAwP399zz_AKCgwf4YWKjAFMIs-gAAAATnNATANATANMEEwTQE
+xjQE-f391f6AcJj_wMDAxCz_AAAA-gCgoMM8BP399zwUwP4YWKjAFMT_AAAABOc0BMA0BME0BMI0
+BMA0wgQ0BP39-db_gHCY-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMD_GFioFMX_AAAABOg0wATGNMEE
+xDTCBP39-dP_gHCY-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMD_GFiowhTC-gAAAAT9-f391v6AcJj_
+wMDAxCz_AAAA-gCgoMM8BP399zwUwP4YWKgUxf4AAAAE-f39-db_gHCY-sDAwMQs-gAAAP4AoKDD
+PAT9-fc8FMD_GFiowBTBLMH_AAAABP39-f3W-oBwmMD_wMDAwizA-gAAAP4AoKDDPAT9-fc8FMH_
+GFioFMT_AAAABOj_AOAwwP748OjG-gDgMMD__PDox-4A4DD__PDo-f391P6AcJjGFP4AoKDDPAT9
+-fc8FMH_GFiowBTCLP4AAAAE5-4A4DD__PDowP4A4DD__PDoxP4A4DD__PDowP4A4DD__PDoxf4A
+4DDA-vjw6P39-dT_gHCYxhT_AKCgwzwE-eE8yQT9yTwUwv4YWKgUwiz_AAAABOr_AOAw-vjw6Mf_
+AOAw-vjw6MT_AOAw-vjw6P4A4DD__PDo-f391P6AcJjGFP4AoKDDPATZPMkE9-7AwMDAPATG-vhw
+qDzA-vjw6P3IPP4AoKDC-hhYqMAUwCzA-gAAAATp-gDgMP748OjC-gDgMP748OjC-gDgMP748OjA
+-gDgMML__PDo-gDgMP748Oj_AOAw-vjw6P39-dT_gHCYxhT_AKCgwzwE2TwExv74cKg8wP748Oj2
+-sDAwMA8BMb__HCowDzA-vjw6P3HPP4AoKDD-hhYqMIU-gAAAATo-gDgMP748OjC-gDgMMH__PDo
+wP4A4DD__PDoxv4A4DDC-vjw6P39-dP_gHCYxhT_AKCgwzwE2TwExv74cKjAPMD__PDo9f7AwMDA
+PATG-vhwqME8wP748Oj9xjz_AKCgyP4AAAAE5-4A4DD__PDoxP4A4DD__PDowP4A4DD__PDowv4A
+4DDC-vjw6MH_AOAw-vjw6P39-dQsxhT_AKCgwzwE2TwExv74cKjBPMD__PDo9P7AwMDAPATG-vhw
+qMI8-vjw6P3GPP4AoKDI-gAAAATn-gDgMML__PDoxP4A4DDC-vjw6Mb_AOAw-vjw6P39-dQsxhT_
+AKCgwzwE2TwExv74cKjCPP748Oj0-sDAwMA8BMo8BP3GPP4AoKDI-gAAAAT9-f391izGFP4AoKDD
+PATZPATKPAT0-sDAwMA8BMo8BP3GPP4AoKDI-gAAAAT9-f391izGFP4AoKDDPATZPATKPAT0-sDA
+wMA8BMH_cEiQwAQ8wATC-kgoOAT9xjz_AKCgyP4AAAAE-f39-dYsxhT_AKCgwzwE2TwEwf5wSJDA
+BDzABML_SCg4BPT_wMDAwDwEwP5wSJDABME8wATB-kgoOAT9xjz_AKCgyP4AAAAEySzBBMYswQTJ
+-gDgMMD__PDo0f4A4DD__PDozP4A4DD__PDo-f39yyzGFP4AoKDDPATZPATA-nBIkMAEwTzABMH_
+SCg4BPT_wMDAwDwEwP5wSJDABME8wATB-kgoOAT9xjz_AKCg-hhYqMUUwP4AAAAEyf6AcJgEyiwE
+yv4A4DD__PDo0f4A4DD__PDozP4A4DD__PDo-f39yyzGFP4AoKDDPATZPATA-nBIkMAEwTzABMH_
+SCg4BPT_wMDAwDwEwP5wSJDABME8wATB-kgoOAT9xjz_GFiowP4AoKDDLMH_AAAABMn_gHCYBMos
+BMX_AOAwwf748OjA-gDgMP748OjB-gDgMMD__PDowP4A4DD__PDowf4A4DD__PDoxP4A4DDC-vjw
+6MD_AOAwwP748OjB-gDgMMH__PDo-gDgMML__PDo-f39ySzGFP4AoKDDPATZPATA-nBIkMAEwTzA
+BMH_SCg4BPT_wMDAwDwEwP5wSJDABME8wATB-kgoOAT9xjz_GFio-gCgoMUsFP4AAAAEyf6AcJgE
+yiwExP4A4DD__PDow-4A4DD__PDowP4A4DD__PDowP4A4DD__PDo-gDgMP748OjB-gDgMP748OjF
+-gDgMP748OjB-gDgMP748OjA-gDgMP748Oj_AOAw-vjw6MP_AOAw-vjw6P39-cssxhT_AKCgwzwE
+2TwEwP5wSJDABME8wATB-kgoOAT0-sDAwMA8BMH_cEiQwAQ8wATC-kgoOAT9xjz_GFio-gCgoMf_
+AAAABMn_gHCYBMIswgTCLATF-gDgMMD__PDowf4A4DD__PDowP4A4DD__PDowP4A4DD__PDo-gDg
+MP748Oj_AOAw-vjw6P4A4DD__PDoxf4A4DD__PDowf4A4DDC-vjw6MD_AOAwwP748OjB-gDgMP74
+8Oj9-f3LLMYU-gCgoMM8BNk8BMH_cEiQwAQ8wATC-kgoOAT0-sDAwMA8BMo8BP3GPP4YWKj_AKCg
+wSzE-gAAAATJ-oBwmATKLATH-gDgMP748OjA-gDgMP748OjA-gDgMP748OjA-gDgMP748Oj_AOAw
+-vjw6P4A4DD__PDo-gDgMP748OjF-gDgMP748OjB-gDgMP748OjF-gDgMP748OjA-gDgMP748Oj9
+-f3LLMYU-gCgoMM8BNk8BMo8BPT_wMDAwDwEyjwE-cY8-hhYqP4AoKDCLMIU-gAAAATJ-oBwmATK
+LATE-gDgMMH__PDowf4A4DDA-vjw6MD_AOAwwP748OjB-gDgMP748Oj_AOAw-vjw6Mf_AOAwwP74
+8OjA-gDgMMH__PDo-gDgMMH__PDowv4A4DDA-vjw6P39-cksxhT_AKCgwzwE2TwEyjwE9P7AwMDA
+PMwE-cY8-gCgoMj_AAAABMkswQTGLMEE-f39_yzGFP4AoKDDPATZPMwE9P7AwMDMBP3IPP4YWKjA
+-gCgoMb_AAAABP39-f3W-oBwmMYU-gCgoMM8BP399zwU-hhYqMQUwf4AAAAE-f39-db_gHCYxhT_
+AKCgwzwE-f33PP4YWKjAFMIswv4AAAAE7P4A4DDA-vjw6NL_AOAw-vjw6P39-c-_gHCYxhT_AKCg
+wzwE-cH_GChQ-dcE2zz_GFio-gCgoMMsFCwU-gAAAATt-gDgMP748OjR-gDgMMD__PDo-f39z-6A
+cJjGFP4AoKDDPAT9wP4YKFD92QTaPP4AoKDD-hhYqMAULBT_AAAABOj_AOAwwf748OjA-gDgMP74
+8OjB-gDgMMD__PDowP4A4DD__PDowf4A4DD__PDoxv4A4DD__PDo-f39z-6AcJjGFP4AoKDDPAT9
+wP4YKFD92QTaPP4AoKDD-hhYqMIU-gAAAATn-gDgMP748OjD-gDgMP748OjA-gDgMP748OjA-gDg
+MP748Oj_AOAw-vjw6MH_AOAw-vjw6Mb_AOAw-vjw6P39-c-_gHCYxhT_AKCgwzwE-cD_GChQ-dkE
+2jz_AKCgw-4YWKjBFMD_AAAABOj_AOAwwP748OjB-gDgMP748OjA-gDgMP748OjA-gDgMP748Oj_
+AOAw-vjw6P4A4DD__PDo-gDgMP748OjG-gDgMP748Oj9-f3P-oBwmMYU-gCgoMM8BM8sBMUsBMos
+BMUswATO-hgoUM4EFMUEFMoEFMcEFMwEFMUEwBTPBNo8-hhYqMj_AAAABOr_AOAw-vjw6MD_AOAw
+-vjw6MD_AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDo-gDgMP748Oj_AOAw-vjw6Mb_AOAw-vjw6P39
+-c-_gHCYxhT_AKCgwzwEzywE0iwExiwEzv4YKFDOBBTSBBTHBBTMBBTGBBTPBNo8-gCgoML_GFio
+whTA-gAAAATn-gDgMMH__PDowf4A4DDA-vjw6MD_AOAwwP748OjB-gDgMP748Oj_AOAw-vjw6Mb_
+AOAwwf748Oj9-f3O-oBwmMYU-gCgoMM8BMYswQQsBMAsBCzBBMIswATALMAEwSzBBCzCBMQsBMAs
+BMAsBMAswATE-hgoUMUEwRQEFMAEFATBFMIEwBTABMAUwQTBFATCFMQEwhTABMAUwQTBFATCFMQE
+FMAEFMAEFMAEwBTFBNo8-hhYqMP_AKCgLML_AAAABP39-f3W-oBwmMYU-gCgoMM8BMUsBMIsBMAs
+BCwEwCwEwiwELATALAQsBMMsBMYsBMAsBMAsBMIsBMP_GChQxAQUwgQUwAQUBBTABBTCBBQEFMAE
+FAQUwwQUxwQUwQQUwAQUBBTDBBTGBBTABBTABBTCBBTEBNo8-hhYqP4AoKDELMH_AAAABP39-f3W
+-oBwmMYU-gCgoMM8BMYswATALATALAQsBMAsBMIsBCzCBCwEwywExiwEwCwEwCwEwCzBBMP_GChQ
+xQTAFMAEFMAEFAQUwAQUwgQUBMIUBBTDBBTHBBTBBMIUwATAFMEEFMYEFMAEFMAEFMAEwRTEBNo8
+-hhYqP4AoKDH-gAAAAT9-f391v6AcJjGFP4AoKDDPATILAQsBMAsBCwEwCwEwiwELATCLATDLATG
+LATALATALAQsBMAsBMP_GChQxwQUBBTABBQEFMAEFMIEFAQUwgQUwwQUxwQUwQQUxQQUwAQUxgQU
+wAQUwAQUBBTABBTEBNo8-hhYqML_AKCgxP4AAAAE7P4A4DDA-vjw6NH_AOAwwP748Oj9-f3P-oBw
+mMYU-gCgoMM8BMUswQTBLMEELMEEwCwEwCwEwCzBBMAswQTBLMAEwCwEwSzABMAswQTALMEEw-4Y
+KFDEBMEUwQTBFATBFMAEFMAEFMAEwRTABMEUwQTAFATCFMEEwBTABMEUBMEUwgTAFMAEFMEEwBTA
+BMEUwATBFMQE2jz_GFio-gCgoMAswRTC-gAAAATt-gDgMP748OjQ-gDgMP748OjA-gDgMP748Oj9
+-f3O-oBwmMYU-gCgoMM8BNUswATl-hgoUNQEwBT9wQTaPP4YWKjA-gCgoMEsw-4AAAAE6P4A4DDB
+-vjw6MD_AOAw-vjw6MH_AOAwwP748OjA-gDgMP748OjB-gDgMP748OjH-gDgMP748Oj9-f3O-oBw
+mMYU-gCgoMM8BP3A-hgoUP3ZBNo8-gCgoP4YWKjAFMX_AAAABOf_AOAw-vjw6MP_AOAw-vjw6MD_
+AOAw-vjw6MD_AOAw-vjw6P4A4DD__PDowf4A4DD__PDoxv4A4DD__PDo-f39z-6AcJjGFP4AoKDD
+PAT9wP4YKFD92QTaPP4AoKDA-hhYqMEUw-4AAAAE6P4A4DDA-vjw6MH_AOAw-vjw6MD_AOAw-vjw
+6MD_AOAw-vjw6P4A4DD__PDo-gDgMP748Oj_AOAw-vjw6MX_AOAw-vjw6P39-dD_gHCYxhT_AKCg
+wzwE-cH_GChQ-dcE2zz_AKCgwv4YWKjBFMH_AAAA-f39-eD_AKCgwzwE-f33PBTELML_AAAA-f39
+-df_gHCYxhT_AKCgwzwE-f33PBTI-gAAAMsEFMYEFMIEwBTNBBTFBBTVBBTMBBT9-fcswP7AwMDC
+LMD_AAAA-gCgoMM8BP399zwUyP4AAADLBBTGBBTDBBTNBBTdBBTMBBT9-fcs-sDAwMQs-gAAAP4A
+oKDDPAT9-fc8FMj_AAAAwf7AwMD_AAAAxgTCFMAEwBTABMEUwQQUwQTAFMYEwRQEFATAFATAFMAE
+FMAEFMAEwBTABMEUxQTCFMAEwBTBBMEUBMIUwATBFP398Cz_wMDAxCz_AAAA-gCgoMM8BP399zwU
+yP4AAADC-sDAwP4AAADGBBTEBBQEFMAEFMAEFMAEFMAEFMQEFMAEFATAFMIEFMAEFMAEFAQUwAQU
+BBTABBTFBBTBBBTABBQEFMMEFMEEFP398yz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADD-sDA
+wP4AAADFBBTCBMEUBBTABBTABBTABMIUxAQUwAQUBBTDBBTABBTABBQEwhQEFMAEFMUEFMEEwhTA
+BMAUwQQUwgTAFP398Sz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADC-sDAwP4AAADGBBTBBBTA
+BBQEFMAEFMAEFMAEFMcEFMAEFAQUwwQUwAQUBBTABBTCBBTABBTFBBTBBBTFBBTABBTEBBT9-fAs
+-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAwf7AwMD_AAAAyATAFMAEwRQEwRTBBMAUwATBFMUE
+wRQEFMIEwRQEwBTCBMEUBBTABBTGBMAUwATBFATBFMIEwBQEwRT9-fEs-sDAwMQs-gAAAP4AoKDD
+PAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs
+-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA1QTA
+FMcEFMYEwBT9-f3oLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAANQEFMAEFMUEwBTFBBTABBT9
+-f3nLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAMv_wMDA-gAAAMYEFATAFMYEFMgEFP39-ecs
+-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAzP7AwMD_AAAAxQTAFAQUwQQUwgQUwATCFMEEFP39
+-egs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAzf7AwMD_AAAAxAQUwAQUwATBFMEEFMYEFP39
+-eks-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAzP7AwMD_AAAAxQQUwAQUwQQUwgQUwATCFAQU
+-f396iz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADL-sDAwP4AAADHBMAUxgTBFMQEwhT9-f3n
+LP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAP39-f3XLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI
+-gAAAP39-f3XLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAP39-f3XLP7AwMDELP4AAAD_AKCg
+wzwE-f33PBTI-gAAAMo0whTeBBTOBBTJBBTDBBT9xgQUxQQUygQUxwQUzAQUxQTAFNAEwBTCBBTk
+LP7AwMDELP4AAAD_AKCgwzwE-f33PBTE-hhYqMAUwP4AAADKNBThBBTIBBTDBBTJBBTDBBTNBBTn
+BBTKBBTSBBTHBBTMBBTGBBTPBBTABBTABMAU5P6AcJj_wMDAxCz_AAAA-gCgoMM8BP399zwU-hhY
+qMUUwP4AAADKNBTCNBQ0wBQ0FDTAFMA0wBTANBQ0wBTFBMAUwATCFMYEFMEEwRTABMAUwQTBFAQU
+wAQUBMIUwATAFMAEwRTCBBTABMAUBBTABBTABBTFBMEUwATAFMAEwBQEFMEEwBTCBBTBBMEUBBTA
+BBQEwRTCBMAUwATAFMEEwRQEwhTEBMIUwATAFMEEwRQEwhTEBBTABBTABBTABMAUxQQUwAQUBBQE
+FOT_gHCY-sDAwMQs-gAAAP4AoKDDPAT9-fc8-hhYqMj_AAAAyjTBFMA0wBTBNMAUwTQUwDQUNMAU
+yQQUwAQUxwQUwQQUwAQUBBTABBQEFMIEFAQUwQQUwQQUwAQUBBTABBTABBTBBBQEFAQUBBTABBTE
+BBTABBTCBBQEFAQUBBQEFMAEFMAEFMEEFMIEFMAEFAQUwAQUwgQUBBTABBQEFMMEFMcEFMEEFMAE
+FAQUwwQUxgQUwAQUwAQUwgQUwAQUwgTAFMAEFAQU5P6AcJj_wMDAxCz_AAAA-gCgoMM8BP399zwU
+wP4YWKjG-gAAAMo0FMI0FMI0FMI0FMA0FDQUyATBFMAEFMcEFMEEFMAEFATCFMAEwBTABMAUwgQU
+wQQUwAQUBBTABBTABBTBBBQEFAQUBBTABBQEwhQEFMAEFMAEwRQEFAQUBBQEwhTABBTCBMAUwAQU
+wAQUBBTABBTCBBQEwhQEFMMEFMcEFMEEwhTABMAUwQQUxgQUwAQUwAQUwATBFMQEFMAEFATCFOP_
+gHCY-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMT_GFiowBTA-gAAAMo0FMI0FMI0FMI0FMA0FDQUxwQU
+wAQUwAQUxgQUwgQUwAQUBBTFBBQEFAQUwQQUwQQUwAQUBMEUwAQUwgQUwQQUwATBFMUEwRQEFMAE
+FAQUwQQUBBTCBBTFBBQEFMAEFAQUwAQUwgQUBBTCBBTDBBTHBBTBBBTFBBTABBTGBBTABBTABBQE
+FMAEFMAEFMEEFMAEFMEEFOT_gHCY-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAyjTCFDQUwjQU
+wzTAFMA0FMgEwRTBBMAUxAQUwwTBFMAEwRQEwRTABBTABBTBBMAUwATAFMAEFMIEFMIEFMEEFMIE
+FMcEFMAEwRQEFMEEFMAEwRQEFMIEwRTBBMEUBMEUwAQUwAQUwATBFMAEwRTBBMAUBMIUwQTAFMAE
+wRQEwRTCBMAUwAQUwQTAFMAEwRTABMEUxQTAFMIEFOQs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_
+AAAA-dwEFM4EwBTGBMAU5QTAFP3vLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAP39-f3XLP7A
+wMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAP39-f3XLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAA
+AO4EFNoEwBT9-f3GLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAO4EFNsEFP39-cYs-sDAwMQs
+-gAAAP4AoKDDPAT9-fc8FMj_AAAAywTAFMAEFATAFMAEwRTABMEUxATBFMEEwBTABMIUxQTAFMEE
+wRQEFMAEFMAEwBTBBBT9-f3GLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAM0EFATAFMEEFMAE
+FAQUxwQUwAQUBBTABBTABBTGBBTABBQEFMAEFAQUwAQUwgQUwAQU-f39xiz_wMDAxCz_AAAA-gCg
+oMM8BP399zwUyP4AAADLBMEUBBTCBBTABBTABMAUxQQUwAQUBBTABBTABBTGBMIUBBTABBQEFMAE
+FMAEwRTABBT9-f3GLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAMoEFMAEFAQUwwTBFMIEFMQE
+FMAEFAQUwAQUwAQUxgQUwwTBFAQUwAQUBBTABBTABBT9-f3GLP7AwMDELP4AAAD_AKCgwzwE-f33
+PBTI-gAAAMsEwRQEFMUEFATBFMUEFMAEFMAEwBTCBMAUxQTBFMIEFMAEwRTABMEUwATAFP39-cUs
+-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA1QTAFOYEFP39-dMs-sDAwMQs-gAAAP4AoKDDPAT9
+-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwCzCFCz_
+AAAA-gCgoMM8BP399zwUyP4AAADp-lhQSBTH-sDAwMD_AAAA-f393iz_wMDAxCz_AAAA-gCgoMM8
+BP399zwUyP4AAADpJBTG-sDAwP4AAADA-sDAwP4AAAD9-f3dLP7AwMAswhQs-gAAAP4AoKDDPAT9
+-fc8FMj_AAAA0CTAFMAkFMAkFCTBFMEkwBTBJMEUJMIUx-7AwMD_AAAA-f393Sz_wMDAxCz_AAAA
+-gCgoMM8BP399zwUyP4AAADPJBTAJBQkFMAkFCQUwCQUJBTAJBQkFMMkFMEkwhTB-sDAwP4AAAD9
+-f3eLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAM8kwhTAJMAUwCQUwCQUJMIUJBTDJBTH-sDA
+wP4AAAD5-hgoUP4AAAD9-eEs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAzyQUwiQUwCQUJMEU
+wCQUwiQUwyQUwSTCFP7AwMD_AAAA_f4YKFAEFP4AAAD9-eAs-sDAwMQs-gAAAP4AoKDDPAT9-fc8
+FMj_AAAA0CTBFCQUwCQUJBTDJMEUwCTBFMEkwBTE-sDAwML_AAAA9v4YKFAEwBT_AAAA-f3fLP7A
+wMDELP4AAAD_AKCgwzwE-f33PBTI-gAAANkkFP3U-hgoUATBFP4AAAD9-d4s-sDAwMQs-gAAAP4A
+oKDDPAT9-fc8FMj_AAAA-fD_GChQBMIU-gAAAP393Sz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4A
+AAD98P4YKFAEwBTA-gAAAP393iz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADaJBTLJMAUx-7A
+wMD_AAAA_f4YKFDABBT_AAAA-f3eLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAANokFMwkFMb_
+wMDAwP4AAAD9-f3fLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAANAkwBTBJMEUJMIUJBTAJBTA
+JMAUwSQUx-7AwMD_AAAA-f393yz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADSJBQkFMMkFMEk
+FMAkFMIkFMAkFMAkwhTB-sDAwP4AAAD9-f3fLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAANAk
+wRQkFMMkFMEkFMAkFMAkwRTAJBTH-sDAwP4AAAD9-f3fLP7AwMDELP4AAAD_AKCgwzwE-f33PBTI
+-gAAAM8kFMAkFCQUwyQUwSQUwCQUJBTAJBTAJBTAJMIUwf7AwMD_AAAA-f393yz_wMDAxCz_AAAA
+-gCgoMM8BP399zwUyP4AAADQJMEUwCTBFMEkwBTAJMEUwCTBFMAkwBTF-sDAwMH_AAAA-f393iz_
+wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAAD9-f391yz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4A
+AAD9-f391yz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAAD9-f391yz_wMDAxCz_AAAA-gCgoMM8
+BP399zwUyP4AAADKNMMUyjQUyDTAFMU0FMA0wBTINBT9-f3ULP7AwMDELP4AAAD_AKCgwzwE-f33
+PBTI-gAAAMw0FMw0FMc0FMs0FMg0FP39-dQs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAAzDQU
+wjTAFME0wRQ0whTFNBTCNMAUwDTAFME0FME0wBTBNMEU-f391Cz_wMDAxCz_AAAA-gCgoMM8BP39
+9zwUyP4AAADMNBTBNBTANBQ0FMM0FMY0whTCNBTANBTBNBTANBTANBQ0FMA0FP39-dQs-sDAwMQs
+-gAAAP4AoKDDPAT9-fc8FMj_AAAAzDQUwTTCFMA0wBTBNBTHNBTCNMEUwDQUwTQUwDTCFDQUwDQU
+-f391Cz_wMDAxCz_AAAA-gCgoMM8BP399zwUyP4AAADMNBTBNBTFNBTANBTHNBTBNBTANBTANBTB
+NBTANBTCNBTANBT9-f3ULP7AwMDELP4AAAD_AKCgwzwE-f33PBTI-gAAAMw0FMI0wRQ0wRTCNMAU
+xTQUwjTBFDTBFMA0wBTANMEUwDTBFP39-dQs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39
+-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8
+FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4A
+oKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDA
+wMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA
+-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9
+-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAA
+AP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs-sDAwMQs-gAAAP4AoKDDPAT9-fc8FMj_AAAA-f39-dcs
+wP7AwMDCLMD_AAAA-gCgoMM8BP399zwUyP4AAADVBMAUxgTAFMcEFP39-egsxhT_AKCgwzwE-f33
+PBTI-gAAANQEFMAEFMQEFMAEFMUEwBT9-f3oLMYU-gCgoMM8BP399zwUyP4AAADL-sDAwP4AAADJ
+BBTHBBTEBBQEFP39-egsxhT_AKCgwzwE-f33PBTI-gAAAMz_wMDA-gAAAMcEFMIEFMIEFMAEwhQE
+FAQU-f396CzGFP4AoKDDPAT9-fc8FMj_AAAAzf7AwMD_AAAAxQQUwgTBFMAEFMYEwhT9-f3nLMYU
+-gCgoMM8BP399zwUyP4AAADM-sDAwP4AAADFBBTEBBTABBTCBMIUwQQU-f396CzGFP4AoKDDPAT9
+-fc8FMj_AAAAy-7AwMD_AAAAxgTCFMQEwhTGBBT9-f3oLMYU-gCgoMM8BP399zwUyP4AAAD9-f39
+1yzGFP4AoKDDPAT9-fc8FMj_AAAA-f39-dcsxhT_AKCgwzwE-f33PBTI-gAAAP39-f3XLMYU-gCg
+oMM8BP399zwUyP4AAADK-gDgMMMUygQU6wTAFMQEwBT9-f3ALMYU-gCgoMM8-vjw6P399zwUyP4A
+AADM-gDgMBTMBBTqBBTHBBT9-f3ALMYU-gCgoMM8-vjw6P399zwUyP4AAADM-gDgMBTCBMAUwQTB
+FATCFMUEwRQEFMAEFMAEwRTABMEUwATAFMEEwRTABMEUwAQUwQQUwAQUwAQU-f39wCzGFP4AoKDD
+PP748Oj9-fc8FMj_AAAAzP4A4DAUwQQUwAQUBBTDBBTGBBTCBBTABBQEFMIEFMIEFMAEFAQUwgQU
+wgTCFAQUwAQUwAQU-f39wCzGFP4AoKDDPP748Oj9-fc8FMj_AAAAzP4A4DAUwQTCFMAEwBTBBBTH
+BMAUwAQUwAQUBBTCBBTCBMIUwATAFMEEwBTBBBTBBBTABBTABBT9-f3ALMYU-gCgoMM8-vjw6P39
+9zwUyP4AAADM-gDgMBTBBBTFBBTABBTJBBQEFMAEFAQUwgQUwgQUxQQUwgQUwAQUwQQUwAQUwAQU
+-f39wCzGFP4AoKDDPP748Oj9-fc8FMj_AAAAzP4A4DAUwgTBFATBFMIEwBTEBMEUwQTBFMAEwRTA
+BMEUwATBFATBFMAEwRTBBBTCBMEUwATAFP39-SzGFP4AoKDDPP748Oj9-fc8FMj_AAAA-f39-dcs
+xhT_AKCgwzwE-f33PBTI-gAAAP39-f3XLMYU-gCgoMM8BP399zwUyP4AAAD9-f391yzGFP4AoKDE
+PAT9-fU8FMn_AAAA-f39-dcsxhT_AKCgxTz9-fUUy-4AAAD9-f391izFFP4AoKD9-f3N-gAAAP39
+-f3c-gCgoP39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39
+-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f39-f3qAAAAAAAA
+AAE=
+:: lib/
+:: lib/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSJdXQ==
+:: lib/tables.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+---@param from table
+---@param pos integer
+---@param to table
+function insert_table(from, pos, to)
+   table.move(to,
+      pos, pos + (#to - pos),
+      #from + pos)
+
+   table.move(from, 1, #from, pos, to)
+end
+
+---Moves all elements from one table to another. Returns new table with removed
+---elements
+---@param from_table table
+---@param from_first integer
+---@param from_last integer
+---@param to_table table
+---@param to_first integer
+function move_table(from_table, from_first, from_last, to_table, to_first)
+   local results = {}
+
+   table.move(from_table, from_first, from_last, to_first, to_table)
+
+   table.move(from_table, 1, from_first - 1, 1, results)
+   table.move(from_table, from_last + 1, #from_table,
+      from_first, results)
+
+   return results
+end
+
+:: lib/tables_test.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+include "tables.lua"
+
+test("insert_table", function()
+   local from = { 1, 2, 3 }
+   local to = { 'A', 'B', 'C' }
+   local pos = 2
+   insert_table(from, pos, to)
+   assert_eq({ 'A', 1, 2, 3, 'B', 'C' }, to)
+end)
+
+test("move_table", function()
+   local from = { 1, 2, 3 }
+   local to = { 'A', 'B', 'C' }
+   local result = move_table(from, 2, 3, to, 2)
+   assert_eq({ 'A', 2, 3 }, to)
+   assert_eq({ 1 }, result)
+end)
+
+:: main.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+include "lib/tables.lua"
+
+if #env().argv == 0 then
+	include "gui/gui.lua"
+else
+	include "cli.lua"
+end
+
+:: map/
+:: map/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Iixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Il1d
+:: map/0.map
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTEzIDE0OjM3OjU1Iixtb2RpZmllZD0iMjAyNC0w
+NC0xNCAwNTo1NTozNCIscmV2aXNpb249MzE1XV1sejQAZwAAAFYQAADwCHt7Ym1wPXVzZXJkYXRh
+KCJpMTYiLDMyAwAvIjABAP--------------------vxCCIpLGhpZGRlbj1mYWxzZSxwYW5feD0w
+CADCeT0wLHRpbGVfaD04CQDAdz04LHpvb209MX19
+:: runner.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- runner is a seperate application spawn by gui/cli in a dedicated process.
+-- runner runs user tests. Once done, runner exits.
+-- runner is needed because running tests from inside GUI will block the game
+-- loop or will have a potential side effects (like drawing in the window)
+
+-- runner send messages with events to communicate with the parent process.
+
+include "api.lua"
+include "throttler.lua"
+
+local work_dir            = env().path
+
+local parent_pid <const>  = env().parent_pid
+local test_file <const>   = env().argv[1]
+local dir_in_file <const> = string.match(test_file, ".+/")
+if dir_in_file then
+	work_dir = dir_in_file
+end
+
+-- TODO Do not pass run_tests function to test script in _ENV
+-- TODO all assert functions should not be global, but passed to script only
+
+local id_sequence = 0
+
+local tests <const> = {}                            -- {id=1,name=..}
+
+local publish_throttler <const> = new_throttler(50) -- max 50 messages per frame
+
+-- key is a file:linedefined, value is always true:
+local helpers <const> = {}
+
+local function publish(msg)
+	publish_throttler:throttle()
+	send_message(parent_pid, msg)
+end
+
+local function set_error_on_parents(parent, err)
+	while parent != nil do
+		parent.error = err
+		parent = parent.parent
+	end
+end
+
+---Starts a test with given name and code
+---@param name any Name of test
+---@param test function Test code
+function test(name, test)
+	local parent
+	if #tests > 0 then
+		parent = tests[#tests]
+	end
+
+	id_sequence += 1
+	local current_test = {
+		id = id_sequence,
+		name = tostring(name),
+		parent = parent,
+	}
+	table.insert(tests, current_test)
+
+	publish { event = "test_started", test = current_test }
+
+	local success, err = pcall(test)
+	if not success then
+		if type(err) == "string" then
+			local escaped_work_dir = work_dir:gsub("([%W])", "%%%1")
+			-- file locator is file path with line no, eg. "/workdir/file.lua:10: "
+			local file_locator_pattern = escaped_work_dir .. "[^ ]+:%d+: "
+			local msg = err
+
+			local file = string.match(err, file_locator_pattern)
+			if file then
+				msg = err:sub(#file + 1, #err)
+				file = file:sub(1, #file - 2) -- drop ": "
+			end
+			if msg == "assertion failed!" then
+				msg = "Assertion failed"
+			end
+			err = {
+				__traceback = { file },
+				msg = msg,
+			}
+		end
+
+		local function prepare_to_send(value)
+			if value == nil then
+				return nil
+			end
+
+			if type(value) == "number" then
+				-- picotron is not able to send small numbers, like 0.000001
+				return tostring(value)
+			end
+
+			if pod(value) == nil then
+				if type(value) == "table" then
+					-- picotron crashes on cyclic tables
+					return "[not serializable - cyclic table]"
+				end
+				return "[not serializable]"
+			end
+
+			-- send the original value, Picotron will handle the serialization:
+			return value
+		end
+
+		-- Ensure all values can be sent to different process:
+		for key, value in pairs(err) do
+			err[key] = prepare_to_send(value)
+		end
+
+		set_error_on_parents(parent, "nested test failed")
+	end
+
+	if err == nil then
+		err = current_test.error
+	end
+
+	table.remove(tests, #tests)
+
+	publish { event = "test_finished", test = current_test, error = err }
+end
+
+-- test_helper marks the calling function as a test helper function.
+-- When printing file and line information in GUI, that function will be
+-- skipped.
+function test_helper()
+	local info = debug.getinfo(2, "Sl")
+	local info_string = string.format("%s:%d", info.short_src, info.linedefined)
+	helpers[info_string] = true
+end
+
+---Generates stack traceback (skipping helpers)
+---@return table
+local function traceback()
+	local trace = {}
+
+	for level = 3, math.huge do
+		local info = debug.getinfo(level, "Sl")
+		if info == nil then break end
+		local info_string = string.format("%s:%d", info.short_src, info.linedefined)
+		if not helpers[info_string] then
+			table.insert(trace, string.format("%s:%d", info.short_src, info.currentline))
+		end
+	end
+
+	return trace
+end
+
+---Generates test error which stops current test execution and shows error to
+---the user. In the GUI, the error will be presented together with a file name
+---and line number where the `test_fail` function was executed. If you run
+---`test_fail` from your own assert function, and want to see a place where this
+---assert function was executed instead, please run the test_helper() function
+---in the beginning of your assert function:
+---```
+---   function custom_assert(....)
+---      test_helper() -- mark custom_assert function as test helper
+---      if .... then
+---         test_fail("message")
+---      end
+---   end
+---```
+---@param err string|table Error message as a string or a table. All table fields will be presented in the GUI. Table could contain special `msg` field which will always be presented first.
+function test_fail(err)
+	if type(err) != "table" then
+		err = { msg = tostring(err) }
+	end
+
+	err.__traceback = traceback()
+
+	error(err)
+end
+
+local originalPrint <const> = print
+
+-- override picotron print, so all text is sent to the parent process
+function print(text, x, y, color)
+	if x == nil and y == nil and color == nil then
+		publish { event = "print", test = tests[#tests], text = tostring(text) }
+	end
+
+	originalPrint(text, x, y, color)
+end
+
+cd(work_dir)
+
+test("root", function()
+	local ok = include(test_file)
+	if not ok then
+		publish { event = "fatal_error", error = test_file .. " not found" }
+		return
+	end
+end)
+
+publish { event = "done", root_test_id = 1 }
+
+:: sfx/
+:: sfx/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSIsc3RvcmVkPSIyMDI0LTA0LTA4IDE5OjA1OjMzIl1d
+:: sfx/0.sfx
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTA0LTAyIDA4OjIxOjQzIixtb2RpZmllZD0iMjAyNC0w
+NC0xNCAwNTo1NTozNCIscmV2aXNpb249MTI2OV1dbHo0AD0BAABXCAAA8CdweHUAAygAAAMABA9A
+EAIOAAGgASACoA4ADxAADfDKAQIDBAUGBwAP-5AICQoLDwwPDQ8ODw8QAPAADQ8RDxIPEw8UDxUP
+Fg8XEwDxAQ8YDxkPGg8bDxwPHQ8eDx8UAPEAIA8hDyIPIw8kDyUPJg8nFADxACgPKQ8qDysPLA8t
+Dy4PLxQA8QAwDzEPMg8zDzQPNQ82DzcUAP8FOA85DzoPOw88Dz0PPg8-AA--8P8BAOv-J1oBEAYP
+IBABIAEgAfAAAhACDBABIA8hIAEwD0Dwww8oD--wxg-4Cg--D4AP9w8NAfAJARAGDDAAAC-wyC0A
+BQ9dAAUPMAD--3If-wEAzGHoD0AACEDxBP8RPg8wDzIPNQ85D0D--yhx-ih8-ijwcA9AAA1A-rDw
+cAMIAP-cH-8BAJdQ-----x8=
+:: tests/
+:: tests/.info.pod
+b64$LS1bW3BvZCxjcmVhdGVkPSIyMDI0LTExLTMwIDE3OjExOjA3Iixtb2RpZmllZD0iMjAyNS0x
+MC0yNiAwODozNTozOSJdXQ==
+:: tests/api_test.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- run this file in terminal using file name: ./api_test.lua
+-- this file deliberately does not use Unitron, but test.lua because it tests
+-- Unitron API.
+
+include "test.lua"
+include "../api.lua"
+
+local function test_negative(expected_err, f, ...)
+	local success, err = pcall(f, ...)
+	assert(not success)
+	assert(type(err) == "table")
+	assert(err.assert == expected_err)
+end
+
+test("assert_eq", function()
+	test("not equal", function()
+		local tests = {
+			numbers = {
+				left = 10, right = 11,
+			},
+			strings = {
+				left = "a", right = "b",
+			},
+			flat_tables = {
+				left = { key = "value" },
+				right = { key = "different_value" },
+			},
+			tables_with_different_number_of_keys = {
+				left = { key = "value" },
+				right = { key = "value", another_key = "another_value" },
+			},
+			nested_tables = {
+				left = { a = { b = "c" } },
+				right = { a = { b = "d" } },
+			},
+			different_types = {
+				left = "1", right = 1,
+			},
+			userdata_different_width = {
+				left  = userdata("u8", 2, 1),
+				right = userdata("u8", 1, 1),
+			},
+			userdata_different_height = {
+				left  = userdata("u8", 1, 2),
+				right = userdata("u8", 1, 1),
+			},
+			userdata_different_values = {
+				left = userdata('u8', 2, 2, "02030405"),
+				right = userdata('u8', 2, 2, "0A0B0C0D"),
+			},
+			userdata_different_type = {
+				left = userdata('u8', 2, 2),
+				right = userdata('i32', 2, 2),
+			},
+			["nil"] = {
+				left = nil,
+				right = "not nil",
+			},
+			["nil reversed"] = {
+				left = "not nil",
+				right = nil,
+			}
+		}
+
+		for test_name, case in pairs(tests) do
+			test(test_name, function()
+				test("assert_eq", function()
+					test_negative("eq", assert_eq, case.left, case.right)
+				end)
+				test("assert_not_eq", function()
+					assert_not_eq(case.left, case.right)
+				end)
+			end)
+		end
+	end)
+
+	test("equal", function()
+		local table_with_cycle = {}
+		table_with_cycle.next = table_with_cycle
+
+		local another_table_with_cycle = {}
+		another_table_with_cycle.next = another_table_with_cycle
+
+		local tests = {
+			numbers = {
+				left = 10, right = 10,
+			},
+			strings = {
+				left = "a", right = "a",
+			},
+			flat_tables = {
+				left = { key = "value" },
+				right = { key = "value" },
+			},
+			nested_tables = {
+				left = { a = { b = "c" } },
+				right = { a = { b = "c" } },
+			},
+			-- in Lua there is no distinction whether key is nil
+			-- or not present in a table:
+			tables_with_nil_value = {
+				left = { key = nil },
+				right = { another_key = nil },
+			},
+			tables_with_cycle = {
+				left = table_with_cycle,
+				right = another_table_with_cycle,
+			},
+			userdata = {
+				left = userdata('u8', 2, 2, "02030405"),
+				right = userdata('u8', 2, 2, "02030405"),
+			},
+			["nil"] = {
+				left = nil,
+				right = nil,
+			}
+		}
+
+		for test_name, case in pairs(tests) do
+			test(test_name, function()
+				test("assert_eq", function()
+					assert_eq(case.left, case.right)
+				end)
+				test("assert_not_eq", function()
+					test_negative("not_eq",
+						assert_not_eq, case.left, case.right)
+				end)
+			end)
+		end
+	end)
+end)
+
+test("assert_close", function()
+	local function test_invalid_args(assert_func, expected_err)
+		test("should fail for invalid args", function()
+			local tests = {
+				["left nil"] = {
+					left = nil, right = 1, delta = 1,
+				},
+				["right nil"] = {
+					left = 1, right = nil, delta = 1,
+				},
+				["delta nil"] = {
+					left = 1, right = 1, delta = nil,
+				},
+			}
+			for test_name, case in pairs(tests) do
+				test(test_name, function()
+					test_negative(expected_err,
+						assert_func, case.left, case.right, case.delta)
+				end)
+			end
+		end)
+	end
+
+	test_invalid_args(assert_close, "close")
+	test_invalid_args(assert_not_close, "not_close")
+
+	test("not close enough", function()
+		local tests = {
+			integers = {
+				left = 1, right = 2, delta = 0,
+			},
+			floats = {
+				left = 1.1, right = 1.2, delta = 0.01,
+			},
+		}
+		for test_name, case in pairs(tests) do
+			test(test_name, function()
+				test("assert_close", function()
+					test_negative("close",
+						assert_close, case.left, case.right, case.delta)
+				end)
+				test("assert_not_close", function()
+					assert_not_close(case.left, case.right, case.delta)
+				end)
+			end)
+		end
+	end)
+
+	test("close enough", function()
+		local tests = {
+			integers = {
+				left = 1, right = 2, delta = 1
+			},
+			floats = {
+				left = 1.1, right = 1.2, delta = 0.2,
+			}
+		}
+		for test_name, case in pairs(tests) do
+			test(test_name, function()
+				test("assert_close", function()
+					assert_close(case.left, case.right, case.delta)
+				end)
+				test("assert_not_close", function()
+					test_negative("not_close",
+						assert_not_close, case.left, case.right, case.delta
+					)
+				end)
+			end)
+		end
+	end)
+end)
+
+:: tests/test.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- this file contains functions used in tests veryfing unitron behavior
+-- functions here are extremely simple compared to unitron (no custom assertions,
+-- no spawning background processes etc.)
+
+local level = 0
+
+function test(name, func)
+	local space = " "
+	print(space:rep(level) .. "Running " .. name)
+	level += 1
+	func()
+	level -= 1
+end
+
+:: throttler.lua
+-- (c) 2024 Jacek Olszak
+-- This code is licensed under MIT license (see LICENSE for details)
+
+-- creates an object which slows down the code if it runs too fast
+function new_throttler(max_per_frame)
+   local fps <const> = 60
+   local instructions_per_second = 8000000 -- max no of instructions in Picotron
+
+   local started, count
+
+   local function reset()
+      started = time()
+      count = 0
+   end
+
+   reset()
+
+   local throttler <const> = {}
+
+   function throttler:throttle()
+      count += 1
+      if count > max_per_frame and
+          count / (time() - started) / fps > max_per_frame
+      then
+         -- sleep for a frame
+         for i = 1, instructions_per_second / fps do end
+         reset()
+      end
+   end
+
+   return throttler
+end
+
+:: [eoc]
