@@ -1,0 +1,804 @@
+# Locustron Multi-Strategy Development Roadmap
+
+This document outlines the 6-phase development plan for implementing multiple spatial partitioning strategies in Locustron while maintaining complete API compatibility.
+
+## Overview
+
+With token budget constraints removed, Locustron will evolve from a single Fixed Grid implementation to a comprehensive spatial partitioning library supporting multiple strategies optimized for different game types and scenarios.
+
+## Phase 1: Core Abstraction & Fixed Grid Refactor (2 weeks)
+
+### Overview
+Phase 1 establishes the foundation for multi-strategy spatial partitioning by creating a clean abstraction layer and refactoring the current implementation to use linked lists instead of userdata. This enables vanilla Lua testing and prepares for multiple strategy implementations.
+
+---
+
+### Phase 1.1: Vanilla Lua Foundation & Testing Setup (3 days)
+
+#### BDD Feature Specifications
+
+**Feature: Vanilla Lua Compatibility**
+```gherkin
+As a developer using Locustron
+I want the library to run in standard Lua environments
+So that I can develop and test without Picotron dependencies
+
+Scenario: Library loads in vanilla Lua
+  Given I have a standard Lua 5.4+ environment
+  When I require the locustron library
+  Then it should load without any Picotron-specific dependencies
+  And it should not reference userdata functions
+  And it should use only standard Lua language features
+  And it should leverage Lua 5.4+ features like integer division and new string methods
+
+Scenario: Basic spatial operations work in vanilla Lua
+  Given a locustron instance created in vanilla Lua 5.4+
+  When I add objects to the spatial hash
+  And I query for objects in a region
+  Then I should get correct spatial query results
+  And the performance should be comparable to Picotron version
+  And it should utilize Lua 5.4+ optimizations where applicable
+```
+
+**Feature: Comprehensive Testing Infrastructure**
+```gherkin
+As a developer contributing to Locustron
+I want a comprehensive testing framework
+So that I can validate changes with confidence
+
+Scenario: BDD test suite execution
+  Given a Busted testing framework setup
+  When I run the complete test suite
+  Then all tests should pass with >90% code coverage
+  And test execution should complete in under 30 seconds
+  And test results should include performance metrics
+
+Scenario: Cross-platform Lua compatibility
+  Given test configurations for multiple Lua versions
+  When I run tests on Lua 5.1, 5.2, 5.3, 5.4, and LuaJIT
+  Then all tests should pass on each version
+  And any version-specific behaviors should be documented
+```
+
+**Feature: Linked List Data Structures**
+```gherkin
+As a spatial partitioning algorithm
+I want efficient linked list operations
+So that I can manage objects without fixed capacity limits
+
+Scenario: Cell creation and management
+  Given the need to store objects in spatial cells
+  When I create a new cell
+  Then it should have an empty object list
+  And it should track object count efficiently
+  And it should support unlimited object capacity
+
+Scenario: Object node operations
+  Given objects that need spatial indexing
+  When I create object nodes with bounding boxes
+  Then each node should store object reference and spatial data
+  And nodes should support doubly-linked list operations
+  And memory usage should be efficient for typical game scenarios
+
+Scenario: Linked list manipulation
+  Given a cell with multiple objects
+  When I add, remove, or traverse objects
+  Then operations should be O(1) for insertion/deletion
+  And traversal should visit all objects exactly once
+  And list integrity should be maintained during all operations
+```
+
+**Feature: Continuous Integration Pipeline**
+```gherkin
+As a project maintainer
+I want automated testing on code changes
+So that regressions are caught immediately
+
+Scenario: Automated test execution
+  Given a Git repository with CI configuration
+  When I push code changes to any branch
+  Then tests should run automatically on multiple Lua versions
+  And I should receive immediate feedback on test results
+  And coverage reports should be generated and tracked
+
+Scenario: Performance regression detection
+  Given baseline performance metrics
+  When new code is tested in CI
+  Then performance should not degrade by more than 10%
+  And significant performance improvements should be highlighted
+  And performance trends should be tracked over time
+```
+
+#### Implementation Steps
+
+**Day 1: Vanilla Lua Foundation**
+```lua
+-- Step 1: Create linked list primitives
+describe("Linked List Foundation", function()
+  context("when creating cells", function()
+    it("should initialize empty cells correctly", function()
+      local cell = create_cell()
+      assert.is_nil(cell.objects)
+      assert.equals(0, cell.count)
+    end)
+  end)
+  
+  context("when creating object nodes", function()
+    it("should store all required data", function()
+      local obj = {id = "test"}
+      local node = create_object_node(obj, 10, 20, 8, 16)
+      
+      assert.equals(obj, node.obj)
+      assert.equals(10, node.x)
+      assert.equals(20, node.y)
+      assert.equals(8, node.w)
+      assert.equals(16, node.h)
+      assert.is_nil(node.next)
+      assert.is_nil(node.prev)
+    end)
+  end)
+end)
+```
+
+**Day 2: Testing Infrastructure**
+```lua
+-- Step 2: Set up comprehensive test framework
+describe("Testing Infrastructure", function()
+  context("when running in different Lua versions", function()
+    it("should provide version compatibility", function()
+      assert.truthy(_VERSION)
+      assert.truthy(string.match(_VERSION, "Lua 5%.%d+"))
+    end)
+  end)
+  
+  context("when measuring performance", function()
+    it("should establish baseline metrics", function()
+      local start_time = os.clock()
+      -- Perform standard operations
+      local duration = os.clock() - start_time
+      assert.truthy(duration >= 0)
+    end)
+  end)
+end)
+```
+
+**Day 3: CI Pipeline & Integration**
+```yaml
+# .github/workflows/test.yml
+name: Vanilla Lua Test Suite
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lua-version: ['5.1', '5.2', '5.3', '5.4', 'luajit']
+    steps:
+      - uses: actions/checkout@v3
+      - uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: ${{ matrix.lua-version }}
+      - uses: leafo/gh-actions-luarocks@v4
+      - run: luarocks install busted
+      - run: luarocks install luacov
+      - run: busted --coverage
+      - run: luacov
+```
+
+#### Acceptance Criteria (BDD Style)
+
+**Given** the Phase 1.1 implementation is complete
+**When** I run the validation suite
+**Then** the following scenarios should pass:
+
+- ✅ **Vanilla Lua Compatibility**: Library loads and runs in all target Lua versions
+- ✅ **Test Coverage**: >90% code coverage with comprehensive BDD scenarios
+- ✅ **CI Pipeline**: Automated testing passes on all supported platforms
+- ✅ **Performance Baseline**: Benchmarks establish measurable performance targets
+- ✅ **Linked List Operations**: All data structure operations work correctly and efficiently
+
+---
+
+### Phase 1.2: Strategy Interface Design (2 days)
+
+#### Objectives
+- Define comprehensive strategy interface
+- Create strategy factory system
+- Establish configuration patterns
+- Design strategy lifecycle management
+
+#### Deliverables
+- **Strategy Interface**: Abstract contract for all spatial partitioning strategies
+- **Strategy Factory**: Dynamic strategy creation and configuration
+- **Configuration System**: Flexible parameter management
+- **Lifecycle Management**: Strategy initialization, cleanup, and state management
+
+#### Key Components
+```lua
+-- Core strategy interface contract
+local SpatialStrategy = {
+  -- Object lifecycle
+  add_object = function(self, obj, x, y, w, h) end,
+  remove_object = function(self, obj) end,
+  update_object = function(self, obj, x, y, w, h) end,
+  
+  -- Spatial queries
+  query_region = function(self, x, y, w, h, filter_fn) end,
+  query_point = function(self, x, y, filter_fn) end,
+  query_nearest = function(self, x, y, count, filter_fn) end,
+  
+  -- Strategy management
+  get_info = function(self) end,
+  get_statistics = function(self) end,
+  clear = function(self) end,
+  
+  -- Debug and visualization
+  get_debug_info = function(self) end,
+  visualize_structure = function(self) end
+}
+
+-- Strategy factory
+local function create_strategy(strategy_type, config)
+  local strategies = {
+    fixed_grid = require("strategies.fixed_grid"),
+    quadtree = require("strategies.quadtree"),
+    hash_grid = require("strategies.hash_grid"),
+    auto = require("strategies.auto_select")
+  }
+  
+  local strategy_class = strategies[strategy_type]
+  if not strategy_class then
+    error("Unknown strategy: " .. tostring(strategy_type))
+  end
+  
+  return strategy_class.new(config or {})
+end
+
+-- Enhanced configuration system
+local loc = locustron({
+  strategy = "fixed_grid",
+  config = {
+    cell_size = 32,
+    initial_capacity = 100,
+    growth_factor = 1.5,
+    debug_mode = false
+  }
+})
+```
+
+#### Success Criteria
+- ✅ Well-defined strategy interface with clear contracts
+- ✅ Factory pattern enables dynamic strategy selection
+- ✅ Configuration system supports all strategy parameters
+- ✅ Interface design accommodates future strategy implementations
+
+---
+
+### Phase 1.3: Fixed Grid Strategy Refactor (4 days)
+
+#### Objectives
+- Refactor current userdata implementation to linked lists
+- Implement strategy interface for Fixed Grid
+- Maintain exact API compatibility
+- Achieve performance parity or better
+
+#### Deliverables
+- **Fixed Grid Strategy**: Complete linked list implementation
+- **API Compatibility Layer**: Seamless transition from legacy API
+- **Performance Optimization**: Efficient linked list operations
+- **Comprehensive Testing**: Full test coverage for refactored implementation
+
+#### Key Components
+```lua
+-- Fixed Grid strategy implementation
+local FixedGridStrategy = {}
+FixedGridStrategy.__index = FixedGridStrategy
+
+function FixedGridStrategy.new(config)
+  local self = setmetatable({}, FixedGridStrategy)
+  
+  self.cell_size = config.cell_size or 32
+  self.grid = {}  -- Sparse grid of cells
+  self.objects = {}  -- Object to grid mapping
+  self.object_count = 0
+  
+  return self
+end
+
+function FixedGridStrategy:add_object(obj, x, y, w, h)
+  -- Calculate grid bounds
+  local gx0, gy0 = math.floor(x / self.cell_size), math.floor(y / self.cell_size)
+  local gx1, gy1 = math.floor((x + w - 1) / self.cell_size), math.floor((y + h - 1) / self.cell_size)
+  
+  -- Create object node
+  local obj_node = create_object_node(obj, x, y, w, h)
+  obj_node.grid_cells = {}
+  
+  -- Add to grid cells
+  for gy = gy0, gy1 do
+    self.grid[gy] = self.grid[gy] or {}
+    for gx = gx0, gx1 do
+      self.grid[gy][gx] = self.grid[gy][gx] or create_cell()
+      local cell = self.grid[gy][gx]
+      
+      -- Add to linked list
+      obj_node.next = cell.objects
+      if cell.objects then
+        cell.objects.prev = obj_node
+      end
+      cell.objects = obj_node
+      cell.count = cell.count + 1
+      
+      -- Track which cells contain this object
+      table.insert(obj_node.grid_cells, {gx = gx, gy = gy})
+    end
+  end
+  
+  self.objects[obj] = obj_node
+  self.object_count = self.object_count + 1
+  return obj
+end
+
+-- Backward compatibility wrapper
+local function locustron(config)
+  -- Handle legacy single parameter
+  if type(config) == "number" then
+    config = {strategy = "fixed_grid", config = {cell_size = config}}
+  elseif not config then
+    config = {strategy = "fixed_grid", config = {cell_size = 32}}
+  end
+  
+  local strategy = create_strategy(config.strategy, config.config)
+  
+  -- Return API-compatible interface
+  return {
+    add = function(obj, x, y, w, h) return strategy:add_object(obj, x, y, w, h) end,
+    del = function(obj) return strategy:remove_object(obj) end,
+    update = function(obj, x, y, w, h) return strategy:update_object(obj, x, y, w, h) end,
+    query = function(x, y, w, h, filter) return strategy:query_region(x, y, w, h, filter) end,
+    
+    -- Internal access for debugging
+    _strategy = strategy,
+    _size = strategy.cell_size,
+    _pool = function() return 0 end,  -- Legacy compatibility
+  }
+end
+```
+
+#### Success Criteria
+- ✅ Complete Fixed Grid strategy using linked lists
+- ✅ 100% backward compatibility with existing API
+- ✅ Performance within 10% of original userdata implementation
+- ✅ All existing unit tests pass without modification
+
+---
+
+### Phase 1.4: Integration & Validation (3 days)
+
+#### Objectives
+- Integrate all Phase 1 components
+- Validate backward compatibility
+- Performance benchmarking and optimization
+- Comprehensive testing across scenarios
+
+#### Deliverables
+- **Integrated System**: All components working together seamlessly
+- **Compatibility Validation**: Existing code works without changes
+- **Performance Benchmarks**: Baseline metrics for future comparisons
+- **Test Suite**: Comprehensive coverage of all functionality
+
+#### Key Components
+```lua
+-- Integration tests
+describe("Phase 1 Integration", function()
+  it("should maintain API compatibility", function()
+    -- Test that existing code patterns work
+    local loc = locustron(64)
+    local player = {id = "player"}
+    
+    loc.add(player, 100, 100, 16, 16)
+    loc.update(player, 110, 110, 16, 16)
+    
+    local results = loc.query(100, 100, 32, 32)
+    assert.truthy(results[player])
+    
+    loc.del(player)
+    results = loc.query(100, 100, 32, 32)
+    assert.falsy(results[player])
+  end)
+  
+  it("should support enhanced configuration", function()
+    local loc = locustron({
+      strategy = "fixed_grid",
+      config = {cell_size = 128, debug_mode = true}
+    })
+    
+    assert.equals(128, loc._strategy.cell_size)
+  end)
+end)
+
+-- Performance validation
+local function benchmark_phase1()
+  local start_time = os.clock()
+  
+  local loc = locustron(32)
+  local objects = {}
+  
+  -- Add 1000 objects
+  for i = 1, 1000 do
+    local obj = {id = i}
+    objects[i] = obj
+    loc.add(obj, math.random(1000), math.random(1000), 8, 8)
+  end
+  
+  -- Perform 1000 queries
+  for i = 1, 1000 do
+    loc.query(math.random(1000), math.random(1000), 64, 64)
+  end
+  
+  -- Remove all objects
+  for i = 1, 1000 do
+    loc.del(objects[i])
+  end
+  
+  local end_time = os.clock()
+  return end_time - start_time
+end
+```
+
+#### Success Criteria
+- ✅ All integration tests pass
+- ✅ Performance benchmarks show acceptable metrics
+- ✅ Memory usage remains stable during stress testing
+- ✅ No regressions in existing functionality
+
+---
+
+### Phase 1 Summary
+
+#### Timeline Breakdown
+- **Phase 1.1**: Vanilla Lua Foundation (3 days)
+- **Phase 1.2**: Strategy Interface Design (2 days) 
+- **Phase 1.3**: Fixed Grid Refactor (4 days)
+- **Phase 1.4**: Integration & Validation (3 days)
+- **Total**: 12 days (~2.5 weeks accounting for planning/buffer)
+
+#### Key Achievements
+- 🎯 **Vanilla Lua Compatibility**: Removes Picotron dependency for core development
+- 🎯 **Modern Testing**: Establishes comprehensive test infrastructure
+- 🎯 **Strategy Foundation**: Creates extensible architecture for multiple strategies
+- 🎯 **Backward Compatibility**: Maintains 100% API compatibility
+- 🎯 **Performance Baseline**: Establishes metrics for future optimization
+
+#### Validation Gates
+Each sub-phase must meet its success criteria before proceeding to the next. This ensures quality and prevents technical debt accumulation.
+
+## Phase 2: Quadtree & Hash Grid Implementation (3 weeks)
+
+### Objectives
+- Implement adaptive Quadtree strategy for clustered object scenarios
+- Implement Hash Grid strategy for unbounded worlds
+- Validate strategy selection framework
+- Comprehensive performance comparison tools
+
+### Deliverables
+- **Quadtree Strategy**: Hierarchical adaptive partitioning
+- **Hash Grid Strategy**: Unbounded hash-based spatial indexing
+- **Strategy Benchmarking**: Performance comparison between strategies
+- **Auto-Selection Logic**: Intelligent strategy recommendation
+
+### Quadtree Features
+```lua
+local loc_quad = locustron({
+  strategy = "quadtree",
+  config = {
+    max_objects_per_node = 8,
+    max_depth = 6,
+    split_threshold = 10,
+    merge_threshold = 4,
+    lazy_subdivision = true,
+    adaptive_thresholds = true
+  }
+})
+```
+
+### Hash Grid Features
+```lua
+local loc_hash = locustron({
+  strategy = "hash_grid",
+  config = {
+    cell_size = 64,
+    hash_function = "multiplicative", -- or "fnv", "murmur"
+    load_factor_threshold = 0.75,
+    dynamic_resizing = true
+  }
+})
+```
+
+### Success Criteria
+- Quadtree outperforms Fixed Grid in clustered scenarios
+- Hash Grid handles unbounded worlds efficiently
+- Strategy selection framework recommends optimal strategy
+- Benchmark suite validates performance characteristics
+
+## Phase 3: BSP Tree & BVH Implementation (3 weeks)
+
+### Objectives
+- Implement Binary Space Partitioning for irregular game worlds
+- Implement Bounding Volume Hierarchy for complex collision scenarios
+- Advanced configuration and tuning systems
+- Strategy-specific optimization features
+
+### Deliverables
+- **BSP Tree Strategy**: Optimal for irregular spaces and level geometry
+- **BVH Strategy**: Object-oriented partitioning for complex collisions
+- **Advanced Configuration**: Rich tuning options for each strategy
+- **Optimization Framework**: Automatic parameter tuning
+
+### BSP Tree Features
+```lua
+local loc_bsp = locustron({
+  strategy = "bsp_tree",
+  config = {
+    max_depth = 8,
+    split_strategy = "median", -- or "balanced", "surface_area"
+    plane_selection = "axis_aligned", -- or "arbitrary"
+    leaf_threshold = 5,
+    rebalance_frequency = 300 -- frames
+  }
+})
+```
+
+### BVH Features
+```lua
+local loc_bvh = locustron({
+  strategy = "bvh",
+  config = {
+    construction_method = "top_down", -- or "bottom_up"
+    split_heuristic = "surface_area", -- or "median", "centroid"
+    leaf_size = 4,
+    update_strategy = "lazy", -- or "immediate", "deferred"
+    bounding_box_padding = 1.1
+  }
+})
+```
+
+### Success Criteria
+- BSP Tree excels in irregular world scenarios
+- BVH provides superior complex collision performance
+- Configuration system allows fine-tuning for specific use cases
+- All strategies maintain userdata optimization benefits
+
+## Phase 4: Intelligent Selection & Comprehensive Benchmarks (2 weeks)
+
+### Objectives
+- Implement automatic strategy selection based on game characteristics
+- Comprehensive benchmarking suite comparing all strategies
+- Real-time strategy switching and optimization
+- Game-type specific recommendations
+
+### Deliverables
+- **Auto-Selection System**: Analyzes game patterns and recommends optimal strategy
+- **Comprehensive Benchmarks**: Performance analysis across all strategies
+- **Runtime Optimization**: Dynamic strategy switching based on performance metrics
+- **Game Profile Library**: Pre-configured strategies for common game types
+
+### Auto-Selection Features
+```lua
+local loc_auto = locustron({
+  strategy = "auto",
+  game_profile = {
+    game_type = "rts", -- or "platformer", "bullet_hell", "open_world", "puzzle"
+    object_count_estimate = 2000,
+    typical_object_size = {8, 8, 16, 16},
+    movement_frequency = "high",
+    query_frequency = "very_high", 
+    world_bounds = {-1000, -1000, 2000, 2000},
+    clustering_tendency = "moderate"
+  }
+})
+
+-- Game-specific presets
+local loc_rts = locustron("rts_optimized")        -- Auto-selects Quadtree
+local loc_platformer = locustron("platformer")    -- Auto-selects Fixed Grid
+local loc_bullet_hell = locustron("bullet_hell")  -- Auto-selects Hash Grid
+```
+
+### Benchmark Suite
+```lua
+include("benchmarks/benchmark_strategy_comparison.lua")  -- Compare all strategies
+include("benchmarks/benchmark_adaptive_tuning.lua")     -- Real-time optimization
+include("benchmarks/benchmark_game_scenarios.lua")      -- Game-specific testing
+include("benchmarks/benchmark_memory_profiling.lua")    -- Memory usage analysis
+```
+
+### Success Criteria
+- Auto-selection chooses optimal strategy for given game characteristics
+- Benchmark suite provides clear performance insights
+- Runtime optimization improves performance during gameplay
+- Game-type profiles work out-of-the-box for common scenarios
+
+## Phase 5: Advanced Debugging & Visualization (2 weeks)
+
+### Objectives
+- Rich debugging and visualization tools for all strategies
+- Performance monitoring and analysis
+- Advanced profiling capabilities
+- Educational visualization for learning spatial partitioning concepts
+
+### Deliverables
+- **Strategy Visualization**: Visual debugging for each partitioning method
+- **Performance Monitoring**: Real-time performance metrics and warnings
+- **Advanced Profiling**: Detailed analysis tools for optimization
+- **Educational Tools**: Interactive visualization for learning purposes
+
+### Debugging Features
+```lua
+-- Advanced debugging capabilities
+loc.debug.enable_visualization(true)           -- Strategy-specific visualization
+loc.debug.show_partition_boundaries()           -- Visual partition display
+loc.debug.enable_heat_maps()                   -- Query density analysis
+loc.debug.track_query_efficiency()             -- Real-time precision metrics
+loc.debug.log_rebalancing_events()             -- Performance optimization tracking
+loc.debug.export_performance_data("stats.json") -- Detailed analytics export
+
+-- Educational mode
+loc.debug.enable_educational_mode()            -- Step-by-step algorithm visualization
+loc.debug.show_algorithm_steps()               -- Visualize partitioning decisions
+loc.debug.export_algorithm_trace()             -- Algorithm execution trace
+```
+
+### Visualization Tools
+- **Fixed Grid**: Cell boundaries, occupancy heat maps, object distribution
+- **Quadtree**: Tree structure, subdivision visualization, adaptive behavior
+- **Hash Grid**: Hash distribution, collision visualization, load factor monitoring
+- **BSP Tree**: Plane visualization, space subdivision, tree structure
+- **BVH**: Bounding volume hierarchy, object clustering, tree updates
+
+### Success Criteria
+- Rich visual debugging for all strategies
+- Performance monitoring catches optimization opportunities
+- Educational tools effectively teach spatial partitioning concepts
+- Profiling tools enable advanced optimization workflows
+
+## Phase 6: Documentation & Examples (1 week)
+
+### Objectives
+- Comprehensive documentation for all strategies
+- Complete example suite demonstrating each strategy
+- Migration guide from single-strategy to multi-strategy
+- Best practices and optimization guidelines
+
+### Deliverables
+- **Complete Documentation**: API documentation for all strategies and features
+- **Example Suite**: Practical examples demonstrating optimal strategy usage
+- **Migration Guide**: Step-by-step transition from current implementation
+- **Best Practices Guide**: Optimization guidelines and common patterns
+
+### Documentation Structure
+```
+docs/
+├── api/
+│   ├── strategies/
+│   │   ├── fixed_grid.md
+│   │   ├── quadtree.md
+│   │   ├── hash_grid.md
+│   │   ├── bsp_tree.md
+│   │   └── bvh.md
+│   ├── configuration.md
+│   ├── benchmarking.md
+│   └── debugging.md
+├── examples/
+│   ├── platformer_game.lua      -- Fixed Grid optimization
+│   ├── rts_game.lua             -- Quadtree for unit clustering
+│   ├── infinite_world.lua       -- Hash Grid for unbounded worlds
+│   ├── fps_level.lua            -- BSP Tree for level geometry
+│   └── physics_simulation.lua   -- BVH for complex collisions
+├── guides/
+│   ├── migration.md             -- Transition from v1 to v2
+│   ├── strategy_selection.md    -- Choosing optimal strategies
+│   ├── performance_tuning.md    -- Optimization techniques
+│   └── custom_strategies.md     -- Implementing new strategies
+└── tutorials/
+    ├── getting_started.md
+    ├── advanced_configuration.md
+    └── debugging_workflows.md
+```
+
+### Example Games
+```lua
+-- Platformer optimization example
+local loc = locustron({
+  strategy = "fixed_grid",
+  size = 32,
+  config = {
+    optimize_for = "uniform_distribution",
+    prealloc_cells = 500
+  }
+})
+
+-- RTS optimization example  
+local loc = locustron({
+  strategy = "quadtree", 
+  config = {
+    max_objects_per_node = 6,
+    clustering_optimization = true,
+    unit_size_hint = {16, 16}
+  }
+})
+
+-- Infinite world example
+local loc = locustron({
+  strategy = "hash_grid",
+  config = {
+    cell_size = 128,
+    streaming_optimization = true,
+    memory_limit_mb = 16
+  }
+})
+```
+
+### Success Criteria
+- Complete API documentation for all features
+- Working examples for common game scenarios
+- Clear migration path from current implementation
+- Best practices guide enables optimal usage
+
+## Strategic Benefits
+
+### Educational Excellence
+- Comprehensive spatial partitioning learning platform
+- Interactive visualization of algorithm behavior
+- Practical examples demonstrating trade-offs
+- Academic reference implementation
+
+### Game-Specific Optimization
+- Optimal strategy for every game type
+- Automatic selection and tuning
+- Performance validation tools
+- Real-world performance metrics
+
+### Research Platform
+- Easy experimentation with new algorithms
+- Comprehensive benchmarking framework
+- Performance analysis tools
+- Academic collaboration opportunities
+
+### Performance Leadership
+- Best-in-class performance for every scenario
+- Userdata optimization across all strategies
+- Advanced profiling and optimization tools
+- Continuous performance monitoring
+
+## Timeline Summary
+
+| Phase | Duration | Focus | Key Deliverables |
+|-------|----------|-------|------------------|
+| 1 | 2 weeks | Architecture | Strategy abstraction, Fixed Grid refactor |
+| 2 | 3 weeks | Core Strategies | Quadtree, Hash Grid implementations |
+| 3 | 3 weeks | Advanced Strategies | BSP Tree, BVH implementations |
+| 4 | 2 weeks | Intelligence | Auto-selection, comprehensive benchmarks |
+| 5 | 2 weeks | Tooling | Debugging, visualization, profiling |
+| 6 | 1 week | Polish | Documentation, examples, guides |
+
+**Total: 13 weeks (~3 months)**
+
+## Risk Mitigation
+
+### Compatibility Risk
+- **Mitigation**: Comprehensive unit test suite with 100% backward compatibility validation
+- **Fallback**: Maintain v1 API as legacy option during transition
+
+### Performance Risk  
+- **Mitigation**: Continuous benchmarking against baseline performance
+- **Fallback**: Performance regression detection with automatic rollback
+
+### Complexity Risk
+- **Mitigation**: Gradual rollout with optional feature adoption
+- **Fallback**: Simple configuration presets for common use cases
+
+### Testing Risk
+- **Mitigation**: Strategy-specific test suites with comprehensive coverage
+- **Fallback**: Automated testing across all supported strategies
+
+This roadmap positions Locustron as the definitive spatial partitioning library for Picotron, combining academic rigor with practical game development excellence while maintaining the simplicity and performance that made the original implementation successful.
