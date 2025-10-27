@@ -1,3 +1,4 @@
+---@diagnostic disable: redundant-parameter
 -- Benchmarking Suite for Spatial Partitioning Strategies
 -- Comprehensive performance testing and analysis framework
 
@@ -337,10 +338,10 @@ function BenchmarkSuite:find_best_strategy(strategies)
 
    for strategy_name, results in pairs(strategies) do
       -- Composite score: weighted average of normalized metrics
-      local score = (results.add_time * 1000) * 0.3 +    -- 30% weight on add time
-         (results.query_time * 1000) * 0.4 +             -- 40% weight on query time
-         (results.memory_usage / 1024) * 0.2 +           -- 20% weight on memory
-         ((1.0 - results.accuracy) * 100) * 0.1          -- 10% weight on accuracy loss
+      local score = (results.add_time * 1000) * 0.3 + -- 30% weight on add time
+         (results.query_time * 1000) * 0.4 +          -- 40% weight on query time
+         (results.memory_usage / 1024) * 0.2 +        -- 20% weight on memory
+         ((1.0 - results.accuracy) * 100) * 0.1       -- 10% weight on accuracy loss
 
       if score < best_score then
          best_score = score
@@ -374,7 +375,7 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
          if metric == "memory_usage" then
             value = value / (1024 * 1024) -- Convert to MB
          elseif metric:match("_time$") then
-            value = value * 1000      -- Convert to milliseconds
+            value = value * 1000          -- Convert to milliseconds
          end
          max_value = math.max(max_value, value)
       end

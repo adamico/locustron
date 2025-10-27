@@ -32,7 +32,6 @@ function FixedGridStrategy.new(config)
 
    -- Strategy identification
    self.strategy_name = "fixed_grid"
-   self.strategy_type = "spatial_hash"
 
    return self
 end

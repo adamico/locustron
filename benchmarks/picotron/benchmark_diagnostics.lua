@@ -6,32 +6,33 @@
 printh("\27[1m\27[36m=== LOCUSTRON BENCHMARK DIAGNOSTICS ===\27[0m")
 printh("Checking benchmark environment...")
 local start_memory = stat(3)
-printh("Initial memory usage: " .. start_memory .. " bytes (" .. string.format("%.1f", start_memory / 1024) .. " KB)")
+printh("Initial memory usage: "..start_memory.." bytes ("..string.format("%.1f", start_memory / 1024).." KB)")
 printh("\n")
 
 -- Check basic Picotron functions
 printh("\27[1m\27[34mPICOTRON FUNCTION CHECKS:\27[0m")
 local functions_to_check = {
-   {"time", time},
+   {"time",   time},
    {"printh", printh},
-   {"stat", stat},
-   {"rnd", rnd},
-   {"flr", flr},
-   {"max", max},
-   {"min", min}
+   {"stat",   stat},
+   {"rnd",    rnd},
+   {"flr",    flr},
+   {"max",    max},
+   {"min",    min}
 }
 
 for _, func_info in pairs(functions_to_check) do
    local name, func = func_info[1], func_info[2]
    if func then
-      printh("\27[32m✓\27[0m " .. name .. " - Available")
+      printh("\27[32m✓\27[0m "..name.." - Available")
    else
-      printh("\27[31m✗\27[0m " .. name .. " - Missing")
+      printh("\27[31m✗\27[0m "..name.." - Missing")
    end
 end
 
 local after_func_check = stat(3)
-printh("Memory after function checks: " .. after_func_check .. " bytes (" .. string.format("%.1f", after_func_check / 1024) .. " KB)")
+printh("Memory after function checks: "..
+after_func_check.." bytes ("..string.format("%.1f", after_func_check / 1024).." KB)")
 printh("\n")
 
 -- Check file system access
@@ -42,14 +43,15 @@ local success, error_msg = pcall(function()
 end)
 
 if not success then
-   printh("\27[31m✗\27[0m require.lua - Failed to load: " .. tostring(error_msg))
+   printh("\27[31m✗\27[0m require.lua - Failed to load: "..tostring(error_msg))
    printh("  Make sure you're in the benchmarks/picotron/ directory")
    return
 end
 
 local after_require = stat(3)
-printh("Memory after require.lua: " .. after_require .. " bytes (" .. string.format("%.1f", after_require / 1024) .. " KB)")
-printh("Memory increase: " .. (after_require - start_memory) .. " bytes")
+printh("Memory after require.lua: "..
+after_require.." bytes ("..string.format("%.1f", after_require / 1024).." KB)")
+printh("Memory increase: "..(after_require - start_memory).." bytes")
 
 -- Check locustron loading
 local locustron_success, locustron_error = pcall(function()
@@ -59,7 +61,7 @@ local locustron_success, locustron_error = pcall(function()
 end)
 
 if not locustron_success then
-   printh("✗ locustron.lua - Failed to load: " .. tostring(locustron_error))
+   printh("✗ locustron.lua - Failed to load: "..tostring(locustron_error))
    return
 end
 
@@ -69,12 +71,12 @@ printh("LOCUSTRON FUNCTIONALITY CHECKS:")
 local loc_test_success, loc_test_error = pcall(function()
    local locustron = require("../../src/picotron/locustron")
    local loc = locustron(32)
-   
+
    -- Test object creation and addition
    local obj = {x = 10, y = 10, w = 8, h = 8, id = "test"}
    loc.add(obj, obj.x, obj.y, obj.w, obj.h)
    printh("✓ Object addition - Working")
-   
+
    -- Test querying
    local results = loc.query(0, 0, 50, 50)
    if results[obj] then
@@ -82,7 +84,7 @@ local loc_test_success, loc_test_error = pcall(function()
    else
       printh("✗ Object querying - Failed")
    end
-   
+
    -- Test API functions
    local x, y, w, h = loc.get_bbox(obj)
    if x == 10 and y == 10 and w == 8 and h == 8 then
@@ -90,16 +92,16 @@ local loc_test_success, loc_test_error = pcall(function()
    else
       printh("✗ get_bbox function - Failed")
    end
-   
+
    -- Test internal functions
    local cell_count = loc._get_cell_count(0, 0)
-   printh("✓ _get_cell_count function - Working (count: " .. tostring(cell_count) .. ")")
-   
+   printh("✓ _get_cell_count function - Working (count: "..tostring(cell_count)..")")
+
    printh("✓ Basic locustron functionality - All tests passed")
 end)
 
 if not loc_test_success then
-   printh("✗ Locustron functionality test failed: " .. tostring(loc_test_error))
+   printh("✗ Locustron functionality test failed: "..tostring(loc_test_error))
    return
 end
 
@@ -119,13 +121,13 @@ local bench_success, bench_error = pcall(function()
       }
    end
    printh("✓ Test object creation - Working")
-   
+
    local loc = locustron(32)
    for _, obj in pairs(objects) do
       loc.add(obj, obj.x, obj.y, obj.w, obj.h)
    end
    printh("✓ Bulk object addition - Working")
-   
+
    -- Test timing
    local start_time = time()
    for i = 1, 5 do
@@ -133,13 +135,13 @@ local bench_success, bench_error = pcall(function()
    end
    local end_time = time()
    local duration = end_time - start_time
-   printh("✓ Benchmark timing - Working (5 queries in " .. string.format("%.4f", duration) .. "s)")
-   
+   printh("✓ Benchmark timing - Working (5 queries in "..string.format("%.4f", duration).."s)")
+
    printh("✓ Benchmark functions - All tests passed")
 end)
 
 if not bench_success then
-   printh("✗ Benchmark function test failed: " .. tostring(bench_error))
+   printh("✗ Benchmark function test failed: "..tostring(bench_error))
    return
 end
 
@@ -147,11 +149,11 @@ end
 printh("\n")
 printh("MEMORY STATUS:")
 local current_memory = stat(3)
-printh("Current memory usage: " .. current_memory .. " bytes (" .. string.format("%.1f", current_memory / 1024) .. " KB)")
-if current_memory > 25000000 then  -- 25MB in bytes
+printh("Current memory usage: "..current_memory.." bytes ("..string.format("%.1f", current_memory / 1024).." KB)")
+if current_memory > 25000000 then -- 25MB in bytes
    printh("\27[33mWARNING: High memory usage detected\27[0m")
    printh("This may affect benchmark performance")
-elseif current_memory < 1000000 then  -- 1MB in bytes
+elseif current_memory < 1000000 then -- 1MB in bytes
    printh("\27[32mMemory usage looks normal\27[0m")
 else
    printh("Memory usage is acceptable")
@@ -164,6 +166,6 @@ printh("You can now run the full benchmark suite with confidence.")
 printh("\n")
 printh("To run benchmarks:")
 printh('include("run_all_benchmarks.lua")')
-printh('-- or --')
+printh("-- or --")
 printh('include("benchmark_grid_tuning.lua")')
 printh('include("benchmark_userdata_performance.lua")')
