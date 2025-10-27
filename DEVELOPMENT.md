@@ -31,13 +31,54 @@ lua -v
 
 For Picotron development, you'll also need yotta (Picotron's package manager):
 
+#### Installing Yotta
+
+**Initial Installation:**
 ```bash
-# Install yotta (follow official Picotron documentation)
-# After installation, you can install locustron as a package for testing:
+# In Picotron terminal:
+load #yotta -u
+# Ctrl+R to run installer cartridge
+# Press X to install
+```
+
+**Upgrading from v1.0:**
+```bash
+# In Picotron terminal:
+yotta util install #yotta
+yotta version  # Should show "yotta version v1.1"
+```
+
+**Note:** Use `load #yotta -u` (with `-u` flag) to avoid sandboxing issues that prevent installation.
+
+#### Using Yotta with Locustron
+
+Once yotta is installed, you can install locustron as a package for testing:
+
+```bash
+# Install locustron from BBS as a dependency
 yotta add #locustron
+yotta apply
 
 # This will install locustron to lib/locustron/ for local testing
 # Note: lib/ folder is excluded from git as it contains installed packages
+```
+
+#### Yotta Commands Reference
+
+```bash
+# Dependency management (for your cartridge projects)
+yotta init              # Initialize yottafile for current directory
+yotta add #cart_id      # Add BBS cartridge as dependency
+yotta add /path/file    # Add local cartridge as dependency
+yotta apply             # Install all dependencies to lib/ folder
+yotta remove #cart_id   # Remove dependency
+yotta list              # List current dependencies
+
+# Package management (global system utilities)
+yotta util install #cart_id     # Install system package globally
+yotta util uninstall #cart_id   # Uninstall system package
+yotta util list                 # List installed packages
+yotta util update #cart_id      # Update system package
 ```
 
 ### Running Tests
