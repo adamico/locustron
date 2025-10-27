@@ -57,7 +57,8 @@ src/
     ├── doubly_linked_list.lua    # Memory-efficient cell management
     ├── benchmark_suite.lua       # Performance benchmarking
     └── [additional strategies]   # Future implementations
-lib/                       # Reserved for yotta package installations
+lib/                       # Reserved for yotta package installations (empty in git)
+exports/                   # Build artifacts (excluded from git) 
 tests/
 ├── picotron/              # Picotron unitron tests
 └── vanilla/               # Cross-platform BDD tests
@@ -85,9 +86,14 @@ benchmarks/
 
 The `export_package.lua` script manages the export workflow:
 - **Directory setup**: Automatically creates `lib/locustron/` and `exports/` directories if they don't exist
+- **Build artifacts**: The `exports/` folder contains generated files and is excluded from git
 - **Dual sync**: Copies `src/picotron/` files to both `lib/locustron/` (for local yotta simulation) and `exports/` (for BBS distribution)  
 - **Validation**: Verifies package integrity and file presence
 - **BBS preparation**: Prepares cartridge for publication with proper metadata
+
+**Publishing Methods:**
+1. **GitHub Repository**: Contains the complete source code in `src/` with development files
+2. **Lexaloffle BBS**: Contains the exported `locustron.p64.png` cartridge as a yotta package (generated from `exports/` folder)
 
 ## Testing Strategy
 

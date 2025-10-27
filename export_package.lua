@@ -7,7 +7,8 @@
 
 printh("\27[1m\27[36m=== LOCUSTRON PACKAGE EXPORT WORKFLOW ===\27[0m")
 printh("Preparing locustron.p64 for yotta package distribution...")
-printh("📁 Required directories (lib/locustron/ and exports/) will be created automatically if needed")
+printh("📁 Build artifacts (lib/locustron/ and exports/) will be created automatically")
+printh("📝 Note: exports/ folder is excluded from git (build artifacts only)")
 printh("\n")
 
 -- Step 0: Development workflow reminder
