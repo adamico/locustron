@@ -127,6 +127,12 @@ Notes:
 ## With yotta
 The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle.com/bbs/?pid=143592#p):
 
+### Install Yotta (one-time setup)
+1. `> load #yotta -u` (load unsandboxed to access filesystem)
+2. `> Ctrl+R` to run installer cartridge
+3. `> Press X` to install yotta globally
+
+### Install Locustron in your cart
 1. `> cd /ram/cart`
 2. `> yotta init`
 3. `> yotta add #locustron`
