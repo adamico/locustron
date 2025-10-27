@@ -8,12 +8,32 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 ## Architecture & Core Concepts
 
 ### Spatial Hash Design
+- **Fixed Grid Pattern**: Implements the "Fixed Grid" spatial partitioning pattern from [Game Programming Patterns](https://gameprogrammingpatterns.com/spatial-partition.html)
 - **Grid-based**: Objects stored in squared cells (default 32x32 pixels)
 - **Sparse allocation**: Cells created only when containing objects  
 - **Userdata optimization**: Cell storage uses Picotron userdata for memory efficiency
 - **Standard query results**: Returns `{[obj]=true}` hash tables for compatibility
 - **AABB representation**: Objects defined by `(x,y,w,h)` bounding boxes
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
+
+### Spatial Partitioning Pattern Analysis
+**Fixed Grid Characteristics:**
+- **Flat (Non-Hierarchical)**: Single-level grid, no recursive subdivision like quadtrees
+- **Object-Independent**: Grid boundaries fixed regardless of object positions
+- **Incremental**: Objects can be added/moved one at a time efficiently
+- **Simple**: Straightforward 2D array-like structure for debugging and optimization
+
+**Comparison to Alternative Patterns:**
+- **vs Quadtrees**: Simpler implementation, constant memory, faster updates, but less adaptive to clustering
+- **vs BSP/k-d trees**: No tree traversal overhead, easier debugging, but fixed partitioning
+- **vs Hierarchical**: Better performance with uniform distribution, worse with extreme clustering
+- **vs Object-Dependent**: Fast incremental updates, but can be imbalanced
+
+**Design Decision Rationale:**
+- **Picotron constraints**: Fixed grid works well with userdata and 32MB memory limit
+- **Game object patterns**: Most Picotron games have relatively uniform object distribution
+- **Performance predictability**: No tree rebalancing or complex subdivision algorithms
+- **Implementation simplicity**: Easier to debug, optimize, and maintain than hierarchical structures
 
 ### Key Components
 - `lib/locustron/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage

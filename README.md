@@ -335,6 +335,28 @@ The included `locustron_demo.lua` provides interactive visualization:
 
 # Preemptive FAQ
 
+## What spatial partitioning pattern does Locustron use?
+
+Locustron implements a **Fixed Grid** spatial partitioning pattern, as described in [Game Programming Patterns](https://gameprogrammingpatterns.com/spatial-partition.html). This means:
+
+- **Flat (Non-Hierarchical)**: Uses a single-level grid structure, not recursive subdivision like quadtrees
+- **Object-Independent Partitioning**: Grid cell boundaries are fixed regardless of object positions  
+- **Sparse Allocation**: Only creates cells when objects are present to save memory
+
+**Comparison to other spatial partitioning patterns:**
+- **vs Quadtrees/Octrees**: Simpler implementation, constant memory usage, faster updates, but can be imbalanced with clustered objects
+- **vs BSP/k-d trees**: No tree traversal overhead, easier to understand, but less adaptive to object distribution
+- **vs Bounding Volume Hierarchies**: Better for dynamic objects that move frequently, simpler memory management
+
+**Why Fixed Grid for Locustron:**
+- ✅ **Simple**: Straightforward 2D grid structure easy to debug and optimize
+- ✅ **Fast updates**: Moving objects between cells is a simple operation
+- ✅ **Predictable performance**: No tree rebalancing or complex subdivision logic
+- ✅ **Memory efficient**: Sparse allocation only creates cells when needed
+- ✅ **Picotron optimized**: Works well with userdata and Picotron's constraints
+
+The trade-off is that performance can degrade if objects cluster heavily in one area, but the benchmarking tools help you choose optimal grid sizes to minimize this issue.
+
 ## How does it work?
 
 Internally, locustron has a sparse list of "rows" (representing the `y` axis). Each row can have one or more cells (on the `x` axis).
