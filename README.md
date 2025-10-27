@@ -140,11 +140,17 @@ The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle
 
 
 ## Without yotta
-You can also directly copy the files from the `exports/` directory into your Picotron cartridge:
+You can also manually install locustron using one of these methods:
 
-1. Copy `exports/locustron.lua` to your cart
-2. Copy `exports/require.lua` to your cart (if you don't have a require system)
-3. Use `include("locustron.lua")` or your preferred module loading method
+### From published cartridge (recommended for users)
+1. Download the locustron cartridge from the BBS
+2. Copy `exports/locustron.lua` to your cart
+3. Copy `exports/require.lua` to your cart (if you don't have a require system)
+
+### From source repository (for developers)
+1. `git clone` this repository
+2. Copy `src/picotron/locustron.lua` to your cart
+3. Copy `src/picotron/require.lua` to your cart (if you don't have a require system)
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
