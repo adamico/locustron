@@ -3,8 +3,8 @@
 -- Optimized for userdata-based spatial hash with comprehensive performance metrics
 -- Run in Picotron console: include("benchmarks/picotron/benchmark_grid_tuning.lua")
 
-include("../../lib/picotron/require.lua")
-local locustron = require("../../lib/picotron/locustron")
+include("../../src/picotron/require.lua")
+local locustron = require("../../src/picotron/locustron")
 
 -- Benchmark Configuration
 local GRID_SIZES = {16, 32, 64, 128}

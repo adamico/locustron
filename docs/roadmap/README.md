@@ -44,7 +44,7 @@ See the [Strategy Selection Guide](./strategy-selection-guide.md) for detailed g
 
 ## Getting Started
 
-1. **Current State**: Review the existing [Fixed Grid implementation](../../lib/picotron/locustron.lua)
+1. **Current State**: Review the existing [Fixed Grid implementation](../../src/picotron/locustron.lua)
 2. **Phase 1**: Start with [Vanilla Lua Foundation](./phase-1-foundation.md)
 3. **Testing**: Follow the [BDD methodology](./bdd-methodology.md) for systematic development
 4. **Implementation**: Each phase includes detailed specifications and acceptance criteria

@@ -1,6 +1,6 @@
-include("lib/picotron/require.lua")
+include("src/picotron/require.lua")
 
-local locustron = require("lib/picotron/locustron")
+local locustron = require("src/picotron/locustron")
 local loc
 local GRID_SIZE = 256                  -- Main grid display area
 local GRID_X = 16                      -- Grid offset from left

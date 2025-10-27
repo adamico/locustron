@@ -37,7 +37,7 @@ printh("\n")
 -- Check file system access
 printh("\27[1m\27[34mFILE SYSTEM CHECKS:\27[0m")
 local success, error_msg = pcall(function()
-   include("../../lib/picotron/require.lua")
+   include("../../src/picotron/require.lua")
    printh("\27[32m✓\27[0m require.lua - Loaded successfully")
 end)
 
@@ -53,7 +53,7 @@ printh("Memory increase: " .. (after_require - start_memory) .. " bytes")
 
 -- Check locustron loading
 local locustron_success, locustron_error = pcall(function()
-   local locustron = require("../../lib/picotron/locustron")
+   local locustron = require("../../src/picotron/locustron")
    printh("✓ locustron.lua - Loaded successfully")
    return locustron
 end)
@@ -67,7 +67,7 @@ end
 printh("\n")
 printh("LOCUSTRON FUNCTIONALITY CHECKS:")
 local loc_test_success, loc_test_error = pcall(function()
-   local locustron = require("../../lib/picotron/locustron")
+   local locustron = require("../../src/picotron/locustron")
    local loc = locustron(32)
    
    -- Test object creation and addition
@@ -107,7 +107,7 @@ end
 printh("\n")
 printh("BENCHMARK FUNCTION CHECKS:")
 local bench_success, bench_error = pcall(function()
-   local locustron = require("../../lib/picotron/locustron")
+   local locustron = require("../../src/picotron/locustron")
    local objects = {}
    for i = 1, 10 do
       objects[i] = {
