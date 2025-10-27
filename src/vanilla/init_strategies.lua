@@ -1,8 +1,8 @@
--- Register Built-in Strategies
--- This module registers all built-in spatial partitioning strategies
+-- Initialize and register all strategies
+-- This module should be loaded before using the strategy system
 
-local strategy_interface = require("strategy_interface")
-local FixedGridStrategy = require("fixed_grid_strategy")
+local strategy_interface = require("src.vanilla.strategy_interface")
+local FixedGridStrategy = require("src.vanilla.fixed_grid_strategy")
 
 -- Register Fixed Grid Strategy
 strategy_interface.register_strategy("fixed_grid", FixedGridStrategy, {

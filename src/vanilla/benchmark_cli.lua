@@ -1,6 +1,9 @@
 -- Benchmarking CLI Tool
 -- Command-line interface for running spatial partitioning benchmarks
 
+-- Initialize strategies first
+require("src.vanilla.init_strategies")
+
 local BenchmarkSuite = require("src.vanilla.benchmark_suite")
 local PerformanceProfiler = require("src.vanilla.performance_profiler")
 
