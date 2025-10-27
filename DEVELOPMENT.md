@@ -1,20 +1,63 @@
 # Locustron Development Guide
 
+## Development Environment Setup
+
+### Prerequisites
+
+For cross-platform development and testing, you'll need to set up a Lua development environment:
+
+1. **Install Lua 5.4+** (required for vanilla Lua development)
+2. **Install LuaRocks** (Lua package manager)
+3. **Install Busted** (BDD testing framework)
+
+```bash
+# Install LuaRocks (varies by system)
+# Ubuntu/Debian:
+sudo apt-get install luarocks
+
+# macOS (with Homebrew):
+brew install luarocks
+
+# Install Busted for BDD testing
+luarocks install busted
+
+# Verify installation
+busted --version
+lua -v
+```
+
+### Running Tests
+
+```bash
+# Run cross-platform BDD tests
+busted tests/vanilla/
+
+# Run specific test file
+busted tests/vanilla/setup_spec.lua
+
+# Run with verbose output
+busted --verbose tests/vanilla/
+```
+
 ## Project Structure
 
 Locustron uses a clear separation between platform-specific and cross-platform code:
 
 ```
-lib/
+src/
 ├── picotron/              # Picotron-specific implementation
 │   ├── locustron.lua      # Main userdata-based implementation
-│   └── require.lua        # Picotron module system
+│   ├── require.lua        # Picotron module system
+│   ├── locustron_demo.lua # Interactive demo
+│   ├── benchmarks/        # Picotron performance tests
+│   └── tests/             # Unitron test suite
 └── vanilla/               # Cross-platform implementation
     ├── strategy_interface.lua    # Abstract strategy pattern
     ├── fixed_grid_strategy.lua   # Vanilla Lua Fixed Grid
     ├── doubly_linked_list.lua    # Memory-efficient cell management
     ├── benchmark_suite.lua       # Performance benchmarking
     └── [additional strategies]   # Future implementations
+lib/                       # Reserved for yotta package installations
 tests/
 ├── picotron/              # Picotron unitron tests
 └── vanilla/               # Cross-platform BDD tests
@@ -27,33 +70,34 @@ benchmarks/
 
 ### Picotron Development
 
-1. **Main Implementation**: Edit `lib/picotron/locustron.lua`
-2. **Testing**: Run `tests/picotron/test_locustron_unit.lua` in unitron
-3. **Demo**: Run `include("main.lua")` in Picotron console
-4. **Benchmarks**: Run `benchmarks/picotron/run_all_benchmarks.lua`
+1. **Main Implementation**: Edit `src/picotron/locustron.lua`
+2. **Testing**: Run `src/picotron/tests/test_locustron_unit.lua` in unitron
+3. **Demo**: Run `include("src/picotron/locustron_demo.lua")` in Picotron console
+4. **Benchmarks**: Run `src/picotron/benchmarks/run_all_benchmarks.lua`
 
 ### Cross-Platform Development
 
-1. **Strategy Development**: Work in `lib/vanilla/`
+1. **Strategy Development**: Work in `src/vanilla/`
 2. **Testing**: Run `busted tests/vanilla/` from project root
 3. **Benchmarking**: Use `lua benchmark.lua` CLI tools
 
 ### Package Export
 
 The `export_package.lua` script manages the export workflow:
-- Syncs `lib/picotron/` to `exports/` for yotta distribution
-- Validates package integrity
-- Prepares for BBS publication
+- **Directory setup**: Automatically creates `lib/locustron/` and `exports/` directories if they don't exist
+- **Dual sync**: Copies `src/picotron/` files to both `lib/locustron/` (for local yotta simulation) and `exports/` (for BBS distribution)  
+- **Validation**: Verifies package integrity and file presence
+- **BBS preparation**: Prepares cartridge for publication with proper metadata
 
 ## Testing Strategy
 
-- **Picotron Tests** (`tests/picotron/`): Validate userdata implementation
+- **Picotron Tests** (`src/picotron/tests/`): Validate userdata implementation
 - **Vanilla Tests** (`tests/vanilla/`): Cross-platform BDD tests with Busted
 - **Integration**: Both test suites validate identical API behavior
 
 ## Contributing
 
-1. Follow the platform separation: Picotron-specific code in `lib/picotron/`, cross-platform in `lib/vanilla/`
+1. Follow the platform separation: Picotron-specific code in `src/picotron/`, cross-platform in `src/vanilla/`
 2. Maintain API compatibility between implementations
 3. Add tests for both platforms when adding features
 4. Update documentation for structural changes

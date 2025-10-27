@@ -7,6 +7,7 @@
 
 printh("\27[1m\27[36m=== LOCUSTRON PACKAGE EXPORT WORKFLOW ===\27[0m")
 printh("Preparing locustron.p64 for yotta package distribution...")
+printh("📁 Required directories (lib/locustron/ and exports/) will be created automatically if needed")
 printh("\n")
 
 -- Step 0: Development workflow reminder
@@ -22,28 +23,32 @@ printh("\n")
 printh("\27[33m1. Syncing library to lib/locustron and exports directories...\27[0m")
 
 -- Copy locustron.lua to lib/locustron (for local development)
+-- Note: cp command will automatically create directory structure if it doesn't exist
 local success, error_msg = pcall(function()
    printh("  📄 Copying src/picotron/locustron.lua → lib/locustron/locustron.lua")
    cp("src/picotron/locustron.lua", "lib/locustron/locustron.lua")
 end)
 
 if success then
-   printh("\27[32m  ✓ locustron.lua synced to lib/locustron/\27[0m")
+   printh("\27[32m  ✓ locustron.lua synced to lib/locustron/ (directory created if needed)\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync locustron.lua to lib/locustron/: "..tostring(error_msg).."\27[0m")
+   printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
    return
 end
 
 -- Copy locustron.lua to exports
+-- Note: cp command will automatically create directory structure if it doesn't exist
 local success, error_msg = pcall(function()
    printh("  📄 Copying src/picotron/locustron.lua → exports/locustron.lua")
    cp("src/picotron/locustron.lua", "exports/locustron.lua")
 end)
 
 if success then
-   printh("\27[32m  ✓ locustron.lua synced to exports/\27[0m")
+   printh("\27[32m  ✓ locustron.lua synced to exports/ (directory created if needed)\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync locustron.lua to exports/: "..tostring(error_msg).."\27[0m")
+   printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
    return
 end
 
@@ -57,6 +62,7 @@ if success then
    printh("\27[32m  ✓ require.lua synced to lib/locustron/\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync require.lua to lib/locustron/: "..tostring(error_msg).."\27[0m")
+   printh("     💡 Ensure src/picotron/require.lua exists and is readable")
    return
 end
 
@@ -70,6 +76,7 @@ if success then
    printh("\27[32m  ✓ require.lua synced to exports/\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync require.lua to exports/: "..tostring(error_msg).."\27[0m")
+   printh("     💡 Ensure src/picotron/require.lua exists and is readable")
    return
 end
 
