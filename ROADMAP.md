@@ -54,6 +54,9 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 - **Current Implementation**: Review [locustron.lua](./lib/locustron/locustron.lua) for existing architecture
 - **Testing Framework**: See [test suite](./tests/) for current testing patterns
 
+### Related Projects
+- **[Collision Detection Reference](./docs/collision-detection-reference.md)** - Specifications for future high-performance collision detection library (hit.p8 port) designed to integrate with Locustron for optimal performance
+
 ## 💡 Strategy Selection Preview
 
 ```lua

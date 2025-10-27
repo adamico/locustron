@@ -670,6 +670,84 @@ describe("Phase 1 Integration", function()
       assert.equals(64, info.config.cell_size)
     end)
   end)
+  
+  context("when using multiple strategies", function()
+    it("should maintain consistent behavior across strategies", function()
+      local strategies = {"fixed_grid", "quadtree", "hash_grid"}
+      
+      for _, strategy_name in ipairs(strategies) do
+        local loc = locustron({
+          strategy = strategy_name,
+          config = {cell_size = 32}
+        })
+        
+        -- Add test objects
+        local obj1 = {id = "obj1"}
+        local obj2 = {id = "obj2"}
+        
+        loc.add(obj1, 10, 10, 8, 8)
+        loc.add(obj2, 50, 50, 8, 8)
+        
+        -- Test basic operations
+        local results = loc.query(5, 5, 20, 20)
+        assert.truthy(results[obj1])
+        assert.falsy(results[obj2])
+        
+        -- Test updates
+        loc.update(obj1, 45, 45, 8, 8)
+        local updated_results = loc.query(40, 40, 20, 20)
+        assert.truthy(updated_results[obj1])
+        
+        -- Test removal
+        loc.del(obj1)
+        local final_results = loc.query(0, 0, 100, 100)
+        assert.falsy(final_results[obj1])
+        assert.truthy(final_results[obj2])
+      end
+    end)
+  end)
+  
+  context("when performing stress tests", function()
+    it("should handle large numbers of objects efficiently", function()
+      local loc = locustron({strategy = "fixed_grid"})
+      local objects = {}
+      
+      -- Add 1000 objects
+      for i = 1, 1000 do
+        local obj = {id = string.format("obj_%d", i)}
+        local x = math.random(0, 500)
+        local y = math.random(0, 500)
+        
+        loc.add(obj, x, y, 8, 8)
+        objects[i] = {obj = obj, x = x, y = y}
+      end
+      
+      -- Test query performance
+      local start_time = os.clock()
+      for i = 1, 100 do
+        local results = loc.query(i * 5, i * 5, 50, 50)
+        -- Verify results contain expected objects
+        assert.truthy(type(results) == "table")
+      end
+      local duration = os.clock() - start_time
+      
+      -- Should complete 100 queries in reasonable time
+      assert.truthy(duration < 1.0)  -- Less than 1 second
+      
+      -- Test update performance
+      start_time = os.clock()
+      for i = 1, 100 do
+        local obj_data = objects[i]
+        local new_x = obj_data.x + 10
+        local new_y = obj_data.y + 10
+        loc.update(obj_data.obj, new_x, new_y, 8, 8)
+      end
+      duration = os.clock() - start_time
+      
+      -- Should complete 100 updates quickly
+      assert.truthy(duration < 0.1)  -- Less than 100ms
+    end)
+  end)
 end)
 ```
 
