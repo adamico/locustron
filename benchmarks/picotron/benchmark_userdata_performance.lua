@@ -1,10 +1,10 @@
 -- Locustron Userdata Performance Benchmark
 -- Focused testing of userdata implementation performance characteristics
 -- Measures absolute performance metrics for the unified implementation
--- Run in Picotron console: include("benchmarks/benchmark_userdata_performance.lua")
+-- Run in Picotron console: include("benchmarks/picotron/benchmark_userdata_performance.lua")
 
-include("../lib/locustron/require.lua")
-local locustron = require("../lib/locustron/locustron")
+include("../../lib/picotron/require.lua")
+local locustron = require("../../lib/picotron/locustron")
 
 -- Test Configuration
 local OBJECT_COUNTS = {100, 500, 1000, 2000}

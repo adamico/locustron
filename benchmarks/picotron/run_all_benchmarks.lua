@@ -59,7 +59,7 @@ printh("4. Monitor memory usage during development")
 if not grid_success or not perf_success then
    printh("\n")
    printh("TROUBLESHOOTING:")
-   printh("- Ensure you're running from the benchmarks/ directory")
-   printh("- Check that all required files exist in ../lib/locustron/")
+   printh("- Ensure you're running from the src/picotron/benchmarks/ directory")
+   printh("- Check that all required files exist in src/picotron/")
    printh("- Try running individual benchmarks to isolate issues")
 end

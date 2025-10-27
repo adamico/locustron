@@ -134,52 +134,15 @@ The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle
 
 
 ## Without yotta
-You can also save locustron to a single file (locustron.lua).
+You can also directly use the `lib/picotron/locustron.lua` file in your Picotron cartridge.
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
 
-## Development Setup
-
-### Git Commit Message Enforcement
-
-This repository uses [Conventional Commits](https://www.conventionalcommits.org/) for consistent commit messages. To enable automatic validation of your commit messages:
-
-```bash
-# After cloning the repository, enable the commit-msg hook:
-chmod +x .git/hooks/commit-msg
-```
-
-This will enforce the following commit message format:
-```
-<type>[optional scope]: <description>
-```
-
-**Valid commit types:**
-- `feat` - A new feature
-- `fix` - A bug fix  
-- `docs` - Documentation changes
-- `test` - Adding or updating tests
-- `refactor` - Code refactoring
-- `perf` - Performance improvements
-- `chore` - Build process or auxiliary tool changes
-
-**Examples:**
-```bash
-git commit -m "feat(locustron): add spatial hash optimization"
-git commit -m "fix(tests): handle unknown object error in delete tests"  
-git commit -m "docs: update README with setup instructions"
-```
-
-If your commit message doesn't follow this format, the commit will be rejected with helpful guidance.
-``` lua
-local locustron = require("lib/locustron")
-```
-
 # Example
 
 ``` lua
-local locus = require("lib/locus")
+local locus = require("locustron")
 
 -- game objects
 local coin = {}
@@ -218,11 +181,11 @@ end
 local enemies = loc.query(0,0,128,128,is_enemy)
 ```
 
-See `locustron_demo.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
+See the contents of `main.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
 
-- `benchmarks/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
-- `benchmarks/benchmark_userdata_performance.lua` - Absolute performance measurements  
-- `benchmarks/run_all_benchmarks.lua` - Complete benchmark suite runner 
+- `benchmarks/picotron/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
+- `benchmarks/picotron/benchmark_userdata_performance.lua` - Absolute performance measurements  
+- `benchmarks/picotron/benchmark_run_all_benchmarks.lua` - Complete benchmark suite runner 
 
 
 # Performance
@@ -272,7 +235,7 @@ Locustron includes a comprehensive benchmark tool to help you choose optimal gri
 
 **Running Grid Tuning Benchmark:**
 ```lua
-include("benchmarks/benchmark_grid_tuning.lua")
+include("benchmarks/picotron/benchmark_grid_tuning.lua")
 ```
 
 ### Benchmark Output
@@ -316,9 +279,9 @@ The benchmark helps you decide between two optimization strategies:
 - Better for memory-constrained games
 - Best when queries are infrequent
 
-### Interactive Testing
+### Visual Testing
 
-The included `locustron_demo.lua` provides interactive visualization:
+The included `main.lua` provides a visual testing of the locustron:
 
 ```lua
 -- Visual debugging with draw_locus() function
@@ -389,7 +352,7 @@ Here's a partial example:
 
 
 ``` lua
-local locustron = require("lib/locustron")
+local locustron = require("locustron")
 local loc = locustron()
 ...
 
@@ -444,7 +407,7 @@ end
 Yes, `hit` and `locustron` can be used separately and they don't need each other to work. Here's an example using collision based on rectangle intersection:
 
 ```lua
-local locustron = require("lib/locustron")
+local locustron = require("locustron")
 local loc = locustron()
 ...
 
@@ -498,7 +461,7 @@ No, only squared grid cells are supported. It would be very easy to add support 
  
 ## I am having trouble with locustron, it does not seem to work. How can I debug it?
 
-You can visualize the spatial grid by drawing it on screen. The included `locustron_demo.lua` file has an example function (`draw_locus`) which shows:
+You can visualize the spatial grid by drawing it on screen. The included `main.lua` file has an example function (`draw_locus`) which shows:
 
 - Grid cell boundaries
 - Object count per cell  
@@ -508,7 +471,7 @@ You can visualize the spatial grid by drawing it on screen. The included `locust
 You can also run the included benchmark in the Picotron console to analyze performance and validate your grid size choice:
 
 ```lua
-include("benchmarks/benchmark_grid_tuning.lua")
+include("benchmarks/picotron/benchmark_grid_tuning.lua")
 -- This will show grid efficiency analysis and query precision metrics
 ```
 
@@ -527,7 +490,7 @@ Locustron includes a comprehensive unit test suite using the unitron framework:
 tests/test_locustron_unit.lua    -- 20 test cases covering all functionality
 ```
 
-**Running Tests**: Drag and drop `tests/test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
+**Running Tests**: Drag and drop `tests/picotron/test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
 
 **Test Coverage**:
 - Object creation and lifecycle (add, update, delete)
