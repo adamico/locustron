@@ -1,4 +1,3 @@
----@diagnostic disable: redundant-parameter
 -- Benchmarking Suite for Spatial Partitioning Strategies
 -- Comprehensive performance testing and analysis framework
 
@@ -20,8 +19,8 @@ function BenchmarkSuite.new(config)
 
    config = config or {}
    self.scenarios = {}
-   self.strategies = config.strategies or {"fixed_grid"}
-   self.metrics = config.metrics or {"add_time", "query_time", "memory_usage", "accuracy"}
+   self.strategies = config.strategies or { "fixed_grid" }
+   self.metrics = config.metrics or { "add_time", "query_time", "memory_usage", "accuracy" }
    self.iterations = config.iterations or 1000
 
    self:setup_scenarios()
@@ -34,7 +33,7 @@ function BenchmarkSuite:setup_scenarios()
    -- Clustered objects scenario (survivor games, tower defense)
    self.scenarios.clustered = function(count)
       local objects = {}
-      local clusters = math.max(1, count // 50)
+      local clusters = math.max(1, math.floor(count / 50))
 
       for i = 1, clusters do
          local center_x = math.random(0, 800)
@@ -44,7 +43,7 @@ function BenchmarkSuite:setup_scenarios()
          for j = 1, cluster_size do
             if #objects >= count then break end
 
-            local obj = {id = string.format("cluster_%d_%d", i, j)}
+            local obj = { id = string.format("cluster_%d_%d", i, j) }
             local angle = math.random() * 2 * math.pi
             local distance = math.random() * 50
 
@@ -53,7 +52,7 @@ function BenchmarkSuite:setup_scenarios()
                x = center_x + math.cos(angle) * distance,
                y = center_y + math.sin(angle) * distance,
                w = math.random(8, 32),
-               h = math.random(8, 32)
+               h = math.random(8, 32),
             })
          end
       end
@@ -65,13 +64,13 @@ function BenchmarkSuite:setup_scenarios()
    self.scenarios.uniform = function(count)
       local objects = {}
       for i = 1, count do
-         local obj = {id = string.format("uniform_%d", i)}
+         local obj = { id = string.format("uniform_%d", i) }
          table.insert(objects, {
             obj = obj,
             x = math.random(0, 1000),
             y = math.random(0, 1000),
             w = math.random(8, 32),
-            h = math.random(8, 32)
+            h = math.random(8, 32),
          })
       end
       return objects
@@ -81,13 +80,13 @@ function BenchmarkSuite:setup_scenarios()
    self.scenarios.sparse = function(count)
       local objects = {}
       for i = 1, count do
-         local obj = {id = string.format("sparse_%d", i)}
+         local obj = { id = string.format("sparse_%d", i) }
          table.insert(objects, {
             obj = obj,
             x = math.random(-5000, 5000),
             y = math.random(-5000, 5000),
             w = math.random(8, 32),
-            h = math.random(8, 32)
+            h = math.random(8, 32),
          })
       end
       return objects
@@ -97,7 +96,7 @@ function BenchmarkSuite:setup_scenarios()
    self.scenarios.moving = function(count)
       local objects = {}
       for i = 1, count do
-         local obj = {id = string.format("moving_%d", i)}
+         local obj = { id = string.format("moving_%d", i) }
          table.insert(objects, {
             obj = obj,
             x = math.random(0, 1000),
@@ -105,7 +104,7 @@ function BenchmarkSuite:setup_scenarios()
             w = math.random(8, 32),
             h = math.random(8, 32),
             vx = math.random(-5, 5),
-            vy = math.random(-5, 5)
+            vy = math.random(-5, 5),
          })
       end
       return objects
@@ -115,12 +114,12 @@ function BenchmarkSuite:setup_scenarios()
    self.scenarios.large_objects = function(count)
       local objects = {}
       for i = 1, count do
-         local obj = {id = string.format("large_%d", i)}
+         local obj = { id = string.format("large_%d", i) }
          local size_category = math.random(1, 3)
          local size_range = {
-            {8,  16}, -- Small objects
-            {32, 64}, -- Medium objects
-            {64, 128} -- Large objects
+            { 8,  16 },  -- Small objects
+            { 32, 64 },  -- Medium objects
+            { 64, 128 }, -- Large objects
          }
          local range = size_range[size_category]
 
@@ -129,7 +128,7 @@ function BenchmarkSuite:setup_scenarios()
             x = math.random(0, 1000),
             y = math.random(0, 1000),
             w = math.random(range[1], range[2]),
-            h = math.random(range[1], range[2])
+            h = math.random(range[1], range[2]),
          })
       end
       return objects
@@ -139,11 +138,9 @@ end
 --- Benchmark a single strategy with given objects
 --- @param strategy_name string Name of the strategy to test
 --- @param objects table Array of object data
---- @param config table Strategy configuration
 --- @return table Performance results
-function BenchmarkSuite:benchmark_strategy(strategy_name, objects, config)
-   config = config or {cell_size = 32}
-   local strategy = strategy_interface.create_strategy(strategy_name, config)
+function BenchmarkSuite:benchmark_strategy(strategy_name, objects)
+   local strategy = strategy_interface.create_strategy(strategy_name)
 
    local results = {
       add_time = 0,
@@ -152,7 +149,7 @@ function BenchmarkSuite:benchmark_strategy(strategy_name, objects, config)
       remove_time = 0,
       memory_usage = 0,
       accuracy = 0,
-      object_count = #objects
+      object_count = #objects,
    }
 
    -- Measure add performance
@@ -197,7 +194,7 @@ function BenchmarkSuite:benchmark_strategy(strategy_name, objects, config)
 
    -- Measure accuracy (compare with brute force for small samples)
    if #objects <= 500 then -- Only for manageable sizes
-      results.accuracy = self:measure_accuracy(strategy_name, objects, config)
+      results.accuracy = self:measure_accuracy(strategy_name, objects)
    else
       results.accuracy = 1.0 -- Assume accurate for large datasets
    end
@@ -208,10 +205,9 @@ end
 --- Measure query accuracy by comparing with brute force
 --- @param strategy_name string Strategy to test
 --- @param objects table Object data
---- @param config table Strategy configuration
 --- @return number Accuracy percentage (0.0 to 1.0)
-function BenchmarkSuite:measure_accuracy(strategy_name, objects, config)
-   local strategy = strategy_interface.create_strategy(strategy_name, config)
+function BenchmarkSuite:measure_accuracy(strategy_name, objects)
+   local strategy = strategy_interface.create_strategy(strategy_name)
 
    -- Add all objects
    for _, obj_data in ipairs(objects) do
@@ -233,9 +229,7 @@ function BenchmarkSuite:measure_accuracy(strategy_name, objects, config)
       local brute_force_result = self:brute_force_query(objects, query_x, query_y, query_w, query_h)
 
       -- Compare results
-      if self:results_match(strategy_result, brute_force_result) then
-         correct_results = correct_results + 1
-      end
+      if self:results_match(strategy_result, brute_force_result) then correct_results = correct_results + 1 end
    end
 
    return correct_results / total_tests
@@ -281,8 +275,12 @@ end
 function BenchmarkSuite:results_match(result1, result2)
    -- Count objects in each result
    local count1, count2 = 0, 0
-   for _ in pairs(result1) do count1 = count1 + 1 end
-   for _ in pairs(result2) do count2 = count2 + 1 end
+   for _ in pairs(result1) do
+      count1 = count1 + 1
+   end
+   for _ in pairs(result2) do
+      count2 = count2 + 1
+   end
 
    if count1 ~= count2 then return false end
 
@@ -307,7 +305,7 @@ function BenchmarkSuite:run_complete_benchmark()
       results[scenario_name] = {}
 
       -- Test different object counts
-      local object_counts = {100, 200, 500, 1000, 2000}
+      local object_counts = { 100, 200, 500, 1000, 2000 }
 
       for _, object_count in ipairs(object_counts) do
          print(string.format("  Object count: %d", object_count))
@@ -329,19 +327,23 @@ function BenchmarkSuite:run_complete_benchmark()
 end
 
 --- Find the best performing strategy for given results
---- @param strategies table Strategy results {[strategy_name] = results}
---- @return string, table Best strategy name and its results
+--- @param strategies table|nil Strategy results {[strategy_name] = results}
+--- @return string|nil, table|nil Best strategy name and its results
 function BenchmarkSuite:find_best_strategy(strategies)
+   if not strategies then
+      return nil, nil
+   end
+
    local best_strategy = nil
    local best_score = math.huge
    local best_results = nil
 
    for strategy_name, results in pairs(strategies) do
       -- Composite score: weighted average of normalized metrics
-      local score = (results.add_time * 1000) * 0.3 + -- 30% weight on add time
-         (results.query_time * 1000) * 0.4 +          -- 40% weight on query time
-         (results.memory_usage / 1024) * 0.2 +        -- 20% weight on memory
-         ((1.0 - results.accuracy) * 100) * 0.1       -- 10% weight on accuracy loss
+      local score = (results.add_time * 1000) * 0.3 -- 30% weight on add time
+          + (results.query_time * 1000) * 0.4       -- 40% weight on query time
+          + (results.memory_usage / 1024) * 0.2     -- 20% weight on memory
+          + ((1.0 - results.accuracy) * 100) * 0.1  -- 10% weight on accuracy loss
 
       if score < best_score then
          best_score = score
@@ -360,8 +362,13 @@ end
 function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
    local chart_lines = {}
 
-   table.insert(chart_lines,
-      string.format("%s Performance (lower is better):", metric:gsub("_", " "):gsub("^%l", string.upper)))
+   local metric_name = string.gsub(metric, "_", " ")
+   metric_name = string.gsub(metric_name, "^%l", string.upper)
+
+   table.insert(
+      chart_lines,
+      string.format("%s Performance (lower is better):", metric_name)
+   )
    table.insert(chart_lines, "```")
 
    local max_value = 0
@@ -374,7 +381,7 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
          local value = strategy_data[metric] or 0
          if metric == "memory_usage" then
             value = value / (1024 * 1024) -- Convert to MB
-         elseif metric:match("_time$") then
+         elseif string.match(metric_name, "_time$") then
             value = value * 1000          -- Convert to milliseconds
          end
          max_value = math.max(max_value, value)
@@ -393,15 +400,15 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
             local value = strategy_data[metric] or 0
             if metric == "memory_usage" then
                value = value / (1024 * 1024)
-            elseif metric:match("_time$") then
+            elseif string.match(metric_name, "_time$") then
                value = value * 1000
             end
 
             local normalized = max_value > 0 and (value / max_value) or 0
             local bar_length = math.floor(normalized * 30)
-            line = line..string.rep("█", bar_length)..string.rep("░", 30 - bar_length).." "
+            line = line .. string.rep("█", bar_length) .. string.rep("░", 30 - bar_length) .. " "
          else
-            line = line..string.rep("░", 30).." "
+            line = line .. string.rep("░", 30) .. " "
          end
       end
 
@@ -412,6 +419,32 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
    table.insert(chart_lines, "")
 
    return chart_lines
+end
+
+--- Format scenario name for display
+--- @param scenario_name string The scenario name to format
+--- @return string Formatted scenario name
+function BenchmarkSuite:format_scenario_name(scenario_name)
+   -- Convert snake_case to Title Case
+   local result = string.gsub(scenario_name, "_", " ")
+   result = string.gsub(result, "^%l", string.upper)
+   result = string.gsub(result, " %l", function(match)
+      return " " .. string.upper(match)
+   end)
+   return result
+end
+
+--- Format time value for display
+--- @param time_ms number Time in milliseconds
+--- @return string Formatted time string
+function BenchmarkSuite:format_time(time_ms)
+   if time_ms < 1 then
+      return string.format("%.3f ms", time_ms)
+   elseif time_ms < 1000 then
+      return string.format("%.1f ms", time_ms)
+   else
+      return string.format("%.2f s", time_ms / 1000)
+   end
 end
 
 return BenchmarkSuite

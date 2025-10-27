@@ -25,9 +25,7 @@ local locustron = function(size)
       return id
    end
 
-   local function get_existing_obj_id(obj)
-      return obj_to_id[obj]
-   end
+   local function get_existing_obj_id(obj) return obj_to_id[obj] end
 
    -- Userdata Bounding Box Storage
    local MAX_OBJECTS = 10000
@@ -47,7 +45,7 @@ local locustron = function(size)
    -- Query Result Storage - Use regular tables since we need to store object references
    local query_pool_size = 0
    local query_pool = {}
-   
+
    -- Initialize query result pool with regular tables
    for i = 1, 20 do -- Pre-allocate some query result tables
       query_pool[query_pool_size + 1] = {}
@@ -144,7 +142,7 @@ local locustron = function(size)
          bbox_count = bbox_count + 1
          bbox_map[obj_id] = bbox_idx
       end
-      
+
       -- Store using 2D indexing: [obj_id][coordinate]
       bbox_data_2d:set(bbox_idx, 0, x) -- x coordinate
       bbox_data_2d:set(bbox_idx, 1, y) -- y coordinate
@@ -156,8 +154,10 @@ local locustron = function(size)
       local bbox_idx = bbox_map[obj_id]
       if bbox_idx then
          -- Retrieve using 2D indexing: [obj_id][coordinate]
-         return bbox_data_2d:get(bbox_idx, 0, 1), bbox_data_2d:get(bbox_idx, 1, 1),
-                bbox_data_2d:get(bbox_idx, 2, 1), bbox_data_2d:get(bbox_idx, 3, 1)
+         return bbox_data_2d:get(bbox_idx, 0, 1),
+            bbox_data_2d:get(bbox_idx, 1, 1),
+            bbox_data_2d:get(bbox_idx, 2, 1),
+            bbox_data_2d:get(bbox_idx, 3, 1)
       end
       return nil
    end
@@ -172,9 +172,7 @@ local locustron = function(size)
 
    local function get_cell(gx, gy)
       local row = rows[gy]
-      if row then
-         return row[gx]
-      end
+      if row then return row[gx] end
       return nil
    end
 
@@ -197,9 +195,7 @@ local locustron = function(size)
             has_cells = true
             break
          end
-         if not has_cells then
-            rows[gy] = nil
-         end
+         if not has_cells then rows[gy] = nil end
       end
    end
 
@@ -233,36 +229,30 @@ local locustron = function(size)
 
    -- Public API - identical to original locustron
    local function add(obj, x, y, w, h)
-      if get_existing_obj_id(obj) then
-         error("object already in spatial hash")
-      end
-      
+      if get_existing_obj_id(obj) then error("object already in spatial hash") end
+
       local obj_id = get_obj_id(obj)
       store_bbox(obj_id, x, y, w, h)
-      
+
       local gx0, gy0 = flr(x / size), flr(y / size)
       local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
-      
+
       add_to_cells(obj, obj_id, gx0, gy0, gx1, gy1)
       return obj
    end
 
    local function del(obj)
       local obj_id = get_existing_obj_id(obj)
-      if not obj_id then
-         error("unknown object")
-      end
-      
+      if not obj_id then error("unknown object") end
+
       local x, y, w, h = get_bbox(obj_id)
-      if not x then
-         error("unknown object")
-      end
-      
+      if not x then error("unknown object") end
+
       local gx0, gy0 = flr(x / size), flr(y / size)
       local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
-      
+
       remove_from_cells(obj, obj_id, gx0, gy0, gx1, gy1)
-      
+
       free_bbox(obj_id)
       obj_to_id[obj] = nil
       id_to_obj[obj_id] = nil
@@ -272,37 +262,33 @@ local locustron = function(size)
 
    local function update(obj, x, y, w, h)
       local obj_id = get_existing_obj_id(obj)
-      if not obj_id then
-         error("unknown object")
-      end
-      
+      if not obj_id then error("unknown object") end
+
       local old_x, old_y, old_w, old_h = get_bbox(obj_id)
-      if not old_x then
-         error("unknown object")
-      end
-      
+      if not old_x then error("unknown object") end
+
       local old_gx0, old_gy0 = flr(old_x / size), flr(old_y / size)
       local old_gx1, old_gy1 = flr((old_x + old_w - 1) / size), flr((old_y + old_h - 1) / size)
-      
+
       local new_gx0, new_gy0 = flr(x / size), flr(y / size)
       local new_gx1, new_gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
-      
+
       -- Only update cells if grid position changed
       if old_gx0 ~= new_gx0 or old_gy0 ~= new_gy0 or old_gx1 ~= new_gx1 or old_gy1 ~= new_gy1 then
          remove_from_cells(obj, obj_id, old_gx0, old_gy0, old_gx1, old_gy1)
          add_to_cells(obj, obj_id, new_gx0, new_gy0, new_gx1, new_gy1)
       end
-      
+
       store_bbox(obj_id, x, y, w, h)
       return obj
    end
 
    local function query(x, y, w, h, filter_fn)
       local result = get_from_pool_query()
-      
+
       local gx0, gy0 = flr(x / size), flr(y / size)
       local gx1, gy1 = flr((x + w - 1) / size), flr((y + h - 1) / size)
-      
+
       for gy = gy0, gy1 do
          for gx = gx0, gx1 do
             local cell_idx = get_cell(gx, gy)
@@ -316,21 +302,17 @@ local locustron = function(size)
             end
          end
       end
-      
+
       return result
    end
 
    local function get_bbox_public(obj)
       local obj_id = get_existing_obj_id(obj)
-      if obj_id then
-         return get_bbox(obj_id)
-      end
+      if obj_id then return get_bbox(obj_id) end
       return nil
    end
 
-   local function get_obj_id_public(obj)
-      return get_existing_obj_id(obj)
-   end
+   local function get_obj_id_public(obj) return get_existing_obj_id(obj) end
 
    -- Box to grid coordinate conversion (for debugging/visualization)
    local function box2grid(x, y, w, h)
@@ -342,9 +324,7 @@ local locustron = function(size)
    -- Get cell count for visualization (returns 0 if no cell exists)
    local function get_cell_count(gx, gy)
       local cell_idx = get_cell(gx, gy)
-      if cell_idx then
-         return cell_counts:get(cell_idx, 0, 1)
-      end
+      if cell_idx then return cell_counts:get(cell_idx, 0, 1) end
       return 0
    end
 
@@ -362,7 +342,7 @@ local locustron = function(size)
       _obj_count = function() return active_obj_count end,
       _bbox_count = function() return bbox_count end,
       _box2grid = box2grid,
-      _get_cell_count = get_cell_count
+      _get_cell_count = get_cell_count,
    }
 end
 

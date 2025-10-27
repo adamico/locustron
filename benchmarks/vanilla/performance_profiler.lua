@@ -28,7 +28,7 @@ end
 --- @return table Complete performance profile
 function PerformanceProfiler:profile_strategy(strategy_name, workload)
    local strategy_interface = require("src.vanilla.strategy_interface")
-   local strategy = strategy_interface.create_strategy(strategy_name, workload.config or {})
+   local strategy = strategy_interface.create_strategy(strategy_name)
 
    local profile = {
       strategy_name = strategy_name,
@@ -39,8 +39,7 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
       workload_info = {
          object_count = #workload.objects,
          query_count = workload.queries and #workload.queries or 0,
-         config = workload.config or {}
-      }
+      },
    }
 
    -- Profile object additions
@@ -55,7 +54,7 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
          type = "add",
          duration = duration,
          object_count = strategy:get_statistics().object_count,
-         operation_index = i
+         operation_index = i,
       })
 
       -- Memory snapshot every 100 operations
@@ -64,7 +63,7 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
          table.insert(profile.memory_timeline, {
             operation_count = i,
             memory_kb = collectgarbage("count"),
-            object_count = strategy:get_statistics().object_count
+            object_count = strategy:get_statistics().object_count,
          })
       end
    end
@@ -79,14 +78,16 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
          local duration = os.clock() - start_time
 
          local result_count = 0
-         for _ in pairs(results) do result_count = result_count + 1 end
+         for _ in pairs(results) do
+            result_count = result_count + 1
+         end
 
          table.insert(profile.query_analysis, {
             query = query,
             duration = duration,
             result_count = result_count,
             query_area = query.w * query.h,
-            efficiency = result_count > 0 and (duration / result_count) or duration
+            efficiency = result_count > 0 and (duration / result_count) or duration,
          })
       end
    end
@@ -107,7 +108,7 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
             type = "update",
             duration = duration,
             object_count = strategy:get_statistics().object_count,
-            operation_index = #workload.objects + i
+            operation_index = #workload.objects + i,
          })
       end
    end
@@ -128,9 +129,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
    -- Analyze add performance
    local add_operations = {}
    for _, op in ipairs(profile.operations) do
-      if op.type == "add" then
-         table.insert(add_operations, op)
-      end
+      if op.type == "add" then table.insert(add_operations, op) end
    end
 
    if #add_operations > 0 then
@@ -145,10 +144,12 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             type = "performance",
             severity = "warning",
             category = "add_operations",
-            message = string.format("Average add time is %.3f ms. Consider Hash Grid or optimizing cell size.",
-               avg_add_time * 1000),
+            message = string.format(
+               "Average add time is %.3f ms. Consider Hash Grid or optimizing cell size.",
+               avg_add_time * 1000
+            ),
             metric_value = avg_add_time,
-            threshold = 0.001
+            threshold = 0.001,
          })
       end
    end
@@ -167,10 +168,12 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             type = "memory",
             severity = "warning",
             category = "memory_usage",
-            message = string.format("High memory usage: %.2f KB per object. Consider larger cell size or Hash Grid.",
-               memory_per_object),
+            message = string.format(
+               "High memory usage: %.2f KB per object. Consider larger cell size or Hash Grid.",
+               memory_per_object
+            ),
             metric_value = memory_per_object,
-            threshold = 1.0
+            threshold = 1.0,
          })
       end
 
@@ -183,9 +186,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             local ops_diff = curr.operation_count - prev.operation_count
             local mem_diff = curr.memory_kb - prev.memory_kb
 
-            if ops_diff > 0 then
-               table.insert(growth_rates, mem_diff / ops_diff)
-            end
+            if ops_diff > 0 then table.insert(growth_rates, mem_diff / ops_diff) end
          end
 
          if #growth_rates > 0 then
@@ -200,10 +201,12 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
                   type = "memory",
                   severity = "critical",
                   category = "memory_growth",
-                  message = string.format("High memory growth rate: %.2f KB per operation. Check for memory leaks.",
-                     avg_growth),
+                  message = string.format(
+                     "High memory growth rate: %.2f KB per operation. Check for memory leaks.",
+                     avg_growth
+                  ),
                   metric_value = avg_growth,
-                  threshold = 2.0
+                  threshold = 2.0,
                })
             end
          end
@@ -226,9 +229,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             large_query_count = large_query_count + 1
          end
 
-         if query_data.result_count == 0 then
-            empty_result_count = empty_result_count + 1
-         end
+         if query_data.result_count == 0 then empty_result_count = empty_result_count + 1 end
       end
 
       local avg_query_time = total_query_time / #profile.query_analysis
@@ -238,10 +239,12 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             type = "performance",
             severity = "warning",
             category = "query_performance",
-            message = string.format("Average query time is %.3f ms. Consider Quadtree for clustered data.",
-               avg_query_time * 1000),
+            message = string.format(
+               "Average query time is %.3f ms. Consider Quadtree for clustered data.",
+               avg_query_time * 1000
+            ),
             metric_value = avg_query_time,
-            threshold = 0.005
+            threshold = 0.005,
          })
       end
 
@@ -252,7 +255,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             category = "query_patterns",
             message = "Many small queries detected. Fixed Grid with smaller cell size may improve performance.",
             metric_value = small_query_count / #profile.query_analysis,
-            threshold = 0.6
+            threshold = 0.6,
          })
       end
 
@@ -262,10 +265,12 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
             type = "optimization",
             severity = "info",
             category = "query_efficiency",
-            message = string.format("%.1f%% of queries return no results. Consider spatial locality optimization.",
-               empty_ratio * 100),
+            message = string.format(
+               "%.1f%% of queries return no results. Consider spatial locality optimization.",
+               empty_ratio * 100
+            ),
             metric_value = empty_ratio,
-            threshold = 0.5
+            threshold = 0.5,
          })
       end
    end
@@ -280,7 +285,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
          category = "coordinates",
          message = "Negative coordinates detected. Hash Grid may be more suitable than Fixed Grid.",
          metric_value = 1,
-         threshold = 1
+         threshold = 1,
       })
    end
 
@@ -291,7 +296,7 @@ function PerformanceProfiler:generate_recommendations(profile, workload)
          category = "distribution",
          message = "High clustering detected. Quadtree may provide better performance.",
          metric_value = object_bounds.clustering_factor,
-         threshold = 0.7
+         threshold = 0.7,
       })
    end
 
@@ -304,11 +309,11 @@ end
 function PerformanceProfiler:analyze_object_distribution(objects)
    local analysis = {
       total_objects = #objects,
-      world_bounds = {math.huge, math.huge, -math.huge, -math.huge},
+      world_bounds = { math.huge, math.huge, -math.huge, -math.huge },
       has_negative_coords = false,
       average_object_size = 0,
       clustering_factor = 0,
-      size_variation = 0
+      size_variation = 0,
    }
 
    if #objects == 0 then return analysis end
@@ -324,12 +329,10 @@ function PerformanceProfiler:analyze_object_distribution(objects)
       analysis.world_bounds[4] = math.max(analysis.world_bounds[4], obj_data.y + obj_data.h)
 
       -- Check for negative coordinates
-      if obj_data.x < 0 or obj_data.y < 0 then
-         analysis.has_negative_coords = true
-      end
+      if obj_data.x < 0 or obj_data.y < 0 then analysis.has_negative_coords = true end
 
       -- Collect position and size data
-      table.insert(positions, {obj_data.x + obj_data.w / 2, obj_data.y + obj_data.h / 2})
+      table.insert(positions, { obj_data.x + obj_data.w / 2, obj_data.y + obj_data.h / 2 })
       table.insert(sizes, obj_data.w * obj_data.h)
    end
 
@@ -388,9 +391,7 @@ function PerformanceProfiler:calculate_clustering_factor(positions)
 
    -- Clustering factor: ratio of average minimum distance to average all distances
    -- Lower ratio indicates more clustering
-   if avg_all_distance > 0 then
-      return 1.0 - (avg_min_distance / avg_all_distance)
-   end
+   if avg_all_distance > 0 then return 1.0 - (avg_min_distance / avg_all_distance) end
 
    return 0
 end
@@ -401,9 +402,7 @@ end
 function PerformanceProfiler:calculate_average_add_time(profile)
    local add_times = {}
    for _, op in ipairs(profile.operations) do
-      if op.type == "add" then
-         table.insert(add_times, op.duration)
-      end
+      if op.type == "add" then table.insert(add_times, op.duration) end
    end
 
    if #add_times == 0 then return 0 end
@@ -439,14 +438,18 @@ function PerformanceProfiler:generate_report(profiles)
       string.format("Generated: %s", os.date()),
       "",
       "## Executive Summary",
-      ""
+      "",
    }
 
    -- Strategy comparison table
-   table.insert(report,
-      "| Strategy | Avg Add Time (ms) | Avg Query Time (ms) | Memory Usage (KB) | Accuracy | Recommendations |")
-   table.insert(report,
-      "|----------|------------------|-------------------|------------------|----------|-----------------|")
+   table.insert(
+      report,
+      "| Strategy | Avg Add Time (ms) | Avg Query Time (ms) | Memory Usage (KB) | Accuracy | Recommendations |"
+   )
+   table.insert(
+      report,
+      "|----------|------------------|-------------------|------------------|----------|-----------------|"
+   )
 
    for _, profile in ipairs(profiles) do
       local avg_add = self:calculate_average_add_time(profile)
@@ -469,23 +472,24 @@ function PerformanceProfiler:generate_report(profiles)
       end
 
       local rec_summary = ""
-      if critical_count > 0 then
-         rec_summary = string.format("%d critical", critical_count)
-      end
+      if critical_count > 0 then rec_summary = string.format("%d critical", critical_count) end
       if warning_count > 0 then
-         if rec_summary ~= "" then rec_summary = rec_summary..", " end
-         rec_summary = rec_summary..string.format("%d warnings", warning_count)
+         if rec_summary ~= "" then rec_summary = rec_summary .. ", " end
+         rec_summary = rec_summary .. string.format("%d warnings", warning_count)
       end
       if rec_summary == "" then rec_summary = "none" end
 
-      table.insert(report, string.format(
-         "| %s | %.3f | %.3f | %.1f | N/A | %s |",
-         profile.strategy_name,
-         avg_add * 1000,
-         avg_query * 1000,
-         final_memory,
-         rec_summary
-      ))
+      table.insert(
+         report,
+         string.format(
+            "| %s | %.3f | %.3f | %.1f | N/A | %s |",
+            profile.strategy_name,
+            avg_add * 1000,
+            avg_query * 1000,
+            final_memory,
+            rec_summary
+         )
+      )
    end
 
    table.insert(report, "")
@@ -501,11 +505,16 @@ function PerformanceProfiler:generate_report(profiles)
       -- Performance metrics summary
       table.insert(report, "**Performance Metrics:**")
       table.insert(report, string.format("- Objects processed: %d", profile.workload_info.object_count))
-      table.insert(report, string.format("- Average add time: %.3f ms", self:calculate_average_add_time(profile) * 1000))
+      table.insert(
+         report,
+         string.format("- Average add time: %.3f ms", self:calculate_average_add_time(profile) * 1000)
+      )
 
       if #profile.query_analysis > 0 then
-         table.insert(report,
-            string.format("- Average query time: %.3f ms", self:calculate_average_query_time(profile) * 1000))
+         table.insert(
+            report,
+            string.format("- Average query time: %.3f ms", self:calculate_average_query_time(profile) * 1000)
+         )
          table.insert(report, string.format("- Queries processed: %d", #profile.query_analysis))
       end
 

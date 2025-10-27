@@ -18,16 +18,12 @@ SpatialStrategy.__index = SpatialStrategy
 --- @param w number Width
 --- @param h number Height
 --- @return any The added object
-function SpatialStrategy:add_object(obj, x, y, w, h)
-   error("add_object must be implemented by concrete strategy")
-end
+function SpatialStrategy:add_object(obj, x, y, w, h) error("add_object must be implemented by concrete strategy") end
 
 --- Remove an object from the spatial structure
 --- @param obj any Object reference
 --- @return any The removed object
-function SpatialStrategy:remove_object(obj)
-   error("remove_object must be implemented by concrete strategy")
-end
+function SpatialStrategy:remove_object(obj) error("remove_object must be implemented by concrete strategy") end
 
 --- Update an object's position in the spatial structure
 --- @param obj any Object reference
@@ -36,9 +32,7 @@ end
 --- @param w number New width
 --- @param h number New height
 --- @return any The updated object
-function SpatialStrategy:update_object(obj, x, y, w, h)
-   error("update_object must be implemented by concrete strategy")
-end
+function SpatialStrategy:update_object(obj, x, y, w, h) error("update_object must be implemented by concrete strategy") end
 
 --- Query objects in a rectangular region
 --- @param x number Query region X
@@ -74,9 +68,7 @@ end
 --- Get bounding box of an object
 --- @param obj any Object reference
 --- @return number|nil x, number|nil y, number|nil w, number|nil h
-function SpatialStrategy:get_bbox(obj)
-   error("get_bbox must be implemented by concrete strategy")
-end
+function SpatialStrategy:get_bbox(obj) error("get_bbox must be implemented by concrete strategy") end
 
 -- Strategy management and information methods
 
@@ -85,10 +77,10 @@ end
 function SpatialStrategy:get_info()
    return {
       name = self.strategy_name or "unknown",
-      type = self.strategy_name or "abstract",  -- Use strategy_name for both name and type
+      type = self.strategy_name or "abstract", -- Use strategy_name for both name and type
       config = self.config or {},
       capabilities = self:get_capabilities(),
-      statistics = self:get_statistics()
+      statistics = self:get_statistics(),
    }
 end
 
@@ -100,7 +92,7 @@ function SpatialStrategy:get_capabilities()
       supports_hierarchical = false,
       supports_dynamic_resize = false,
       optimal_for = {},
-      memory_characteristics = "unknown"
+      memory_characteristics = "unknown",
    }
 end
 
@@ -110,14 +102,12 @@ function SpatialStrategy:get_statistics()
    return {
       object_count = 0,
       memory_usage = 0,
-      operation_count = 0
+      operation_count = 0,
    }
 end
 
 --- Clear all objects from the spatial structure
-function SpatialStrategy:clear()
-   error("clear must be implemented by concrete strategy")
-end
+function SpatialStrategy:clear() error("clear must be implemented by concrete strategy") end
 
 -- Debug and visualization support
 
@@ -127,7 +117,7 @@ function SpatialStrategy:get_debug_info()
    return {
       structure_type = self.strategy_name or "unknown",
       internal_state = {},
-      performance_hints = {}
+      performance_hints = {},
    }
 end
 
@@ -136,9 +126,7 @@ end
 function SpatialStrategy:visualize_structure(renderer)
    -- Default implementation - can be overridden by strategies
    local debug_info = self:get_debug_info()
-   if renderer then
-      renderer(debug_info)
-   end
+   if renderer then renderer(debug_info) end
 end
 
 --- @class StrategyConfig
@@ -158,7 +146,7 @@ local strategy_registry = {}
 function StrategyFactory.register_strategy(name, strategy_class, metadata)
    strategy_registry[name] = {
       class = strategy_class,
-      metadata = metadata or {}
+      metadata = metadata or {},
    }
 end
 
@@ -189,15 +177,12 @@ function StrategyFactory.create_strategy(strategy_type, config)
    config = config or {}
 
    -- Handle auto-selection
-   if strategy_type == "auto" then
-      strategy_type = StrategyFactory.auto_select_strategy(config)
-   end
+   if strategy_type == "auto" then strategy_type = StrategyFactory.auto_select_strategy(config) end
 
    local entry = strategy_registry[strategy_type]
    if not entry then
       local available = table.concat(StrategyFactory.get_available_strategies(), ", ")
-      error(string.format("Unknown strategy '%s'. Available strategies: %s",
-         strategy_type, available))
+      error(string.format("Unknown strategy '%s'. Available strategies: %s", strategy_type, available))
    end
 
    local strategy_class = entry.class
@@ -224,19 +209,13 @@ function StrategyFactory.auto_select_strategy(config)
    local object_count_hint = config.expected_object_count or 100
 
    -- Fixed Grid: Good default for most cases
-   if object_count_hint < 500 and world_size ~= "infinite" then
-      return "fixed_grid"
-   end
+   if object_count_hint < 500 and world_size ~= "infinite" then return "fixed_grid" end
 
    -- Quadtree: Good for clustered objects
-   if object_pattern == "clustered" then
-      return "quadtree"
-   end
+   if object_pattern == "clustered" then return "quadtree" end
 
    -- Hash Grid: Good for large, sparse worlds
-   if world_size == "large" or world_size == "infinite" then
-      return "hash_grid"
-   end
+   if world_size == "large" or world_size == "infinite" then return "hash_grid" end
 
    -- Default fallback
    return "fixed_grid"
@@ -248,19 +227,13 @@ end
 --- @return boolean valid, string|nil error_message
 function StrategyFactory.validate_config(strategy_type, config)
    local entry = strategy_registry[strategy_type]
-   if not entry then
-      return false, "Unknown strategy type: "..strategy_type
-   end
+   if not entry then return false, "Unknown strategy type: " .. strategy_type end
 
    local metadata = entry.metadata
-   if metadata and metadata.validate_config then
-      return metadata.validate_config(config)
-   end
+   if metadata and metadata.validate_config then return metadata.validate_config(config) end
 
    -- Default validation - just check it's a table
-   if type(config) ~= "table" then
-      return false, "Configuration must be a table"
-   end
+   if type(config) ~= "table" then return false, "Configuration must be a table" end
 
    return true, nil
 end

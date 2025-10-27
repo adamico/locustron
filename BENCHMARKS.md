@@ -26,8 +26,8 @@ lua benchmark.lua --output=csv > performance.csv
 ### Programmatic Usage
 
 ```lua
-local BenchmarkSuite = require("src.vanilla.benchmark_suite")
-local PerformanceProfiler = require("src.vanilla.performance_profiler")
+local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
+local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
 
 -- Create benchmark suite
 local benchmark = BenchmarkSuite.new({
@@ -76,11 +76,11 @@ print(report)
 ## Integration with Strategy Factory
 
 ```lua
-local BenchmarkIntegration = require("src.vanilla.benchmark_integration")
-local StrategyFactory = require("src.vanilla.strategy_factory")
+local BenchmarkIntegration = require("benchmarks.vanilla.benchmark_integration")
+local StrategyFactory = require("src.vanilla.strategy_interface")
 
 -- Initialize integration
-BenchmarkIntegration.initialize(StrategyFactory.new())
+BenchmarkIntegration.initialize(StrategyFactory)
 
 -- Get strategy recommendations for specific use case
 local use_case = {
@@ -99,7 +99,7 @@ end
 
 ```bash
 # Run benchmark framework tests
-busted spec/benchmark_suite_spec.lua
+busted tests/vanilla/benchmark_suite_spec.lua
 
 # View example usage
 lua examples/benchmark_examples.lua
@@ -108,19 +108,25 @@ lua examples/benchmark_examples.lua
 ## Directory Structure
 
 ```
-src/vanilla/
+benchmarks/vanilla/
 ├── benchmark_suite.lua       # Core benchmarking framework
 ├── performance_profiler.lua  # Detailed performance analysis
 ├── benchmark_integration.lua # Strategy factory integration
 └── benchmark_cli.lua         # Command-line interface
 
-spec/
-└── benchmark_suite_spec.lua   # BDD test suite
+src/vanilla/
+├── strategy_interface.lua    # Strategy pattern and factory
+├── fixed_grid_strategy.lua   # Fixed grid implementation
+├── init_strategies.lua       # Strategy registration
+└── doubly_linked_list.lua    # Utility data structure
+
+tests/vanilla/
+└── benchmark_suite_spec.lua  # BDD test suite
 
 examples/
-└── benchmark_examples.lua     # Usage examples
+└── benchmark_examples.lua    # Usage examples
 
-benchmark.lua                  # CLI runner script
+benchmark.lua                 # CLI runner script
 ```
 
 ## Use Cases

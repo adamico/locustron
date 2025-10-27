@@ -1,10 +1,11 @@
+--- @diagnostic disable: different-requires
 include("src/picotron/require.lua")
 
 local locustron = require("src/picotron/locustron")
 local loc
-local GRID_SIZE = 256                  -- Main grid display area
-local GRID_X = 16                      -- Grid offset from left
-local GRID_Y = 8                       -- Grid offset from top
+local GRID_SIZE = 256 -- Main grid display area
+local GRID_X = 16 -- Grid offset from left
+local GRID_Y = 8 -- Grid offset from top
 local INFO_X = GRID_X + GRID_SIZE + 16 -- Info panel to the right of grid
 
 local OBJECTS_MIN_WIDTH = 10
@@ -12,13 +13,11 @@ local OBJECTS_MAX_WIDTH = 32
 local MAX_OBJECTS = 100
 local viewport
 
-function rand(low, hi)
-   return flr(low + rnd(hi - low))
-end
+function rand(low, hi) return flr(low + rnd(hi - low)) end
 
 function _init()
    -- viewport. It's a rectangle that moves around, printing the objects it "sees" in color
-   viewport = {x = 60, y = 60, w = 128, h = 128, dx = 2, dy = 1}
+   viewport = { x = 60, y = 60, w = 128, h = 128, dx = 2, dy = 1 }
 
    loc = locustron(32)
    for _ = 1, MAX_OBJECTS do
@@ -30,7 +29,7 @@ function _init()
          h = w,
          av = rnd(),
          r = rnd() * 2, -- Slightly more movement for the larger space
-         col = rand(6, 15)
+         col = rand(6, 15),
       }
       loc.add(obj, obj.x, obj.y, obj.w, obj.h)
    end
@@ -80,9 +79,7 @@ function draw_locus(loc)
    -- draw the boxes containing each object (optimized for userdata)
    for obj in pairs(loc.query(-64, -64, 384, 384)) do
       local x, y, w, h = loc.get_bbox(obj)
-      if x then
-         rrect(GRID_X + x, GRID_Y + y, w, h)
-      end
+      if x then rrect(GRID_X + x, GRID_Y + y, w, h) end
    end
 
    -- Draw information panel on the right side
@@ -92,35 +89,35 @@ function draw_locus(loc)
    print("LOCUSTRON SPATIAL HASH", INFO_X, info_y, 11)
    info_y += line_height * 2
 
-   print("Objects in locus: "..tostr(loc._obj_count()), INFO_X, info_y, 7)
+   print("Objects in locus: " .. tostr(loc._obj_count()), INFO_X, info_y, 7)
    info_y += line_height
 
-   print("Query pool size: "..tostr(loc._pool()), INFO_X, info_y, 7)
+   print("Query pool size: " .. tostr(loc._pool()), INFO_X, info_y, 7)
    info_y += line_height * 2
 
-   print("Grid size: "..tostr(loc._size).."px", INFO_X, info_y, 6)
+   print("Grid size: " .. tostr(loc._size) .. "px", INFO_X, info_y, 6)
    info_y += line_height
 
-   print("Object size: min "..OBJECTS_MIN_WIDTH..", max "..OBJECTS_MAX_WIDTH, INFO_X, info_y, 6)
+   print("Object size: min " .. OBJECTS_MIN_WIDTH .. ", max " .. OBJECTS_MAX_WIDTH, INFO_X, info_y, 6)
    info_y += line_height
 
-   print("Display area: "..GRID_SIZE.."x"..GRID_SIZE, INFO_X, info_y, 6)
+   print("Display area: " .. GRID_SIZE .. "x" .. GRID_SIZE, INFO_X, info_y, 6)
    info_y += line_height
 
-   print("Viewport: "..viewport.w.."x"..viewport.h, INFO_X, info_y, 6)
+   print("Viewport: " .. viewport.w .. "x" .. viewport.h, INFO_X, info_y, 6)
    info_y += line_height * 2
 
    -- Performance info
    print("PERFORMANCE", INFO_X, info_y, 11)
    info_y += line_height
 
-   print("CPU: "..tostr(flr(stat(1) * 10)).."%", INFO_X, info_y, 6)
+   print("CPU: " .. tostr(flr(stat(1) * 10)) .. "%", INFO_X, info_y, 6)
    info_y += line_height
 
-   print("MEM: "..tostr(flr(stat(3) / 1024)).." KB", INFO_X, info_y, 6)
+   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. " KB", INFO_X, info_y, 6)
    info_y += line_height
 
-   print("Cell pool size: "..tostr(loc._cell_pool_size()), INFO_X, info_y, 6)
+   print("Cell pool size: " .. tostr(loc._cell_pool_size()), INFO_X, info_y, 6)
    info_y += line_height
 end
 
@@ -145,9 +142,7 @@ function _draw()
    for obj in pairs(loc.query(viewport.x, viewport.y, viewport.w, viewport.h)) do
       -- Leverage userdata bbox access for consistent coordinates
       local x, y, w, h = loc.get_bbox(obj)
-      if x then
-         rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col)
-      end
+      if x then rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col) end
    end
    draw_grid_cells(loc, 13)
    clip()

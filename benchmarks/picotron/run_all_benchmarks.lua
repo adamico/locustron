@@ -1,3 +1,4 @@
+--- @diagnostic disable: undefined-global
 -- Benchmark Runner for Locustron
 -- Runs all available benchmarks with timing information
 -- Run in Picotron console: include("benchmarks/run_all_benchmarks.lua")
@@ -10,14 +11,12 @@ printh("\n")
 -- Helper function to run benchmarks safely
 function run_benchmark_safely(name, filename)
    local start_time = time()
-   
-   local success, error_msg = pcall(function()
-      include(filename)
-   end)
-   
+
+   local success, error_msg = pcall(function() include(filename) end)
+
    local end_time = time()
    local duration = end_time - start_time
-   
+
    if success then
       printh(name .. " (" .. string.format("%.3f", duration) .. "s)")
    else
@@ -25,21 +24,34 @@ function run_benchmark_safely(name, filename)
       printh("Duration: " .. string.format("%.3f", duration) .. " seconds")
    end
    printh("\n")
-   
+
    return success, duration
 end
 
 -- Run benchmarks
 local start_total = time()
 local grid_success, grid_time = run_benchmark_safely("GRID TUNING BENCHMARK", "benchmark_grid_tuning.lua")
-local perf_success, perf_time = run_benchmark_safely("USERDATA PERFORMANCE BENCHMARK", "benchmark_userdata_performance.lua")
+local perf_success, perf_time =
+   run_benchmark_safely("USERDATA PERFORMANCE BENCHMARK", "benchmark_userdata_performance.lua")
 local total_time = time() - start_total
 
 -- Summary
 printh("\27[1m\27[36m=== BENCHMARK SUITE COMPLETE ===\27[0m")
 printh("Total execution time: " .. string.format("%.3f", total_time) .. " seconds")
-printh("Grid tuning: " .. (grid_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m") .. " (" .. string.format("%.3f", grid_time) .. "s)")
-printh("Performance: " .. (perf_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m") .. " (" .. string.format("%.3f", perf_time) .. "s)")
+printh(
+   "Grid tuning: "
+      .. (grid_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m")
+      .. " ("
+      .. string.format("%.3f", grid_time)
+      .. "s)"
+)
+printh(
+   "Performance: "
+      .. (perf_success and "\27[32mSUCCESS\27[0m" or "\27[31mFAILED\27[0m")
+      .. " ("
+      .. string.format("%.3f", perf_time)
+      .. "s)"
+)
 
 local memory_bytes = stat(3)
 local memory_kb = memory_bytes / 1024

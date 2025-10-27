@@ -1,14 +1,16 @@
 # Locustron Copilot Instructions
 
 ## Project Overview
+
 Locustron is a **2D spatial hash library** for Picotron games, optimized for performance. It provides efficient collision detection and spatial queries using an unbounded, sparse grid system with userdata optimization and object pooling to minimize garbage collection.
 
-**Official Documentation**: All Picotron-specific functionality and syntax should reference the [Official Picotron Manual](https://www.lexaloffle.com/dl/docs/picotron_manual.html) as the authoritative source.
+**Official Documentation**: All Picotron-specific functionality and syntax should reference the Official Picotron Manual: <https://www.lexaloffle.com/dl/docs/picotron_manual.html> as the authoritative source.
 
 ## Architecture & Core Concepts
 
 ### Spatial Hash Design
-- **Fixed Grid Pattern**: Implements the "Fixed Grid" spatial partitioning pattern from [Game Programming Patterns](https://gameprogrammingpatterns.com/spatial-partition.html)
+
+- **Fixed Grid Pattern**: Implements the "Fixed Grid" spatial partitioning pattern from Game Programming Patterns: <https://gameprogrammingpatterns.com/spatial-partition.html>
 - **Grid-based**: Objects stored in squared cells (default 32x32 pixels)
 - **Sparse allocation**: Cells created only when containing objects  
 - **Userdata optimization**: Cell storage uses Picotron userdata for memory efficiency
@@ -17,25 +19,30 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - **Closure-based design**: Functions return closures with enclosed state instead of OOP patterns
 
 ### Spatial Partitioning Pattern Analysis
+
 **Fixed Grid Characteristics:**
+
 - **Flat (Non-Hierarchical)**: Single-level grid, no recursive subdivision like quadtrees
 - **Object-Independent**: Grid boundaries fixed regardless of object positions
 - **Incremental**: Objects can be added/moved one at a time efficiently
 - **Simple**: Straightforward 2D array-like structure for debugging and optimization
 
 **Comparison to Alternative Patterns:**
+
 - **vs Quadtrees**: Simpler implementation, constant memory, faster updates, but less adaptive to clustering
 - **vs BSP/k-d trees**: No tree traversal overhead, easier debugging, but fixed partitioning
 - **vs Hierarchical**: Better performance with uniform distribution, worse with extreme clustering
 - **vs Object-Dependent**: Fast incremental updates, but can be imbalanced
 
 **Design Decision Rationale:**
+
 - **Picotron constraints**: Fixed grid works well with userdata and 32MB memory limit
 - **Game object patterns**: Most Picotron games have relatively uniform object distribution
 - **Performance predictability**: No tree rebalancing or complex subdivision algorithms
 - **Implementation simplicity**: Easier to debug, optimize, and maintain than hierarchical structures
 
 ### Key Components
+
 - `lib/locustron/locustron.lua`: Core spatial hash implementation with userdata-optimized cell storage
 - `lib/locustron/require.lua`: Custom module system replacing Picotron's `include()` with error handling via `send_message()`
 - `locustron_demo.lua`: Interactive demo showing 100 moving objects with viewport culling and collision detection
@@ -47,6 +54,7 @@ Locustron is a **2D spatial hash library** for Picotron games, optimized for per
 - `tests/test_helpers.lua`: Custom assert functions library with proper error handling patterns
 
 ### Memory Management Pattern
+
 ```lua
 -- Userdata-optimized memory management for cells and bounding boxes:
 loc._bbox_data    -- userdata("f64", MAX_OBJECTS, 4) - AABB storage [obj_id][coord]
@@ -77,30 +85,31 @@ loc._size         -- Grid cell dimensions (default 32)
 ## Development Conventions
 
 ### Performance Guidelines
+
 - **Grid size**: Should match typical object size (32-128 pixels recommended for userdata optimization)
 - **Query results**: Returned as `{[obj]=true}` hash tables for deduplication
 - **Update efficiency**: Only modifies grid when object crosses cell boundaries
 - **Pool monitoring**: Track `_pool` size during development to verify memory management
 - **Userdata capacity**: Limited to MAX_OBJECTS (10,000) simultaneous objects
 
+### Code Style & Formatting
+
+- **Indentation**: Use **3 spaces** for indentation in all Lua files (no tabs)
+- **Consistency**: Maintain consistent indentation throughout the codebase
+- **File Creation**: All new Lua files should follow the 3-space indentation standard
+
 ### Picotron-Specific Development
+
 - **Testing Environment**: ALL tests must be run in Picotron with unitron - NEVER attempt to run in vanilla Lua
 - **Test Execution**: Use `include("test_file.lua")` in Picotron console to load and run tests
-- **Userdata Functions**: `userdata()` function only exists in Picotron runtime (see [Official Manual - Userdata](https://www.lexaloffle.com/dl/docs/picotron_manual.html#userdata))
+- **Userdata Functions**: `userdata()` function only exists in Picotron runtime
 - **Custom Require**: Uses custom `require()` system, not standard Lua modules
-- **Error Handling**: Uses `send_message()` for error reporting instead of standard Lua error handling (see [Official Manual - System](https://www.lexaloffle.com/dl/docs/picotron_manual.html#system))
+- **Error Handling**: Uses `send_message()` for error reporting instead of standard Lua error handling
 - **Runtime Dependencies**: Code depends on Picotron-specific APIs and cannot run outside Picotron
-- **Console Output**: Always use `printh()` instead of `print()` for Picotron console tests and debugging (see [Official Manual - System](https://www.lexaloffle.com/dl/docs/picotron_manual.html#system))
-- **Integer Division Operator**: Picotron supports `\` for integer division (`a \ b` equivalent to `flr(a / b)`). Use magic comment to suppress linter errors:
-  ```lua
-  --- @diagnostic disable:unknown-symbol, action-after-return, exp-in-action, miss-symbol
-  -- Example usage:
-  local result = (#objects) \ 10  -- Integer division
-  local cell_x = x \ grid_size    -- Grid coordinate calculation
-  ```
-  **Linter Compatibility**: When the `\` operator causes linter issues in complex expressions (e.g., within `max()` calls), fallback to `flr(a / b)` syntax for compatibility while maintaining equivalent functionality.
+- **Console Output**: Always use `printh()` instead of `print()` for Picotron console tests and debugging
 
 ### Integration Patterns
+
 ```lua
 -- Collision detection workflow (userdata-optimized):
 local candidates = loc.query(x, y, w, h, filter_function)
@@ -124,9 +133,10 @@ clip()
 ## File Structure & Dependencies
 
 ### Project Architecture
+
 Locustron follows a **Picotron cartridge + yotta package** pattern for library distribution:
 
-```
+``` bash
 locustron.p64/                    # Picotron cartridge (directory) + Git repository root
 ├── .info.pod                   # Picotron cartridge metadata
 ├── main.lua                    # Cartridge entry point → include("locustron_demo.lua")
@@ -149,8 +159,9 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
 ```
 
 **Project Structure & Integration:**
+
 - **Dual-purpose Picotron cartridge**: `locustron.p64` is both a runnable demo cartridge (`main.lua` → `locustron_demo.lua`) and a library distribution container (Git repository root with `.info.pod` metadata)
-- **Yotta Package Manager**: Library distributed via yotta (see https://www.lexaloffle.com/bbs/?tid=140833)
+- **Yotta Package Manager**: Library distributed via yotta (see <https://www.lexaloffle.com/bbs/?tid=140833>)
   - **Installation command**: `yotta add #locustron` copies `exports/` contents to user's `/lib/locustron/`
   - **Package source**: `exports/` directory contains the distributable library files
   - **Local development**: `lib/locustron/` contains the installed yotta package for testing and local usage
@@ -163,6 +174,7 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
 - **File paths**: Test files use relative paths like `include "../lib/locustron/require.lua"`
 
 ### Testing & Debugging
+
 - `locustron_demo.lua`: Interactive demo with moving objects and viewport culling
 - `benchmarks/benchmark_grid_tuning.lua`: Performance analysis and grid size optimization tool
 - `draw_locus()`: Visualization function showing grid cells and object counts
@@ -170,6 +182,7 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
 - Userdata debugging: Use `loc.get_bbox(obj)` and `loc.get_obj_id(obj)` for inspection
 
 ### Visual Debugging & Interactive Demo
+
 - **Interactive Demo**: `locustron_demo.lua` provides real-time spatial hash visualization with:
   - **100 moving objects** with physics simulation and boundary wrapping
   - **Grid cell visualization**: `draw_locus()` shows occupied cells with object counts
@@ -187,6 +200,7 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
   - Memory stability (pool size stabilization)
 
 ### Development Environment
+
 - `.luarc.json`: **Critical** Lua Language Server config enabling Picotron-specific features:
   - **Picotron symbols**: `!=`, `+=`, `-=`, `\` (integer division), etc. via `nonstandardSymbol`
   - **Custom include**: Maps `include()` to `require()` via `runtime.special`
@@ -196,12 +210,13 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
 - Error handling via `send_message()` for syntax errors in module loading
 - **Unit Testing**: Comprehensive test coverage with unitron framework (28 test cases)
 - **Test Results**: All tests passing as of current implementation
-- **Unitron API Reference**: Always use https://github.com/elgopher/unitron as the main reference for unitron API
+- **Unitron API Reference**: Always use <https://github.com/elgopher/unitron> as the main reference for unitron API
 - **Test Directory**: All test files are in `tests/` directory
 - **Test File Paths**: Test files use `../lib/locustron/` paths to reference implementation files
 - **Benchmark Directory**: All benchmark files are in `benchmarks/` directory
 - **Benchmark File Paths**: Benchmark files use `../lib/locustron/` paths to reference implementation files
 - **Unitron Error Testing**: Use `test_fail(err)` to generate test errors. Pattern:
+
   ```lua
   test("operation should error", function()
      -- Try operation that should fail
@@ -209,7 +224,9 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
      test_fail("Expected operation to fail but it succeeded")
   end)
   ```
+
 - **Custom Assert Functions**: Create custom assert functions using `test_fail()` and `test_helper()`:
+
   ```lua
   function assert_unknown_object_error(operation_func, message)
      test_helper() -- mark this function as test helper for better error reporting
@@ -239,10 +256,12 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
   
   -- Usage: assert_unknown_object_error(function() loc.del(unknown_obj) end)
   ```
+
 - **Console Testing**: Use basic `assert()` for error validation in console tests
 - **Test Structure**: Unitron provides `test()`, `assert_eq()`, `test_fail()` globals in Picotron runtime only
 - **Error Testing**: MUST use `pcall()` pattern with custom error markers in unitron to prevent "arithmetic on nil" errors
 - **Critical Error Testing Pattern**: Custom assert functions must use `pcall()` to prevent code continuation after error:
+
   ```lua
   -- CORRECT: Use pcall with custom error markers
   local success, err = pcall(operation_func)
@@ -257,6 +276,7 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
      if expected_error then return end  -- DON'T DO THIS - causes arithmetic nil errors
   end
   ```
+
 - **Custom Assert Helpers**: Use `test_helpers.lua` for locustron-specific assertions:
   - `assert_unknown_object_error(func, msg)` - Test that operation throws "unknown object" error
   - `assert_error(func, error_text, msg)` - Test that operation throws any specific error text
@@ -268,15 +288,47 @@ locustron.p64/                    # Picotron cartridge (directory) + Git reposit
   - `assert_ne(value1, value2, msg)` - Test values are not equal
   - **Critical Pattern**: ALL custom asserts use `pcall()` to prevent "arithmetic on nil" errors
   - **Important**: Include helpers AFTER locustron: `local locustron = require(...); include("test_helpers.lua")`
-- **2D Userdata Syntax**: Confirmed working in Picotron using method-based access (see [Official Manual - Userdata](https://www.lexaloffle.com/dl/docs/picotron_manual.html)):
+- **2D Userdata Syntax**: Confirmed working in Picotron using method-based access:
   - `userdata("type", width, height)` creates 2D arrays
   - `ud:set(x, y, value)` for writing
   - `ud:get(x, y, n)` for reading (n = number of values to return)
   - **NOT** bracket syntax: `ud[x][y]` is unsupported
 
+### Lua Language Server Type Annotations
+
+**String Method Linter Errors**: The sumneko lua-ls language server may report "Undefined field" errors for string methods (`gsub`, `match`, `sub`, etc.) when called on variables, even though they're valid Lua string methods. This is a false positive from type inference limitations.
+
+**Solution - Use `string` Module Functions**: Instead of method syntax, use the `string` module functions:
+
+```lua
+-- ❌ AVOID: Method syntax triggers linter error
+local formatted = metric:gsub("_", " "):gsub("^%l", string.upper)
+
+-- ✅ CORRECT: Use string module functions
+local formatted = string.gsub(metric, "_", " ")
+formatted = string.gsub(formatted, "^%l", string.upper)
+
+-- ✅ ALSO CORRECT: Chain using string module
+local formatted = string.gsub(string.gsub(metric, "_", " "), "^%l", string.upper)
+```
+
+**Why This Matters**:
+
+- Eliminates false positive linter warnings in VS Code
+- Maintains full Lua 5.1+ compatibility
+- Makes code compatible with all language server versions
+- No performance difference between method and function syntax
+
+**Pattern for Refactoring**:
+
+1. Replace `variable:method(...)` with `string.method(variable, ...)`
+2. Break long chains into intermediate variables for readability
+3. Language server recognizes `string.method()` as built-in stdlib
+
 ## API Usage Patterns
 
 ### Object Lifecycle
+
 ```lua
 -- Creation: Store reference AND add to spatial hash
 local obj = {x=10, y=10, w=8, h=8}
@@ -291,24 +343,28 @@ loc.del(obj)
 ```
 
 ### Query Optimization
+
 - **Viewport culling**: Query screen bounds to limit rendering
 - **Collision candidates**: Use filter functions to pre-filter object types
 - **Movement prediction**: Query movement path for continuous collision detection
 
 ## Error Handling
+
 - `"unknown object"` thrown when operating on non-added objects
 - Always pair `loc.add()` with `loc.del()` to prevent memory leaks
 - Validate grid size against typical object dimensions during setup
 - Userdata capacity: MAX_OBJECTS (10,000) limit enforced
-- **Always refer to the [Official Picotron Manual](https://www.lexaloffle.com/dl/docs/picotron_manual.html) for authoritative guidance on Picotron-specific functions and error handling**
+- **Always refer to the Official Picotron Manual: <https://www.lexaloffle.com/dl/docs/picotron_manual.html> for authoritative guidance on Picotron-specific functions and error handling**
 
 ## Git commit convention
 
-We follow the Conventional Commits specification: https://www.conventionalcommits.org/en/v1.0.0/.
+We follow the Conventional Commits specification: <https://www.conventionalcommits.org/en/v1.0.0/>.
 
 All commits to this repository MUST use the Conventional Commits format:
 
+``` bash
   <type>[optional scope]: <short description>
+```
 
 Required guidance:
 
@@ -326,7 +382,7 @@ Examples:
 
 **Multi-line commit messages:**
 
-For commits that need detailed descriptions, use separate `-m` flags (reference: https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13):
+For commits that need detailed descriptions, use separate `-m` flags (reference: <https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13>):
 
 ```bash
 git commit -m "feat(locustron): add spatial hash optimization" \
@@ -350,6 +406,7 @@ This repository's contributors should follow Conventional Commits for all local 
 ## Performance Considerations
 
 ### Optimized for Picotron Scale
+
 - **Userdata Storage**: Cell data stored in userdata arrays for memory efficiency and reduced GC pressure
 - **Standard Query Format**: Returns `{[obj]=true}` hash tables for compatibility with existing code patterns
 - **Automatic Deduplication**: Objects spanning multiple cells appear only once in query results
@@ -368,6 +425,7 @@ This repository's contributors should follow Conventional Commits for all local 
 - **Performance Insights**: Grid size optimization shows clear trade-offs (16px grid + 32x32 objects = 82.7% precision), memory efficiency (realistic 3MB range for 2000 objects), and frame-rate level operation completion indicating excellent real-world performance.
 
 ### Traditional Guidelines  
+
 - Objects spanning multiple cells reduce efficiency
 - Very large or very small grid sizes hurt performance
 - Filter functions should be lightweight (called frequently during queries)
@@ -379,9 +437,10 @@ This repository's contributors should follow Conventional Commits for all local 
 - **Grid visualization**: Use `draw_locus()` to visualize cell occupancy and object distribution
 - **Picotron Testing Only**: Never attempt to run locustron code in vanilla Lua - it requires Picotron's userdata and custom runtime
 - **Console Output**: Use `printh()` for all console debugging and test output in Picotron environment
-- **Official Reference**: For all Picotron-specific debugging techniques, consult the [Official Picotron Manual](https://www.lexaloffle.com/dl/docs/picotron_manual.html)
+- **Official Reference**: For all Picotron-specific debugging techniques, consult the Official Picotron Manual: <https://www.lexaloffle.com/dl/docs/picotron_manual.html>
 
 ### Common Development Patterns
+
 - **Object management**: Always call `loc.del()` for cleanup to prevent memory leaks
 - **Grid size tuning**: Use `benchmarks/benchmark_grid_tuning.lua` to find optimal grid sizes for your specific object patterns with colored output and professional metrics
 - **Pool monitoring**: Watch `_pool` size stabilization during development

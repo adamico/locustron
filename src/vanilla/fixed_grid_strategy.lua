@@ -7,16 +7,15 @@ local strategy_interface = require("src.vanilla.strategy_interface")
 local SpatialStrategy = strategy_interface.SpatialStrategy
 
 --- @class FixedGridStrategy : SpatialStrategy
---- @field private cell_size number Grid cell size in pixels
+--- @field public cell_size number Grid cell size in pixels
 --- @field private grid table Sparse grid of cells {[cy] = {[cx] = SpatialCell}}
 --- @field private objects table Object to metadata mapping {[obj] = {nodes = {}, bbox = {}}}
---- @field private object_count number Number of objects in the spatial structure
+--- @field public object_count number Number of objects in the spatial structure
 --- @field strategy_name string Strategy identifier
---- @field strategy_type string Strategy type classification
 --- @field config table Strategy configuration
 local FixedGridStrategy = {}
 FixedGridStrategy.__index = FixedGridStrategy
-setmetatable(FixedGridStrategy, {__index = SpatialStrategy})
+setmetatable(FixedGridStrategy, { __index = SpatialStrategy })
 
 --- Create a new Fixed Grid strategy
 --- @param config table Configuration options
@@ -25,7 +24,7 @@ function FixedGridStrategy.new(config)
    local self = setmetatable({}, FixedGridStrategy)
 
    self.cell_size = config.cell_size or 32
-   self.grid = {}   -- Sparse grid: {[cy] = {[cx] = SpatialCell}}
+   self.grid = {} -- Sparse grid: {[cy] = {[cx] = SpatialCell}}
    self.objects = {} -- Object metadata: {[obj] = {nodes = {{cell, node}}, bbox = {x,y,w,h}}}
    self.object_count = 0
    self.config = config or {}
@@ -67,13 +66,9 @@ end
 --- @param gy number Grid Y coordinate
 --- @return SpatialCell
 function FixedGridStrategy:_get_or_create_cell(gx, gy)
-   if not self.grid[gy] then
-      self.grid[gy] = {}
-   end
+   if not self.grid[gy] then self.grid[gy] = {} end
 
-   if not self.grid[gy][gx] then
-      self.grid[gy][gx] = dll.createCell()
-   end
+   if not self.grid[gy][gx] then self.grid[gy][gx] = dll.createCell() end
 
    return self.grid[gy][gx]
 end
@@ -102,9 +97,7 @@ function FixedGridStrategy:_cleanup_empty_cell(gx, gy)
          has_cells = true
          break
       end
-      if not has_cells then
-         self.grid[gy] = nil
-      end
+      if not has_cells then self.grid[gy] = nil end
    end
 end
 
@@ -123,7 +116,7 @@ function FixedGridStrategy:_add_to_cells(obj, x, y, w, h)
       for gx = gx0, gx1 do
          local cell = self:_get_or_create_cell(gx, gy)
          local node = cell:insertEnd(obj, x, y, w, h)
-         table.insert(nodes, {cell = cell, node = node})
+         table.insert(nodes, { cell = cell, node = node })
       end
    end
 
@@ -147,7 +140,7 @@ function FixedGridStrategy:_remove_from_cells(obj)
       local gx0, gy0, gx1, gy1 = self:_bbox_to_grid_bounds(bbox.x, bbox.y, bbox.w, bbox.h)
       for gy = gy0, gy1 do
          for gx = gx0, gx1 do
-            table.insert(cleanup_coords, {gx, gy})
+            table.insert(cleanup_coords, { gx, gy })
          end
       end
    end
@@ -168,15 +161,13 @@ end
 --- @param h number Height
 --- @return any The added object
 function FixedGridStrategy:add_object(obj, x, y, w, h)
-   if self.objects[obj] then
-      error("object already in spatial hash")
-   end
+   if self.objects[obj] then error("object already in spatial hash") end
 
    local nodes = self:_add_to_cells(obj, x, y, w, h)
 
    self.objects[obj] = {
       nodes = nodes,
-      bbox = {x = x, y = y, w = w, h = h}
+      bbox = { x = x, y = y, w = w, h = h },
    }
 
    self.object_count = self.object_count + 1
@@ -187,9 +178,7 @@ end
 --- @param obj any Object reference
 --- @return any The removed object
 function FixedGridStrategy:remove_object(obj)
-   if not self.objects[obj] then
-      error("unknown object")
-   end
+   if not self.objects[obj] then error("unknown object") end
 
    self:_remove_from_cells(obj)
    self.objects[obj] = nil
@@ -206,13 +195,10 @@ end
 --- @param h number New height
 --- @return any The updated object
 function FixedGridStrategy:update_object(obj, x, y, w, h)
-   if not self.objects[obj] then
-      error("unknown object")
-   end
+   if not self.objects[obj] then error("unknown object") end
 
    local old_bbox = self.objects[obj].bbox
-   local old_gx0, old_gy0, old_gx1, old_gy1 = self:_bbox_to_grid_bounds(
-      old_bbox.x, old_bbox.y, old_bbox.w, old_bbox.h)
+   local old_gx0, old_gy0, old_gx1, old_gy1 = self:_bbox_to_grid_bounds(old_bbox.x, old_bbox.y, old_bbox.w, old_bbox.h)
    local new_gx0, new_gy0, new_gx1, new_gy1 = self:_bbox_to_grid_bounds(x, y, w, h)
 
    -- Only update grid if object moved to different cells
@@ -223,7 +209,7 @@ function FixedGridStrategy:update_object(obj, x, y, w, h)
    end
 
    -- Always update the bounding box
-   self.objects[obj].bbox = {x = x, y = y, w = w, h = h}
+   self.objects[obj].bbox = { x = x, y = y, w = w, h = h }
 
    return obj
 end
@@ -251,9 +237,7 @@ function FixedGridStrategy:query_region(x, y, w, h, filter_fn)
                   local obj = node.data.obj
                   if not visited[obj] then
                      visited[obj] = true
-                     if not filter_fn or filter_fn(obj) then
-                        results[obj] = true
-                     end
+                     if not filter_fn or filter_fn(obj) then results[obj] = true end
                   end
                   return true -- Continue traversal
                end)
@@ -313,7 +297,7 @@ function FixedGridStrategy:query_nearest(x, y, count, filter_fn)
             local dy = obj_center_y - y
             local distance = math.sqrt(dx * dx + dy * dy)
 
-            table.insert(found_objects, {obj = obj, distance = distance})
+            table.insert(found_objects, { obj = obj, distance = distance })
          end
       end
 
@@ -339,11 +323,11 @@ end
 --- @return table Capabilities table
 function FixedGridStrategy:get_capabilities()
    return {
-      supports_unbounded = true,     -- Sparse grid can grow infinitely
+      supports_unbounded = true, -- Sparse grid can grow infinitely
       supports_hierarchical = false,
       supports_dynamic_resize = false, -- Fixed cell size
-      optimal_for = {"uniform_distribution", "medium_worlds", "frequent_updates"},
-      memory_characteristics = "sparse_grid"
+      optimal_for = { "uniform_distribution", "medium_worlds", "frequent_updates" },
+      memory_characteristics = "sparse_grid",
    }
 end
 
@@ -366,7 +350,7 @@ function FixedGridStrategy:get_statistics()
       cell_count = cell_count,
       memory_usage = estimated_memory,
       cell_size = self.cell_size,
-      grid_efficiency = self.object_count > 0 and (self.object_count / math.max(cell_count, 1)) or 0
+      grid_efficiency = self.object_count > 0 and (self.object_count / math.max(cell_count, 1)) or 0,
    }
 end
 
@@ -381,7 +365,7 @@ function FixedGridStrategy:get_debug_info()
             grid_y = gy,
             world_x = gx * self.cell_size,
             world_y = gy * self.cell_size,
-            object_count = cell:getCount()
+            object_count = cell:getCount(),
          })
       end
    end
@@ -393,12 +377,12 @@ function FixedGridStrategy:get_debug_info()
       allocated_cells = #cells_info,
       cells = cells_info,
       internal_state = {
-         grid_bounds = self:_get_grid_bounds()
+         grid_bounds = self:_get_grid_bounds(),
       },
       performance_hints = {
          "Consider larger cell size if objects span many cells",
-         "Consider smaller cell size if too many objects per cell"
-      }
+         "Consider smaller cell size if too many objects per cell",
+      },
    }
 end
 
@@ -418,29 +402,21 @@ function FixedGridStrategy:_get_grid_bounds()
       end
    end
 
-   return has_cells and {min_gx, min_gy, max_gx, max_gy} or nil
+   return has_cells and { min_gx, min_gy, max_gx, max_gy } or nil
 end
 
 -- Legacy API compatibility (for existing Locustron code)
 
 --- Legacy add method (alias for add_object)
-function FixedGridStrategy:add(obj, x, y, w, h)
-   return self:add_object(obj, x, y, w, h)
-end
+function FixedGridStrategy:add(obj, x, y, w, h) return self:add_object(obj, x, y, w, h) end
 
 --- Legacy del method (alias for remove_object)
-function FixedGridStrategy:del(obj)
-   return self:remove_object(obj)
-end
+function FixedGridStrategy:del(obj) return self:remove_object(obj) end
 
 --- Legacy update method (alias for update_object)
-function FixedGridStrategy:update(obj, x, y, w, h)
-   return self:update_object(obj, x, y, w, h)
-end
+function FixedGridStrategy:update(obj, x, y, w, h) return self:update_object(obj, x, y, w, h) end
 
 --- Legacy query method (alias for query_region)
-function FixedGridStrategy:query(x, y, w, h, filter_fn)
-   return self:query_region(x, y, w, h, filter_fn)
-end
+function FixedGridStrategy:query(x, y, w, h, filter_fn) return self:query_region(x, y, w, h, filter_fn) end
 
 return FixedGridStrategy

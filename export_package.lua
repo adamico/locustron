@@ -33,7 +33,7 @@ end)
 if success then
    printh("\27[32m  ✓ locustron.lua synced to lib/locustron/ (directory created if needed)\27[0m")
 else
-   printh("\27[31m  ✗ Failed to sync locustron.lua to lib/locustron/: "..tostring(error_msg).."\27[0m")
+   printh("\27[31m  ✗ Failed to sync locustron.lua to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
    printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
    return
 end
@@ -48,7 +48,7 @@ end)
 if success then
    printh("\27[32m  ✓ locustron.lua synced to exports/ (directory created if needed)\27[0m")
 else
-   printh("\27[31m  ✗ Failed to sync locustron.lua to exports/: "..tostring(error_msg).."\27[0m")
+   printh("\27[31m  ✗ Failed to sync locustron.lua to exports/: " .. tostring(error_msg) .. "\27[0m")
    printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
    return
 end
@@ -62,7 +62,7 @@ end)
 if success then
    printh("\27[32m  ✓ require.lua synced to lib/locustron/\27[0m")
 else
-   printh("\27[31m  ✗ Failed to sync require.lua to lib/locustron/: "..tostring(error_msg).."\27[0m")
+   printh("\27[31m  ✗ Failed to sync require.lua to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
    printh("     💡 Ensure src/picotron/require.lua exists and is readable")
    return
 end
@@ -76,26 +76,24 @@ end)
 if success then
    printh("\27[32m  ✓ require.lua synced to exports/\27[0m")
 else
-   printh("\27[31m  ✗ Failed to sync require.lua to exports/: "..tostring(error_msg).."\27[0m")
+   printh("\27[31m  ✗ Failed to sync require.lua to exports/: " .. tostring(error_msg) .. "\27[0m")
    printh("     💡 Ensure src/picotron/require.lua exists and is readable")
    return
 end
 
 -- Step 2: Verify exports directory has required files
 printh("\n\27[33m2. Verifying exports directory...\27[0m")
-local required_files = {"locustron.lua", "require.lua"}
+local required_files = { "locustron.lua", "require.lua" }
 local exports_ok = true
 
 for _, file in pairs(required_files) do
-   local path = "exports/"..file
-   local success, content = pcall(function()
-      return fetch(path)
-   end)
+   local path = "exports/" .. file
+   local success, content = pcall(function() return fetch(path) end)
 
    if success and content then
-      printh("  ✓ "..path.." - Ready for distribution")
+      printh("  ✓ " .. path .. " - Ready for distribution")
    else
-      printh("  ✗ "..path.." - Missing or unreadable")
+      printh("  ✗ " .. path .. " - Missing or unreadable")
       exports_ok = false
    end
 end

@@ -1,8 +1,8 @@
 -- Benchmark Integration
 -- Integration layer between benchmarking framework and strategy factory
 
-local BenchmarkSuite = require("src.vanilla.benchmark_suite")
-local PerformanceProfiler = require("src.vanilla.performance_profiler")
+local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
+local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
 
 local BenchmarkIntegration = {}
 
@@ -10,24 +10,18 @@ local BenchmarkIntegration = {}
 BenchmarkIntegration.factory = nil
 
 -- Initialize integration with strategy factory
-function BenchmarkIntegration.initialize(strategy_factory)
-   BenchmarkIntegration.factory = strategy_factory
-end
+function BenchmarkIntegration.initialize(strategy_factory) BenchmarkIntegration.factory = strategy_factory end
 
 -- Get available strategies from factory
 function BenchmarkIntegration.get_available_strategies()
-   if not BenchmarkIntegration.factory then
-      error("BenchmarkIntegration not initialized with strategy factory")
-   end
+   if not BenchmarkIntegration.factory then error("BenchmarkIntegration not initialized with strategy factory") end
 
    return BenchmarkIntegration.factory:get_registered_strategies()
 end
 
 -- Create strategy instance for benchmarking
 function BenchmarkIntegration.create_strategy(strategy_name, config)
-   if not BenchmarkIntegration.factory then
-      error("BenchmarkIntegration not initialized with strategy factory")
-   end
+   if not BenchmarkIntegration.factory then error("BenchmarkIntegration not initialized with strategy factory") end
 
    return BenchmarkIntegration.factory:create(strategy_name, config or {})
 end
@@ -40,30 +34,28 @@ function BenchmarkIntegration.benchmark_all_strategies(scenarios, config)
 
    local available_strategies = BenchmarkIntegration.get_available_strategies()
 
-   if #available_strategies == 0 then
-      error("No strategies registered in factory")
-   end
+   if #available_strategies == 0 then error("No strategies registered in factory") end
 
    local benchmark_suite = BenchmarkSuite.new({
       strategies = available_strategies,
-      iterations = iterations
+      iterations = iterations,
    })
 
    local profiler = profiling and PerformanceProfiler.new() or nil
    local results = {}
 
    -- Default scenarios if none provided
-   scenarios = scenarios or {"uniform", "clustered", "sparse"}
+   scenarios = scenarios or { "uniform", "clustered", "sparse" }
 
    -- Object counts to test
-   local object_counts = config.object_counts or {50, 100, 250, 500}
+   local object_counts = config.object_counts or { 50, 100, 250, 500 }
 
    for _, scenario_name in ipairs(scenarios) do
       results[scenario_name] = {}
 
       -- Validate scenario exists
       if not benchmark_suite.scenarios[scenario_name] then
-         print("Warning: Unknown scenario '"..scenario_name.."', skipping")
+         print("Warning: Unknown scenario '" .. scenario_name .. "', skipping")
          goto continue_scenario
       end
 
@@ -74,15 +66,9 @@ function BenchmarkIntegration.benchmark_all_strategies(scenarios, config)
          local objects = benchmark_suite.scenarios[scenario_name](count)
 
          for _, strategy_name in ipairs(available_strategies) do
-            -- Test strategy configuration compatibility
-            local strategy_config = config.strategy_configs and config.strategy_configs[strategy_name] or {}
 
             -- Run benchmark
-            local strategy_results = benchmark_suite:benchmark_strategy(
-               strategy_name,
-               objects,
-               strategy_config
-            )
+            local strategy_results = benchmark_suite:benchmark_strategy(strategy_name, objects)
 
             results[scenario_name][count][strategy_name] = strategy_results
 
@@ -91,7 +77,7 @@ function BenchmarkIntegration.benchmark_all_strategies(scenarios, config)
                local workload = {
                   scenario = scenario_name,
                   object_count = count,
-                  objects = objects
+                  objects = objects,
                }
 
                local profile = profiler:profile_strategy(strategy_name, workload)
@@ -112,30 +98,26 @@ function BenchmarkIntegration.recommend_strategy(use_case_config)
 
    -- Extract use case characteristics
    local object_count = use_case_config.expected_object_count or 500
-   local query_frequency = use_case_config.query_frequency or "medium"           -- low, medium, high
+   local query_frequency = use_case_config.query_frequency or "medium" -- low, medium, high
    local update_frequency = use_case_config.update_frequency or "medium"
-   local memory_constraint = use_case_config.memory_constraint or "none"         -- none, low, strict
+   local memory_constraint = use_case_config.memory_constraint or "none" -- none, low, strict
    local spatial_distribution = use_case_config.spatial_distribution or "uniform" -- uniform, clustered, sparse
 
    -- Create targeted benchmark
-   local scenarios = {spatial_distribution}
-   local object_counts = {object_count}
+   local scenarios = { spatial_distribution }
+   local object_counts = { object_count }
 
    local benchmark_config = {
       iterations = use_case_config.benchmark_iterations or 1000,
       profiling = true,
       object_counts = object_counts,
-      strategy_configs = use_case_config.strategy_configs
+      strategy_configs = use_case_config.strategy_configs,
    }
 
    local results, profiler = BenchmarkIntegration.benchmark_all_strategies(scenarios, benchmark_config)
 
    -- Analyze results for recommendation
-   local recommendations = BenchmarkIntegration.analyze_for_recommendation(
-      results,
-      profiler,
-      use_case_config
-   )
+   local recommendations = BenchmarkIntegration.analyze_for_recommendation(results, profiler, use_case_config)
 
    return recommendations
 end
@@ -157,7 +139,7 @@ function BenchmarkIntegration.analyze_for_recommendation(results, profiler, use_
                   update_times = {},
                   memory_usage = {},
                   accuracy = {},
-                  profiles = {}
+                  profiles = {},
                }
             end
 
@@ -185,8 +167,10 @@ function BenchmarkIntegration.analyze_for_recommendation(results, profiler, use_
    -- Sort by score (highest first)
    local sorted_strategies = {}
    for strategy_name, score in pairs(strategy_scores) do
-      table.insert(sorted_strategies,
-         {name = strategy_name, score = score, performance = strategy_performance[strategy_name]})
+      table.insert(
+         sorted_strategies,
+         { name = strategy_name, score = score, performance = strategy_performance[strategy_name] }
+      )
    end
 
    table.sort(sorted_strategies, function(a, b) return a.score > b.score end)
@@ -199,7 +183,7 @@ function BenchmarkIntegration.analyze_for_recommendation(results, profiler, use_
          score = strategy_data.score,
          strengths = {},
          weaknesses = {},
-         use_case_fit = BenchmarkIntegration.assess_use_case_fit(strategy_data.performance, use_case_config)
+         use_case_fit = BenchmarkIntegration.assess_use_case_fit(strategy_data.performance, use_case_config),
       }
 
       -- Analyze strengths and weaknesses
@@ -220,7 +204,7 @@ function BenchmarkIntegration.analyze_for_recommendation(results, profiler, use_
          table.insert(recommendation.weaknesses, "Slow spatial queries")
       end
 
-      if avg_memory < 50000 then    -- 50KB
+      if avg_memory < 50000 then -- 50KB
          table.insert(recommendation.strengths, "Low memory usage")
       elseif avg_memory > 500000 then -- 500KB
          table.insert(recommendation.weaknesses, "High memory usage")
@@ -245,7 +229,7 @@ function BenchmarkIntegration.calculate_strategy_score(performance, use_case_con
       query_time = 1.0,
       update_time = 1.0,
       memory = 1.0,
-      accuracy = 2.0 -- Accuracy is always important
+      accuracy = 2.0, -- Accuracy is always important
    }
 
    -- Adjust weights based on use case
@@ -281,16 +265,16 @@ function BenchmarkIntegration.calculate_strategy_score(performance, use_case_con
    local query_score = math.max(0, 1 - (avg_query_time / 0.01))
    local update_score = math.max(0, 1 - (avg_update_time / 0.01))
    local memory_score = math.max(0, 1 - (avg_memory / 1000000)) -- 1MB is bad
-   local accuracy_score = avg_accuracy                         -- Already 0-1
+   local accuracy_score = avg_accuracy -- Already 0-1
 
    -- Calculate weighted score
    local total_weight = weights.add_time + weights.query_time + weights.update_time + weights.memory + weights.accuracy
    local score = (
-      add_score * weights.add_time +
-      query_score * weights.query_time +
-      update_score * weights.update_time +
-      memory_score * weights.memory +
-      accuracy_score * weights.accuracy
+      add_score * weights.add_time
+      + query_score * weights.query_time
+      + update_score * weights.update_time
+      + memory_score * weights.memory
+      + accuracy_score * weights.accuracy
    ) / total_weight
 
    return score
@@ -338,9 +322,7 @@ function BenchmarkIntegration.assess_use_case_fit(performance, use_case_config)
 
    -- Accuracy requirement (always important)
    total_checks = total_checks + 1
-   if avg_accuracy > 0.95 then
-      fit_score = fit_score + 1
-   end
+   if avg_accuracy > 0.95 then fit_score = fit_score + 1 end
 
    return fit_score / total_checks
 end
@@ -367,11 +349,11 @@ function BenchmarkIntegration.generate_comprehensive_report(results, profiler, u
    -- Use case summary
    if use_case_config then
       table.insert(report, "Use Case Configuration:")
-      table.insert(report, "  Expected object count: "..(use_case_config.expected_object_count or "500"))
-      table.insert(report, "  Query frequency: "..(use_case_config.query_frequency or "medium"))
-      table.insert(report, "  Update frequency: "..(use_case_config.update_frequency or "medium"))
-      table.insert(report, "  Memory constraint: "..(use_case_config.memory_constraint or "none"))
-      table.insert(report, "  Spatial distribution: "..(use_case_config.spatial_distribution or "uniform"))
+      table.insert(report, "  Expected object count: " .. (use_case_config.expected_object_count or "500"))
+      table.insert(report, "  Query frequency: " .. (use_case_config.query_frequency or "medium"))
+      table.insert(report, "  Update frequency: " .. (use_case_config.update_frequency or "medium"))
+      table.insert(report, "  Memory constraint: " .. (use_case_config.memory_constraint or "none"))
+      table.insert(report, "  Spatial distribution: " .. (use_case_config.spatial_distribution or "uniform"))
       table.insert(report, "")
    end
 
@@ -388,7 +370,7 @@ function BenchmarkIntegration.generate_comprehensive_report(results, profiler, u
                   add_times = {},
                   query_times = {},
                   memory_usage = {},
-                  accuracy = {}
+                  accuracy = {},
                }
             end
 
@@ -420,9 +402,7 @@ function BenchmarkIntegration.generate_comprehensive_report(results, profiler, u
       for scenario_name, scenario_results in pairs(results) do
          for count, count_results in pairs(scenario_results) do
             for strategy_name, strategy_results in pairs(count_results) do
-               if strategy_results.profile then
-                  table.insert(profiles, strategy_results.profile)
-               end
+               if strategy_results.profile then table.insert(profiles, strategy_results.profile) end
             end
          end
       end
@@ -443,11 +423,11 @@ function BenchmarkIntegration.quick_comparison(strategies, object_count)
 
    local config = {
       iterations = 100, -- Quick test
-      object_counts = {object_count},
-      profiling = false
+      object_counts = { object_count },
+      profiling = false,
    }
 
-   local results = BenchmarkIntegration.benchmark_all_strategies({"uniform"}, config)
+   local results = BenchmarkIntegration.benchmark_all_strategies({ "uniform" }, config)
 
    -- Extract quick comparison data
    local comparison = {}
@@ -458,7 +438,7 @@ function BenchmarkIntegration.quick_comparison(strategies, object_count)
                add_time_ms = strategy_results.add_time * 1000,
                query_time_ms = strategy_results.query_time * 1000,
                memory_kb = strategy_results.memory_usage / 1024,
-               accuracy_percent = strategy_results.accuracy * 100
+               accuracy_percent = strategy_results.accuracy * 100,
             }
          end
       end

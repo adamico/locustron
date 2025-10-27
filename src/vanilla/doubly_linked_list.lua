@@ -22,7 +22,7 @@ function SpatialNode:new(obj, x, y, w, h)
          x = x,
          y = y,
          w = w,
-         h = h
+         h = h,
       },
       next = nil,
       prev = nil,
@@ -162,9 +162,7 @@ function SpatialCell:traverseForwards(fn)
    local node = self.firstNode
    while node ~= nil do
       local continue = fn(node)
-      if continue == false then
-         break
-      end
+      if continue == false then break end
       node = node.next
    end
 end
@@ -175,9 +173,7 @@ function SpatialCell:traverseBackwards(fn)
    local node = self.lastNode
    while node ~= nil do
       local continue = fn(node)
-      if continue == false then
-         break
-      end
+      if continue == false then break end
       node = node.prev
    end
 end
@@ -193,7 +189,7 @@ function SpatialCell:find(obj)
          found_node = node
          return false -- Stop traversal
       end
-      return true  -- Continue traversal
+      return true -- Continue traversal
    end)
 
    return found_node
@@ -207,9 +203,7 @@ function SpatialCell:query(filter_fn)
 
    self:traverseForwards(function(node)
       local obj = node.data.obj
-      if not filter_fn or filter_fn(obj) then
-         results[obj] = true
-      end
+      if not filter_fn or filter_fn(obj) then results[obj] = true end
       return true -- Continue traversal
    end)
 
@@ -218,15 +212,11 @@ end
 
 --- Get the number of objects in this cell
 --- @return number Object count
-function SpatialCell:getCount()
-   return self.count
-end
+function SpatialCell:getCount() return self.count end
 
 --- Check if the cell is empty
 --- @return boolean True if empty
-function SpatialCell:isEmpty()
-   return self.count == 0
-end
+function SpatialCell:isEmpty() return self.count == 0 end
 
 --- Clear all objects from the cell
 function SpatialCell:clear()
@@ -240,9 +230,7 @@ local M = {}
 
 --- Create a new spatial cell
 --- @return SpatialCell
-function M.createCell()
-   return SpatialCell:new()
-end
+function M.createCell() return SpatialCell:new() end
 
 --- Create a new spatial node
 --- @param obj any Object reference
@@ -251,9 +239,7 @@ end
 --- @param w number Width
 --- @param h number Height
 --- @return SpatialNode
-function M.createNode(obj, x, y, w, h)
-   return SpatialNode:new(obj, x, y, w, h)
-end
+function M.createNode(obj, x, y, w, h) return SpatialNode:new(obj, x, y, w, h) end
 
 -- Export classes for testing
 M.SpatialCell = SpatialCell

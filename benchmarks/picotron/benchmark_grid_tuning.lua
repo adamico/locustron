@@ -1,3 +1,4 @@
+--- @diagnostic disable: different-requires, undefined-global, lowercase-global
 -- Grid Size Tuning Benchmark for Locustron (Userdata Implementation)
 -- Tests memory allocation vs query optimization trade-offs
 -- Optimized for userdata-based spatial hash with comprehensive performance metrics
@@ -7,12 +8,12 @@ include("../../src/picotron/require.lua")
 local locustron = require("../../src/picotron/locustron")
 
 -- Benchmark Configuration
-local GRID_SIZES = {16, 32, 64, 128}
+local GRID_SIZES = { 16, 32, 64, 128 }
 local OBJECT_SIZES = {
-   {name = "tiny", w = 4, h = 4},
-   {name = "small", w = 8, h = 8},
-   {name = "medium", w = 16, h = 16},
-   {name = "large", w = 32, h = 32}
+   { name = "tiny", w = 4, h = 4 },
+   { name = "small", w = 8, h = 8 },
+   { name = "medium", w = 16, h = 16 },
+   { name = "large", w = 32, h = 32 },
 }
 local OBJECT_COUNT = 100
 local QUERY_SIZE = 64
@@ -26,7 +27,7 @@ function create_test_objects(count, obj_size)
          y = rnd(200 - obj_size.h),
          w = obj_size.w,
          h = obj_size.h,
-         id = i
+         id = i,
       }
    end
    return objects
@@ -36,19 +37,20 @@ function count_cells_and_objects(loc)
    local cell_count = 0
    local total_objects = 0
    local max_objects_per_cell = 0
-   
+
    -- Use our unified API to count cells and objects efficiently
    local grid_size = loc._size
    local sample_area = 300 -- Sample a 300x300 area
-   
+
    for y = 0, sample_area, grid_size do
       for x = 0, sample_area, grid_size do
-         local gx, gy = flr(x / grid_size), flr(y / grid_size)
-         local count = loc._get_cell_count(gx, gy)
+         local gx = flr(x / grid_size)
+         local gy = flr(y / grid_size)
+         local count = loc._get_cell_count(gx, gy) or 0 --[[@as integer]]
          if count > 0 then
             cell_count = cell_count + 1
             total_objects = total_objects + count
-            max_objects_per_cell = max(max_objects_per_cell, count)
+            max_objects_per_cell = max(max_objects_per_cell, count) --[[@as integer]]
          end
       end
    end
@@ -77,8 +79,7 @@ function measure_query_precision(loc, objects, query_size)
       for obj in pairs(candidates) do
          local ox, oy, ow, oh = loc.get_bbox(obj)
          if ox and oy and ow and oh then
-            if ox + ow >= qx and ox <= qx + query_size and
-               oy + oh >= qy and oy <= qy + query_size then
+            if ox + ow >= qx and ox <= qx + query_size and oy + oh >= qy and oy <= qy + query_size then
                actual_hits = actual_hits + 1
             end
          end
@@ -96,8 +97,8 @@ end
 function measure_operation_performance(loc, objects)
    local operations = 0
    local start_time = time()
-   
-   -- Test update operations  
+
+   -- Test update operations
    for i = 1, min(15, #objects) do
       local obj = objects[i]
       local new_x = obj.x + rnd(20) - 10
@@ -105,7 +106,7 @@ function measure_operation_performance(loc, objects)
       loc.update(obj, new_x, new_y, obj.w, obj.h)
       operations = operations + 1
    end
-   
+
    -- Test query operations
    for i = 1, 10 do
       local qx = rnd(150)
@@ -113,10 +114,10 @@ function measure_operation_performance(loc, objects)
       local results = loc.query(qx, qy, 32, 32)
       operations = operations + 1
    end
-   
+
    local total_time = time() - start_time
    local ops_per_second = operations / max(total_time, 0.001)
-   
+
    return ops_per_second
 end
 
@@ -126,14 +127,13 @@ function run_compact_benchmark()
    printh("\n")
 
    for _, obj_size in pairs(OBJECT_SIZES) do
-      printh("OBJECT SIZE: "..obj_size.name.." ("..obj_size.w.."x"..obj_size.h..")")
+      printh("OBJECT SIZE: " .. obj_size.name .. " (" .. obj_size.w .. "x" .. obj_size.h .. ")")
       printh("Grid | Cells | Obj/Cell | MaxCell | Precision | Ops/Sec | Rating")
       printh("-----|-------|----------|---------|-----------|---------|--------")
 
       local objects = create_test_objects(OBJECT_COUNT, obj_size)
 
       for _, grid_size in pairs(GRID_SIZES) do
-         
          local loc_success, loc_error = pcall(function()
             local loc = locustron(grid_size)
 
@@ -148,42 +148,73 @@ function run_compact_benchmark()
 
             -- Measure query precision
             local avg_candidates, avg_actual, precision = measure_query_precision(loc, objects, QUERY_SIZE)
-            
+
             -- Measure operation performance
             local ops_per_second = measure_operation_performance(loc, objects)
 
             -- Determine rating
             local rating = ""
             local score = 0
-            
-            -- Precision score (50% weight)
-            if precision > 80 then score = score + 50
-            elseif precision > 60 then score = score + 35
-            elseif precision > 40 then score = score + 25
-            else score = score + 10 end
-            
-            -- Memory efficiency score (30% weight)
-            if cells < 15 and obj_per_cell > 2 then score = score + 30
-            elseif cells < 25 and obj_per_cell > 1.5 then score = score + 20
-            elseif cells < 35 then score = score + 15
-            else score = score + 5 end
-            
-            -- Performance score (20% weight)
-            if ops_per_second > 500 then score = score + 20
-            elseif ops_per_second > 200 then score = score + 15
-            elseif ops_per_second > 100 then score = score + 10
-            else score = score + 5 end
-            
-            if score >= 85 then rating = "EXCELLENT"
-            elseif score >= 70 then rating = "VERY GOOD"
-            elseif score >= 55 then rating = "GOOD"
-            elseif score >= 40 then rating = "OK"
-            else rating = "POOR" end
 
-            printh(string.format("%4d | %5d | %8.1f | %7d | %8.1f%% | %7.0f | %s",
-               grid_size, cells, obj_per_cell, max_per_cell, precision, ops_per_second, rating))
+            -- Precision score (50% weight)
+            if precision > 80 then
+               score = score + 50
+            elseif precision > 60 then
+               score = score + 35
+            elseif precision > 40 then
+               score = score + 25
+            else
+               score = score + 10
+            end
+
+            -- Memory efficiency score (30% weight)
+            if cells < 15 and obj_per_cell > 2 then
+               score = score + 30
+            elseif cells < 25 and obj_per_cell > 1.5 then
+               score = score + 20
+            elseif cells < 35 then
+               score = score + 15
+            else
+               score = score + 5
+            end
+
+            -- Performance score (20% weight)
+            if ops_per_second > 500 then
+               score = score + 20
+            elseif ops_per_second > 200 then
+               score = score + 15
+            elseif ops_per_second > 100 then
+               score = score + 10
+            else
+               score = score + 5
+            end
+
+            if score >= 85 then
+               rating = "EXCELLENT"
+            elseif score >= 70 then
+               rating = "VERY GOOD"
+            elseif score >= 55 then
+               rating = "GOOD"
+            elseif score >= 40 then
+               rating = "OK"
+            else
+               rating = "POOR"
+            end
+
+            printh(
+               string.format(
+                  "%4d | %5d | %8.1f | %7d | %8.1f%% | %7.0f | %s",
+                  grid_size,
+                  cells,
+                  obj_per_cell,
+                  max_per_cell,
+                  precision,
+                  ops_per_second,
+                  rating
+               )
+            )
          end)
-         
+
          if not loc_success then
             printh("\27[31mERROR testing grid size " .. grid_size .. ": " .. tostring(loc_error) .. "\27[0m")
          end
@@ -214,5 +245,5 @@ run_compact_benchmark()
 return {
    run_compact_benchmark = run_compact_benchmark,
    measure_query_precision = measure_query_precision,
-   measure_operation_performance = measure_operation_performance
+   measure_operation_performance = measure_operation_performance,
 }
