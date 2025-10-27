@@ -140,7 +140,11 @@ The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle
 
 
 ## Without yotta
-You can also directly use the `lib/picotron/locustron.lua` file in your Picotron cartridge.
+You can also directly copy the files from the `exports/` directory into your Picotron cartridge:
+
+1. Copy `exports/locustron.lua` to your cart
+2. Copy `exports/require.lua` to your cart (if you don't have a require system)
+3. Use `include("locustron.lua")` or your preferred module loading method
 
 ## Including
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
