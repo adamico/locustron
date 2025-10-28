@@ -523,7 +523,7 @@ Locustron includes several benchmarking tools:
 include("benchmarks/picotron/benchmark_grid_tuning.lua")
 
 -- Performance comparison
-include("benchmarks/vanilla/benchmark_suite.lua")
+include("benchmarks/benchmark_suite.lua")
 
 -- Memory usage analysis
 include("benchmarks/picotron/benchmark_userdata_performance.lua")

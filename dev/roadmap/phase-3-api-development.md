@@ -430,15 +430,9 @@ src/integration/
 └── viewport_culling.lua             # NEW: Viewport culling utilities
 ```
 
-### Legacy Code (`src/legacy/`) - PRESERVED UNCHANGED
+### Legacy Code (`src/legacy/`) - REMOVED
 
-```text
-src/legacy/
-├── locustron_userdata.lua           # RENAMED: current src/picotron/locustron.lua
-├── require.lua                      # MOVED: current src/picotron/require.lua
-├── init_strategies.lua              # MOVED: current src/vanilla/init_strategies.lua
-└── strategy_interface.lua           # MOVED: current src/vanilla/strategy_interface.lua
-```
+*Legacy directories have been cleaned up as they are no longer relevant with the new multi-strategy architecture.*
 
 ### Export Layer (`exports/` & `lib/`) - EMPTY FOR NOW
 
@@ -458,9 +452,8 @@ tests/
 ├── fixed_grid_strategy_spec.lua     # EXISTING: Strategy implementation tests
 ├── setup_spec.lua                   # EXISTING: Test setup
 ├── strategy_interface_spec.lua      # EXISTING: Interface contract tests
-└── legacy/                          # EXISTING: Picotron-specific tests
-    ├── test_helpers.lua
-    └── test_locustron_unit.lua
+└── picotron/                        # EXISTING: Picotron-specific tests
+    └── test_helpers.lua
 ```
 
 ### Benchmark Layer (`benchmarks/`) - ORGANIZED
@@ -470,12 +463,7 @@ benchmarks/
 ├── benchmark_cli.lua                # EXISTING: CLI benchmarking
 ├── benchmark_integration.lua        # EXISTING: Integration benchmarks
 ├── benchmark_suite.lua              # EXISTING: Strategy comparison
-├── performance_profiler.lua         # EXISTING: Performance profiling
-└── legacy/                          # EXISTING: Picotron benchmarks
-    ├── benchmark_diagnostics.lua
-    ├── benchmark_grid_tuning.lua
-    ├── benchmark_userdata_performance.lua
-    └── run_all_benchmarks.lua
+└── performance_profiler.lua         # EXISTING: Performance profiling
 ```
 
 ### Documentation (`docs/`) - NEW

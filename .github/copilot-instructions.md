@@ -55,61 +55,96 @@ strategy:clear()                         -- Remove all objects
 
 ### Picotron Implementation
 
-Locustron is a **Picotron-only library** optimized for the Picotron runtime environment. Currently maintaining the existing Picotron userdata implementation while building a new pattern that separates object manipulation from spatial hash strategies.
+Locustron is a **unified codebase** optimized for the Picotron runtime environment. The library provides a single, cohesive implementation that leverages Picotron's unique features while maintaining compatibility with standard Lua testing and development workflows.
 
 **Key Implementation Details:**
+- **Unified Architecture**: Single codebase with Picotron optimizations throughout
 - **Userdata optimization**: Cell storage uses Picotron userdata for memory efficiency
 - **Direct 2D array access**: `ud:get(x,y,n)` and `ud:set(x,y,value)` for optimal performance
 - **Custom require system**: Error handling via `send_message()` for module loading
 - **Memory constraints**: Maximum 10,000 objects with 32MB RAM limit
-- **Strategy separation**: Building pattern to separate object management from spatial algorithms
+- **Strategy separation**: Clean separation between object management and spatial algorithms
+- **Cross-platform testing**: Busted framework enables testing outside Picotron environment
 
 ## File Structure & Dependencies
 
 ### Project Architecture
 
-Locustron follows a **Picotron cartridge + strategy pattern** design for library distribution:
+Locustron follows a **unified codebase approach** with Picotron cartridge distribution and strategy pattern design:
 
 ```
 locustron.p64/                    # Picotron cartridge + Git repository root
 ├── .github/copilot-instructions.md    # AI coding guidance (this file)
 ├── main.lua                        # Picotron demo entry point
 ├── locustron_demo.lua              # Interactive demo and library showcase
-├── exports/                        # Yotta package distribution files
-│   ├── locustron.lua              # Library for yotta installation
-│   └── require.lua                # Bundled require system
-├── src/                           # Source code (strategy implementations)
-│   ├── picotron/                  # Picotron-optimized implementations
-│   │   ├── locustron.lua          # Current Fixed Grid with userdata
-│   │   └── require.lua            # Custom module system
-│   └── vanilla/                   # Strategy pattern implementations
-│       ├── strategy_interface.lua # Strategy pattern contract
-│       ├── fixed_grid_strategy.lua # Fixed Grid strategy
-│       ├── init_strategies.lua    # Strategy registration
-│       └── doubly_linked_list.lua # Memory management utility
-├── tests/                         # Cross-platform test suites
-│   ├── picotron/                  # Picotron-specific tests
-│   │   ├── test_locustron_unit.lua # 28 test cases with unitron
-│   │   └── test_helpers.lua       # Custom Picotron test helpers
-│   └── vanilla/                   # Vanilla Lua tests (BDD-style)
-│       ├── strategy_interface_spec.lua
-│       ├── fixed_grid_strategy_spec.lua
-│       └── benchmark_suite_spec.lua
-├── benchmarks/                    # Performance analysis tools
-│   ├── picotron/                  # Picotron benchmark suite
-│   └── vanilla/                   # Cross-platform benchmarks
+├── export_package.lua              # Automated export workflow for yotta packages
+├── exports/                        # Yotta package distribution files (build artifacts)
+│   ├── locustron.lua              # Main library entry point
+│   ├── require.lua                # Custom require system
+│   ├── viewport_culling.lua       # Viewport culling utilities
+│   ├── doubly_linked_list.lua     # Memory management utility
+│   ├── fixed_grid.lua             # Fixed Grid strategy implementation
+│   ├── init.lua                   # Strategy initialization
+│   └── interface.lua              # Strategy interface contract
+├── src/                           # Unified source code (development files)
+│   ├── locustron.lua              # Main library entry point
+│   ├── require.lua                # Custom require system
+│   ├── demo_scenarios.lua         # Demo scenario definitions
+│   ├── debugging/                 # Debug utilities and visualization
+│   │   ├── debug_console.lua      # Interactive debugging console
+│   │   ├── performance_profiler.lua # Performance analysis tools
+│   │   └── visualization_system.lua # Spatial partitioning visualization
+│   ├── integration/               # Game engine integration utilities
+│   │   └── viewport_culling.lua   # Viewport culling implementation
+│   └── strategies/                # Spatial partitioning strategies
+│       ├── doubly_linked_list.lua # Memory management utility
+│       ├── fixed_grid.lua         # Fixed Grid strategy
+│       ├── init.lua               # Strategy registration
+│       └── interface.lua          # Strategy interface contract
+├── tests/                         # Unified cross-platform test suites
+│   ├── api_spec.lua               # API contract tests
+│   ├── benchmark_suite_spec.lua   # Benchmark suite tests
+│   ├── debug_console_spec.lua     # Debug console tests
+│   ├── doubly_linked_list_spec.lua # Memory management tests
+│   ├── fixed_grid_strategy_spec.lua # Fixed Grid strategy tests
+│   ├── performance_profiler_spec.lua # Performance profiler tests
+│   ├── setup_spec.lua             # Test setup and configuration
+│   ├── strategy_interface_spec.lua # Strategy interface tests
+│   ├── viewport_culling_spec.lua  # Viewport culling tests
+│   └── visualization_system_spec.lua # Visualization system tests
+├── benchmarks/                    # Performance analysis and benchmarking tools
+│   ├── benchmark_cli.lua          # Command-line benchmarking interface
+│   ├── benchmark_integration.lua  # Strategy factory integration tests
+│   ├── benchmark_suite.lua        # Comprehensive benchmark suite
+│   ├── performance_profiler.lua   # Performance profiling utilities
+│   └── examples/                  # Benchmark usage examples
+│       └── benchmark_examples.lua # Benchmark implementation examples
 ├── docs/                          # Comprehensive documentation
-│   ├── roadmap/                   # Phase-based development roadmap
-│   └── collision-detection-reference.md
+│   ├── collision-detection-reference.md
+│   ├── reports/
+│   │   ├── phase-1-completion.md
+│   │   └── phase-2-completion.md
+│   └── roadmap/                   # Phase-based development roadmap
+│       ├── phase-1-foundation.md
+│       ├── phase-2-benchmarks.md
+│       ├── phase-3-debugging.md
+│       ├── phase-4-documentation.md
+│       ├── phase-5-strategies.md
+│       ├── README.md
+│       └── strategy-selection-guide.md
 └── .luarc.json                    # Lua Language Server config
 ```
 
 **Key Architectural Patterns:**
 
-- **Strategy Registration**: `init_strategies.lua` registers concrete strategies with the factory
-- **Picotron Optimization**: Current implementation uses userdata while building new strategy pattern
-- **Test Coverage**: Busted-based BDD tests for strategy implementations and Picotron unitron tests
+- **Unified Codebase**: Single source of truth with Picotron-optimized implementations
+- **Strategy Registration**: `src/strategies/init.lua` registers concrete strategies with the factory
+- **Integration Utilities**: `src/integration/viewport_culling.lua` provides game engine integration patterns
+- **Debug Infrastructure**: `src/debugging/` provides comprehensive debugging and visualization tools
+- **Test Coverage**: Busted-based BDD tests for all components in unified `tests/` directory
+- **Benchmark Suite**: Comprehensive performance analysis tools in `benchmarks/` directory
 - **Demo Integration**: `main.lua` demonstrates library with interactive visualization
+- **Export Automation**: `export_package.lua` automates yotta package distribution
 
 ## Development Conventions
 
@@ -238,7 +273,7 @@ end
 
 1. **Implement Interface**: Create new strategy class inheriting from `SpatialStrategy`
 2. **Register Strategy**: Add to `init_strategies.lua` with metadata
-3. **Add Tests**: Create comprehensive test suite in `tests/vanilla/`
+3. **Add Tests**: Create comprehensive test suite in `tests/`
 4. **Document**: Add strategy documentation and usage examples
 
 **Example Strategy Implementation:**
@@ -266,12 +301,17 @@ end
 
 **Busted Testing:**
 1. Install busted: `luarocks install busted`
-2. Run `busted tests/vanilla/`
+2. Run `busted tests/`
 3. Check test output and coverage
 
 **Demo Cartridge Visualization:**
 1. Load `locustron.p64` in Picotron
 2. Visualize spatial partitioning with moving objects
+
+**Cross-Platform Development:**
+- **Source Code**: Unified implementation in `src/` directory
+- **Testing**: Busted framework enables testing outside Picotron
+- **Validation**: All tests pass in both vanilla Lua and Picotron environments
 
 ### Performance Benchmarking
 
@@ -284,9 +324,15 @@ include("benchmarks/picotron/benchmark_grid_tuning.lua")
 
 **Strategy Comparison:**
 ```lua
-include("benchmarks/vanilla/benchmark_suite.lua")
+include("benchmarks/benchmark_suite.lua")
 -- Compares all strategies across different scenarios
 -- Generates performance reports and recommendations
+```
+
+**Benchmark Examples:**
+```lua
+include("benchmarks/examples/benchmark_examples.lua")
+-- Practical examples of benchmark usage and integration
 ```
 
 ### Phase-Based Development

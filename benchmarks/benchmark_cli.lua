@@ -4,8 +4,8 @@
 -- Initialize strategies first
 require("src.strategies.init")
 
-local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
-local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
+local BenchmarkSuite = require("benchmarks.benchmark_suite")
+local PerformanceProfiler = require("benchmarks.performance_profiler")
 
 local BenchmarkCLI = {}
 

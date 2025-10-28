@@ -13,77 +13,146 @@ printh("\n")
 
 -- Step 0: Development workflow reminder
 printh("\27[1m\27[35m0. DEVELOPMENT WORKFLOW:\27[0m")
-printh("  1. Make changes to: src/picotron/locustron.lua")
+printh("  1. Make changes to: src/ directories (integration/, strategies/)")
 printh("  2. Test changes with: include('main.lua')")
-printh("  3. Run unit tests: drag tests/picotron/test_locustron_unit.lua to unitron")
-printh("  4. Run benchmarks: include('benchmarks/picotron/run_all_benchmarks.lua')")
+printh("  3. Run unit tests: busted tests/ (legacy Picotron tests removed)")
+printh("  4. Run benchmarks: lua benchmarks/benchmark_suite.lua (legacy benchmarks removed)")
 printh("  \27[33m⚠️  Continue only after development and testing is complete\27[0m")
 printh("\n")
 
--- Step 1: Sync src/picotron to both lib/locustron and exports
+-- Step 1: Sync src directories to both lib/locustron and exports
 printh("\27[33m1. Syncing library to lib/locustron and exports directories...\27[0m")
 
 -- Copy locustron.lua to lib/locustron (for local development)
 -- Note: cp command will automatically create directory structure if it doesn't exist
 local success, error_msg = pcall(function()
-   printh("  📄 Copying src/picotron/locustron.lua → lib/locustron/locustron.lua")
-   cp("src/picotron/locustron.lua", "lib/locustron/locustron.lua")
+   printh("  📄 Copying src/locustron.lua → lib/locustron/locustron.lua")
+   cp("src/locustron.lua", "lib/locustron/locustron.lua")
 end)
 
 if success then
    printh("\27[32m  ✓ locustron.lua synced to lib/locustron/ (directory created if needed)\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync locustron.lua to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
-   printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
+   printh("     💡 Ensure src/locustron.lua exists and is readable")
    return
 end
 
 -- Copy locustron.lua to exports
 -- Note: cp command will automatically create directory structure if it doesn't exist
 local success, error_msg = pcall(function()
-   printh("  📄 Copying src/picotron/locustron.lua → exports/locustron.lua")
-   cp("src/picotron/locustron.lua", "exports/locustron.lua")
+   printh("  📄 Copying src/locustron.lua → exports/locustron.lua")
+   cp("src/locustron.lua", "exports/locustron.lua")
 end)
 
 if success then
    printh("\27[32m  ✓ locustron.lua synced to exports/ (directory created if needed)\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync locustron.lua to exports/: " .. tostring(error_msg) .. "\27[0m")
-   printh("     💡 Ensure src/picotron/locustron.lua exists and is readable")
+   printh("     💡 Ensure src/locustron.lua exists and is readable")
    return
 end
 
 -- Copy require.lua to lib/locustron (for local development)
 local success, error_msg = pcall(function()
-   printh("  📄 Copying src/picotron/require.lua → lib/locustron/require.lua")
-   cp("src/picotron/require.lua", "lib/locustron/require.lua")
+   printh("  📄 Copying src/require.lua → lib/locustron/require.lua")
+   cp("src/require.lua", "lib/locustron/require.lua")
 end)
 
 if success then
    printh("\27[32m  ✓ require.lua synced to lib/locustron/\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync require.lua to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
-   printh("     💡 Ensure src/picotron/require.lua exists and is readable")
+   printh("     💡 Ensure src/require.lua exists and is readable")
    return
 end
 
 -- Copy require.lua to exports
 local success, error_msg = pcall(function()
-   printh("  📄 Copying src/picotron/require.lua → exports/require.lua")
-   cp("src/picotron/require.lua", "exports/require.lua")
+   printh("  📄 Copying src/require.lua → exports/require.lua")
+   cp("src/require.lua", "exports/require.lua")
 end)
 
 if success then
    printh("\27[32m  ✓ require.lua synced to exports/\27[0m")
 else
    printh("\27[31m  ✗ Failed to sync require.lua to exports/: " .. tostring(error_msg) .. "\27[0m")
-   printh("     💡 Ensure src/picotron/require.lua exists and is readable")
+   printh("     💡 Ensure src/require.lua exists and is readable")
    return
+end
+
+-- Copy viewport_culling.lua to lib/locustron (for local development)
+local success, error_msg = pcall(function()
+   printh("  📄 Copying src/integration/viewport_culling.lua → lib/locustron/viewport_culling.lua")
+   cp("src/integration/viewport_culling.lua", "lib/locustron/viewport_culling.lua")
+end)
+
+if success then
+   printh("\27[32m  ✓ viewport_culling.lua synced to lib/locustron/\27[0m")
+else
+   printh("\27[31m  ✗ Failed to sync viewport_culling.lua to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
+   printh("     💡 Ensure src/integration/viewport_culling.lua exists and is readable")
+   return
+end
+
+-- Copy viewport_culling.lua to exports
+local success, error_msg = pcall(function()
+   printh("  📄 Copying src/integration/viewport_culling.lua → exports/viewport_culling.lua")
+   cp("src/integration/viewport_culling.lua", "exports/viewport_culling.lua")
+end)
+
+if success then
+   printh("\27[32m  ✓ viewport_culling.lua synced to exports/\27[0m")
+else
+   printh("\27[31m  ✗ Failed to sync viewport_culling.lua to exports/: " .. tostring(error_msg) .. "\27[0m")
+   printh("     💡 Ensure src/integration/viewport_culling.lua exists and is readable")
+   return
+end
+
+-- Copy strategy files to lib/locustron (for local development)
+local strategy_files = { "doubly_linked_list.lua", "fixed_grid.lua", "init.lua", "interface.lua" }
+for _, file in pairs(strategy_files) do
+   local success, error_msg = pcall(function()
+      printh("  📄 Copying src/strategies/" .. file .. " → lib/locustron/" .. file)
+      cp("src/strategies/" .. file, "lib/locustron/" .. file)
+   end)
+
+   if success then
+      printh("\27[32m  ✓ " .. file .. " synced to lib/locustron/\27[0m")
+   else
+      printh("\27[31m  ✗ Failed to sync " .. file .. " to lib/locustron/: " .. tostring(error_msg) .. "\27[0m")
+      printh("     💡 Ensure src/strategies/" .. file .. " exists and is readable")
+      return
+   end
+end
+
+-- Copy strategy files to exports
+for _, file in pairs(strategy_files) do
+   local success, error_msg = pcall(function()
+      printh("  📄 Copying src/strategies/" .. file .. " → exports/" .. file)
+      cp("src/strategies/" .. file, "exports/" .. file)
+   end)
+
+   if success then
+      printh("\27[32m  ✓ " .. file .. " synced to exports/\27[0m")
+   else
+      printh("\27[31m  ✗ Failed to sync " .. file .. " to exports/: " .. tostring(error_msg) .. "\27[0m")
+      printh("     💡 Ensure src/strategies/" .. file .. " exists and is readable")
+      return
+   end
 end
 
 -- Step 2: Verify exports directory has required files
 printh("\n\27[33m2. Verifying exports directory...\27[0m")
-local required_files = { "locustron.lua", "require.lua" }
+local required_files = {
+   "locustron.lua",
+   "require.lua",
+   "viewport_culling.lua",
+   "doubly_linked_list.lua",
+   "fixed_grid.lua",
+   "init.lua",
+   "interface.lua"
+}
 local exports_ok = true
 
 for _, file in pairs(required_files) do
@@ -107,15 +176,15 @@ end
 
 -- Step 3: Verify lib/locustron sync
 printh("\n\27[33m3. Verifying lib/locustron sync...\27[0m")
-printh("  ✓ src/picotron/ has been synced to lib/locustron/")
+printh("  ✓ src/ directories have been synced to lib/locustron/")
 printh("  ✓ lib/locustron/ directory ready for local yotta-style development")
 printh("  ✓ exports/ directory ready for BBS distribution")
 
 -- Step 4: Pre-export checklist
 printh("\n\27[33m4. Pre-export checklist:\27[0m")
 printh("  ✓ Demo runs correctly (main.lua)")
-printh("  ✓ Tests pass (tests/picotron/test_locustron_unit.lua)")
-printh("  ✓ Benchmarks complete (benchmarks/picotron/run_all_benchmarks.lua)")
+printh("  ✓ Tests pass (vanilla tests with busted)")
+printh("  ✓ Benchmarks complete (vanilla benchmarks)")
 printh("  ✓ lib/locustron/ contains latest library version (for yotta simulation)")
 printh("  ✓ exports/ contains latest library version (for BBS distribution)")
 

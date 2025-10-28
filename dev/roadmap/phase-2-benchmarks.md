@@ -435,7 +435,7 @@ end
 - [x] **Comparison Tools**: Side-by-side strategy analysis and scoring
 - [x] **Integration Layer**: Strategy factory integration (`src/vanilla/benchmark_integration.lua`)
 - [x] **Test Suite**: Comprehensive BDD tests (`spec/benchmark_suite_spec.lua`)
-- [x] **Usage Examples**: Complete example scenarios (`examples/benchmark_examples.lua`)
+- [x] **Usage Examples**: Complete example scenarios (`benchmarks/examples/benchmark_examples.lua`)
 
 ## Success Criteria ✅ ACHIEVED
 
@@ -464,7 +464,7 @@ lua benchmark.lua --profile --verbose --iterations=5000
 lua benchmark.lua --output=json > performance_results.json
 
 # Quick strategy comparison
-lua examples/benchmark_examples.lua
+lua benchmarks/examples/benchmark_examples.lua
 ```
 
 ## Phase 2 Summary ✅ COMPLETED
@@ -482,6 +482,6 @@ lua examples/benchmark_examples.lua
 3. **BenchmarkIntegration** (`src/vanilla/benchmark_integration.lua`) - Strategy factory integration
 4. **CLI Interface** (`src/vanilla/benchmark_cli.lua`) - Command-line tools
 5. **Test Suite** (`spec/benchmark_suite_spec.lua`) - Comprehensive BDD tests
-6. **Usage Examples** (`examples/benchmark_examples.lua`) - Complete documentation
+6. **Usage Examples** (`benchmarks/examples/benchmark_examples.lua`) - Complete documentation
 
 The benchmarking framework provides the foundation for informed strategy selection decisions and will enable comprehensive performance comparison when additional strategies are implemented in Phase 5.

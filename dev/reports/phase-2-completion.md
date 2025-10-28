@@ -244,7 +244,7 @@ local recommendations = BenchmarkIntegration.recommend_strategy(use_case)
 ### Complete Documentation Suite
 
 - **`BENCHMARKS.md`**: Comprehensive usage guide
-- **`examples/benchmark_examples.lua`**: 10 detailed usage examples
+- **`benchmarks/examples/benchmark_examples.lua`**: 10 detailed usage examples
 - **`docs/roadmap/phase-2-benchmarks.md`**: Updated with completion status
 - **Inline Documentation**: Extensive code comments and function documentation
 
@@ -353,12 +353,13 @@ The benchmarking framework is designed to seamlessly accommodate additional stra
 **Primary Commit**: `3d848e6` - feat(benchmarks): implement comprehensive Phase 2 benchmarking framework
 
 **Files Changed**: 9 files, 2715 insertions, 28 deletions
+
 - `src/vanilla/benchmark_suite.lua` (467 lines)
 - `src/vanilla/performance_profiler.lua` (544 lines) 
 - `src/vanilla/benchmark_integration.lua` (590 lines)
 - `src/vanilla/benchmark_cli.lua` (422 lines)
 - `spec/benchmark_suite_spec.lua` (388 lines)
-- `examples/benchmark_examples.lua` (216 lines)
+- `benchmarks/examples/benchmark_examples.lua` (216 lines)
 - `BENCHMARKS.md` (89 lines)
 - Updated documentation and runner script
 

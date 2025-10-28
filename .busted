@@ -1,9 +1,9 @@
 return {
   default = {
-    ROOT = {"tests/vanilla"},
+    ROOT = {"tests"},
     pattern = "_spec",
     lua = "lua5.4",
-    helper = "tests/vanilla/setup_spec.lua",
+    helper = "tests/setup_spec.lua",
     env = {
       LUA_PATH = "./?.lua;./?/init.lua;" .. (os.getenv("LUA_PATH") or "")
     }

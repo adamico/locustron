@@ -2,8 +2,8 @@
 -- BenchmarkSuite Tests
 -- Comprehensive test coverage for the benchmarking framework
 
-local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
-local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
+local BenchmarkSuite = require("benchmarks.benchmark_suite")
+local PerformanceProfiler = require("benchmarks.performance_profiler")
 
 -- Manually register strategies for testing
 local strategy_interface = require("src.strategies.interface")

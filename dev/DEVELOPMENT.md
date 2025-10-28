@@ -4,9 +4,9 @@
 
 ### Prerequisites
 
-For cross-platform development and testing, you'll need to set up a Lua development environment:
+For development and testing, you'll need to set up a Lua development environment:
 
-1. **Install Lua 5.4+** (required for vanilla Lua development)
+1. **Install Lua 5.4+** (required for development and testing)
 2. **Install LuaRocks** (Lua package manager)
 3. **Install Busted** (BDD testing framework)
 4. **Install Yotta** (Picotron package manager)
@@ -29,11 +29,12 @@ lua -v
 
 ### Picotron Package Management
 
-For Picotron development, you'll also need yotta (Picotron's package manager):
+For Picotron development and testing, you'll need yotta (Picotron's package manager):
 
 #### Installing Yotta
 
 **Initial Installation:**
+
 ```bash
 # In Picotron terminal:
 load #yotta -u
@@ -42,6 +43,7 @@ load #yotta -u
 ```
 
 **Upgrading from v1.0:**
+
 ```bash
 # In Picotron terminal:
 yotta util install #yotta
@@ -85,87 +87,83 @@ yotta util update #cart_id      # Update system package
 
 ```bash
 # Run cross-platform BDD tests
-busted tests/vanilla/
+busted tests/
 
 # Run specific test file
-busted tests/vanilla/setup_spec.lua
+busted tests/setup_spec.lua
 
 # Run with verbose output
-busted --verbose tests/vanilla/
+busted --verbose tests/
 ```
 
 ## Project Structure
 
-Locustron uses a clear separation between platform-specific and cross-platform code:
+Locustron follows a unified architecture with modular components:
 
-```
+``` markdown
 src/
-├── picotron/              # Picotron-specific implementation
-│   ├── locustron.lua      # Main userdata-based implementation
-│   ├── require.lua        # Picotron module system
-│   ├── locustron_demo.lua # Interactive demo
-│   ├── benchmarks/        # Picotron performance tests
-│   └── tests/             # Unitron test suite
-└── vanilla/               # Cross-platform implementation
-    ├── strategy_interface.lua    # Abstract strategy pattern
-    ├── fixed_grid_strategy.lua   # Vanilla Lua Fixed Grid
-    ├── doubly_linked_list.lua    # Memory-efficient cell management
-    ├── benchmark_suite.lua       # Performance benchmarking
-    └── [additional strategies]   # Future implementations
-lib/                       # Yotta package installations (excluded from git)
-exports/                   # Build artifacts (excluded from git) 
-tests/
-├── picotron/              # Picotron unitron tests
-└── vanilla/               # Cross-platform BDD tests
-benchmarks/
-├── picotron/              # Picotron performance tests
-└── vanilla/               # Cross-platform benchmarks
+├── locustron.lua              # Main library entry point
+├── require.lua                 # Custom module system
+├── demo_scenarios.lua          # Demo scenario definitions
+├── debugging/                  # Debug utilities
+├── integration/                # Game engine integration utilities
+│   └── viewport_culling.lua    # Viewport culling implementation
+└── strategies/                 # Spatial partitioning strategies
+    ├── doubly_linked_list.lua  # Memory management utility
+    ├── fixed_grid.lua          # Fixed Grid strategy
+    ├── init.lua                # Strategy registration
+    └── interface.lua           # Strategy interface contract
+lib/                            # Yotta package installations (excluded from git)
+exports/                        # Build artifacts (excluded from git)
+tests/                          # BDD test suite
+benchmarks/                     # Performance benchmarking tools
 ```
 
 ## Development Workflows
 
-### Picotron Development
+### Core Development
 
-1. **Main Implementation**: Edit `src/picotron/locustron.lua`
-2. **Testing**: Run `src/picotron/tests/test_locustron_unit.lua` in unitron
-3. **Demo**: Run `include("src/picotron/locustron_demo.lua")` in Picotron console
-4. **Benchmarks**: Run `src/picotron/benchmarks/run_all_benchmarks.lua`
-
-### Cross-Platform Development
-
-1. **Strategy Development**: Work in `src/vanilla/`
-2. **Testing**: Run `busted tests/vanilla/` from project root
-3. **Benchmarking**: Use `lua benchmark.lua` CLI tools
+1. **Main Implementation**: Edit `src/locustron.lua` and related files
+2. **Strategy Development**: Work in `src/strategies/` for new spatial partitioning algorithms
+3. **Integration**: Add utilities in `src/integration/` for game engine integration
+4. **Testing**: Run `busted tests/` from project root
+5. **Demo**: Run the demo locustron.p64 cartridge in Picotron
+6. **Benchmarking**: Use `lua benchmark.lua` CLI tools
 
 ### Package Export
 
 The `export_package.lua` script manages the export workflow:
+
 - **Directory setup**: Automatically creates `lib/locustron/` and `exports/` directories if they don't exist
 - **Build artifacts**: Both `lib/` and `exports/` folders contain generated files and are excluded from git
-- **Dual sync**: Copies `src/picotron/` files to both `lib/locustron/` (for local yotta simulation) and `exports/` (for BBS distribution)  
+- **File sync**: Copies source files to both `lib/locustron/` (for local yotta simulation) and `exports/` (for BBS distribution)
 - **Validation**: Verifies package integrity and file presence
 - **BBS preparation**: Prepares cartridge for publication with proper metadata
 
 **Publishing Methods:**
+
 1. **GitHub Repository**: Contains the complete source code in `src/` with development files
 2. **Lexaloffle BBS**: Contains the exported `locustron.p64.png` cartridge as a yotta package (generated from `exports/` folder)
 
 **Package Management:**
+
 - **lib/**: Managed by yotta package manager (install packages here with `yotta add`)
 - **exports/**: Generated by export script for BBS publication
 
 ## Testing Strategy
 
-- **Picotron Tests** (`src/picotron/tests/`): Validate userdata implementation
-- **Vanilla Tests** (`tests/vanilla/`): Cross-platform BDD tests with Busted
-- **Integration**: Both test suites validate identical API behavior
+- **BDD Tests** (`tests/`): Comprehensive behavior-driven tests with Busted
+- **Integration**: Tests validate API behavior and spatial partitioning correctness
+- **Coverage**: Tests cover strategy implementations, utilities, and integration patterns
 
 ## Contributing
 
-1. Follow the platform separation: Picotron-specific code in `src/picotron/`, cross-platform in `src/vanilla/`
-2. Maintain API compatibility between implementations
-3. Add tests for both platforms when adding features
-4. Update documentation for structural changes
+1. **Code Organization**: Keep related functionality together in appropriate directories
+2. **Strategy Pattern**: Implement new spatial partitioning algorithms in `src/strategies/`
+3. **Integration**: Add game engine integration utilities in `src/integration/`
+4. **Testing**: Add comprehensive tests for new features in `tests/`
+5. **Documentation**: Update documentation for structural changes
+6. **Performance**: Include benchmarks for performance-critical changes
 
 ## Git Commit Message Enforcement
 
@@ -177,11 +175,13 @@ chmod +x .git/hooks/commit-msg
 ```
 
 This will enforce the following commit message format:
-```
+
+``` bash
 <type>[optional scope]: <description>
 ```
 
 **Valid commit types:**
+
 - `feat` - A new feature
 - `fix` - A bug fix  
 - `docs` - Documentation changes
@@ -191,6 +191,7 @@ This will enforce the following commit message format:
 - `chore` - Build process or auxiliary tool changes
 
 **Examples:**
+
 ```bash
 git commit -m "feat(locustron): add spatial hash optimization"
 git commit -m "fix(tests): handle unknown object error in delete tests"  

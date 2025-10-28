@@ -5,9 +5,9 @@
 ---@diagnostic disable: undefined-global, inject-field
 
 -- Add src and benchmarks directories to package path
-package.path = package.path .. ";./src/?.lua;./src/vanilla/?.lua;./benchmarks/?.lua;./benchmarks/vanilla/?.lua"
+package.path = package.path .. ";./src/?.lua;./benchmarks/?.lua"
 
-local BenchmarkCLI = require("benchmarks.vanilla.benchmark_cli")
+local BenchmarkCLI = require("benchmarks.benchmark_cli")
 
 -- Pass command line arguments to the CLI
 BenchmarkCLI.main(arg)

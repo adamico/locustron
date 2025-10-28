@@ -1,9 +1,9 @@
 -- Benchmarking Framework Usage Examples
 -- Demonstrates how to use the Locustron benchmarking tools
 
-local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
-local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
-local BenchmarkIntegration = require("benchmarks.vanilla.benchmark_integration")
+local BenchmarkSuite = require("benchmarks.benchmark_suite")
+local PerformanceProfiler = require("benchmarks.performance_profiler")
+local BenchmarkIntegration = require("benchmarks.benchmark_integration")
 
 -- Example 1: Basic Strategy Benchmarking
 print("=== Example 1: Basic Strategy Benchmarking ===")
@@ -92,9 +92,8 @@ print("=== Example 5: Use Case-Specific Recommendation ===")
 
 --[[
 -- Initialize with strategy factory (when available)
-local StrategyFactory = require("src.vanilla.strategy_factory")
-local factory = StrategyFactory.new()
-BenchmarkIntegration.initialize(factory)
+local StrategyFactory = require("src.strategies.init")
+BenchmarkIntegration.initialize(StrategyFactory)
 
 local use_case = {
   expected_object_count = 500,

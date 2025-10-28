@@ -99,32 +99,31 @@ end
 
 ```bash
 # Run benchmark framework tests
-busted tests/vanilla/benchmark_suite_spec.lua
+busted tests/benchmark_suite_spec.lua
 
 # View example usage
-lua examples/benchmark_examples.lua
+lua benchmarks/examples/benchmark_examples.lua
 ```
 
 ## Directory Structure
 
-```
-benchmarks/vanilla/
+``` markdown
+benchmarks/
 ├── benchmark_suite.lua       # Core benchmarking framework
 ├── performance_profiler.lua  # Detailed performance analysis
 ├── benchmark_integration.lua # Strategy factory integration
-└── benchmark_cli.lua         # Command-line interface
+├── benchmark_cli.lua         # Command-line interface
+└── examples/
+    └── benchmark_examples.lua # Usage examples and tutorials
 
-src/vanilla/
+src/strategies/
 ├── strategy_interface.lua    # Strategy pattern and factory
-├── fixed_grid_strategy.lua   # Fixed grid implementation
-├── init_strategies.lua       # Strategy registration
+├── fixed_grid.lua            # Fixed grid implementation
+├── init.lua                  # Strategy registration
 └── doubly_linked_list.lua    # Utility data structure
 
-tests/vanilla/
+tests/
 └── benchmark_suite_spec.lua  # BDD test suite
-
-examples/
-└── benchmark_examples.lua    # Usage examples
 
 benchmark.lua                 # CLI runner script
 ```
@@ -137,4 +136,4 @@ benchmark.lua                 # CLI runner script
 - **Regression Testing** - Detect performance regressions during development
 - **Architecture Decisions** - Choose the best strategy for specific game types
 
-For more detailed examples, see `examples/benchmark_examples.lua`.
+For more detailed examples, see `benchmarks/examples/benchmark_examples.lua`.
