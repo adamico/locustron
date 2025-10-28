@@ -4,15 +4,15 @@
 local DemoScenarios = {}
 
 -- Load individual scenario modules
-local VampireSurvivorScenario = require("scenarios.vampire_survivor")
+local SurvivorLikeScenario = require("scenarios.survivor_like")
 local SpaceBattleScenario = require("scenarios.space_battle")
 local PlatformerScenario = require("scenarios.platformer")
 local DynamicEcosystemScenario = require("scenarios.dynamic_ecosystem")
 
--- Scenario: Vampire Survivor
+-- Scenario: Survivor Like
 -- Monsters spawn in waves around player, creating dense clusters
-function DemoScenarios.vampire_survivor(config)
-   return VampireSurvivorScenario.new(config)
+function DemoScenarios.survivor_like(config)
+   return SurvivorLikeScenario.new(config)
 end
 
 -- Scenario: Space Battle
@@ -44,7 +44,7 @@ end
 
 function DemoScenarios.get_available_scenarios()
    return {
-      "vampire_survivor",
+      "survivor_like",
       "space_battle",
       "platformer",
       "dynamic_ecosystem",
@@ -53,8 +53,8 @@ end
 
 function DemoScenarios.get_scenario_info(scenario_name)
    local scenarios = {
-      vampire_survivor = {
-         name = "Vampire Survivor",
+      survivor_like = {
+         name = "Survivor Like",
          description = "Wave-based survival with clustered monster spawns",
          optimal_strategy = "quadtree",
          challenges = {"clustered objects", "dynamic spawning", "dense areas"}

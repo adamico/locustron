@@ -31,7 +31,7 @@ Locustron includes multiple interactive demo scenarios to showcase different spa
 
 | Scenario | Description | Optimal Strategy | Key Challenge |
 |----------|-------------|------------------|---------------|
-| **Vampire Survivor** | Wave-based survival with monsters spawning around player | Quadtree | Clustered objects, dynamic spawning |
+| **Survivor Like** | Wave-based survival with monsters spawning around player | Quadtree | Clustered objects, dynamic spawning |
 | **Space Battle** | Large world with ships clustering around objectives | Hash Grid | Large world, sparse areas |
 | **Platformer Level** | Bounded level with enemies on platforms | Fixed Grid | Uniform areas, bounded world |
 | **Dynamic Ecosystem** | Living system with birth/death cycles | Quadtree | Changing distributions, object lifecycle |
@@ -58,7 +58,7 @@ Each scenario demonstrates different spatial partitioning challenges and shows w
 The demo scenarios help validate that different strategies excel in different situations:
 
 * **Fixed Grid**: Best for uniform distributions (Platformer Level)
-* **Quadtree**: Best for clustered/dynamic objects (Vampire Survivor, Dynamic Ecosystem)
+* **Quadtree**: Best for clustered/dynamic objects (Survivor Like, Dynamic Ecosystem)
 * **Hash Grid**: Best for large sparse worlds (Space Battle)
 
 ## API

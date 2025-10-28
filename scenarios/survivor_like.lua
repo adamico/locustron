@@ -1,12 +1,12 @@
--- Vampire Survivor Scenario
+-- Survivor Like Scenario
 -- Monsters spawn in waves around player, creating dense clusters
 
-local VampireSurvivorScenario = {}
+local SurvivorLikeScenario = {}
 
-function VampireSurvivorScenario.new(config)
+function SurvivorLikeScenario.new(config)
    config = config or {}
    local scenario = {
-      name = "Vampire Survivor",
+      name = "Survivor Like",
       description = "Monsters spawn in waves around player, creating dense clusters",
       optimal_strategy = "quadtree",
       objects = {},
@@ -129,4 +129,4 @@ function VampireSurvivorScenario.new(config)
    return scenario
 end
 
-return VampireSurvivorScenario
+return SurvivorLikeScenario
