@@ -4,16 +4,22 @@ This repository includes a helper script for creating multiline commit messages 
 
 ## Usage
 
-### Option 1: Direct script execution
+### Option 1: Automatic override (recommended)
 
 ```bash
-./commit-multi.fish
+git commit  # Now automatically uses multiline helper!
 ```
 
-### Option 2: Git alias (recommended)
+### Option 2: Explicit alias
 
 ```bash
 git commit-multi
+```
+
+### Option 3: Direct script execution
+
+```bash
+./commit-multi.fish
 ```
 
 ## Features
