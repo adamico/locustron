@@ -88,22 +88,6 @@ describe("VisualizationSystem", function()
          assert.are.equal(100, vis:screen_to_world_y(100))
       end)
 
-      it("should zoom in", function()
-         vis:zoom_in()
-         assert.are.equal(1.2, vis.viewport.scale)
-      end)
-
-      it("should zoom out", function()
-         vis:zoom_out()
-         assert.are.equal(1.0 / 1.2, vis.viewport.scale)
-      end)
-
-      it("should pan viewport", function()
-         vis:pan(10, -5)
-         assert.are.equal(10, vis.viewport.x)
-         assert.are.equal(-5, vis.viewport.y)
-      end)
-
       it("should reset viewport", function()
          vis:set_viewport(100, 200, 800, 600, 3.0)
          vis:reset_viewport()

@@ -170,7 +170,7 @@ function VisualizationSystem:render_strategy(strategy, strategy_name)
       self:render_performance_heatmap(strategy)
    end
 
-   self:render_ui()
+   -- UI rendering moved to main.lua
 end
 
 --- Render fixed grid structure
@@ -360,20 +360,7 @@ end
 
 --- Render user interface overlay
 function VisualizationSystem:render_ui()
-   -- Strategy info
-   self:draw_text(string.format("Strategy: %s", self.current_strategy_name), 10, self.viewport.h - 20, self.colors.text)
-
-   -- Object count
-   local obj_count = 0
-   if self.current_strategy and self.current_strategy.objects then
-      for _ in pairs(self.current_strategy.objects) do
-         obj_count = obj_count + 1
-      end
-   end
-   self:draw_text(string.format("Objects: %d", obj_count), 10, self.viewport.h - 10, self.colors.text)
-
-   -- Controls hint
-   self:draw_text("G:toggle grid O:objects Q:queries P:perf +/-:zoom Arrows:pan", 10, 10, self.colors.text)
+   -- UI rendering moved to main.lua draw_visualization_ui()
 end
 
 --- Add a query to the history for visualization
@@ -400,62 +387,7 @@ end
 
 --- Handle keyboard input for debugging controls
 function VisualizationSystem:handle_input()
-   -- Toggle structure visibility
-   if keyp("g", true) then -- G key
-      self.show_structure = not self.show_structure
-   end
-
-   -- Toggle object visibility
-   if keyp("o", true) then -- O key
-      self.show_objects = not self.show_objects
-   end
-
-   -- Toggle query visibility
-   if keyp("q", true) then -- Q key
-      self.show_queries = not self.show_queries
-   end
-
-   -- Toggle performance visibility
-   if keyp("p", true) then -- P key
-      self.show_performance = not self.show_performance
-   end
-
-   -- Zoom controls
-   if keyp("+", true) then     -- + key
-      self:zoom_in()
-   elseif keyp("-", true) then -- - key
-      self:zoom_out()
-   end
-
-   -- Pan controls
-   local pan_speed = 32 / self.viewport.scale
-   if btnp(2) then     -- Up arrow
-      self:pan(0, -pan_speed)
-   elseif btnp(3) then -- Down arrow
-      self:pan(0, pan_speed)
-   elseif btnp(0) then -- Left arrow
-      self:pan(-pan_speed, 0)
-   elseif btnp(1) then -- Right arrow
-      self:pan(pan_speed, 0)
-   end
-end
-
---- Zoom in
-function VisualizationSystem:zoom_in()
-   self.viewport.scale = min(self.viewport.scale * 1.2, 10.0)
-end
-
---- Zoom out
-function VisualizationSystem:zoom_out()
-   self.viewport.scale = max(self.viewport.scale / 1.2, 0.1)
-end
-
---- Pan the viewport
---- @param dx number Delta x
---- @param dy number Delta y
-function VisualizationSystem:pan(dx, dy)
-   self.viewport.x = self.viewport.x + dx
-   self.viewport.y = self.viewport.y + dy
+   -- Input handling moved to main.lua _update()
 end
 
 --- Reset viewport to default

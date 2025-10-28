@@ -49,6 +49,25 @@ function draw_debug_overlay()
    end
 end
 
+function draw_visualization_ui()
+   if not vis_system or not vis_system.current_strategy then return end
+
+   -- Strategy info
+   print(string.format("Strategy: %s", vis_system.current_strategy_name), 10, vis_system.viewport.h - 20, 7)
+
+   -- Object count
+   local obj_count = 0
+   if vis_system.current_strategy.objects then
+      for _ in pairs(vis_system.current_strategy.objects) do
+         obj_count = obj_count + 1
+      end
+   end
+   print(string.format("Objects: %d", obj_count), 10, vis_system.viewport.h - 10, 7)
+
+   -- Controls hint
+   print("G:toggle grid O:objects Q:queries P:perf +/-:zoom Arrows:pan", 10, 10, 7)
+end
+
 function draw_debug_info()
    -- Draw performance and system info
    local info_x = 280
@@ -138,18 +157,29 @@ function _update()
    end
 
    if debug_mode and vis_system then
-      -- Debug visualization controls
-      if btnp(0) then vis_system.show_structure = not vis_system.show_structure end     -- Left - toggle structure
-      if btnp(1) then vis_system.show_objects = not vis_system.show_objects end         -- Right - toggle objects
-      if btnp(2) then vis_system.show_queries = not vis_system.show_queries end         -- Up - toggle queries
-      if btnp(3) then vis_system.show_performance = not vis_system.show_performance end -- Down - toggle performance
+      -- Visualization system keyboard controls
+      if keyp("g", true) then vis_system.show_structure = not vis_system.show_structure end
+      if keyp("o", true) then vis_system.show_objects = not vis_system.show_objects end
+      if keyp("q", true) then vis_system.show_queries = not vis_system.show_queries end
+      if keyp("p", true) then vis_system.show_performance = not vis_system.show_performance end
 
       -- Zoom controls
-      if btnp(6) then -- A key - zoom in
-         vis_system.viewport.scale = vis_system.viewport.scale * 1.2
+      if keyp("+", true) or keyp("=") then
+         vis_system.viewport.scale = min(vis_system.viewport.scale * 1.2, 10.0)
+      elseif keyp("-", true) then
+         vis_system.viewport.scale = max(vis_system.viewport.scale / 1.2, 0.1)
       end
-      if btnp(7) then -- S key - zoom out
-         vis_system.viewport.scale = vis_system.viewport.scale / 1.2
+
+      -- Pan controls
+      local pan_speed = 32 / vis_system.viewport.scale
+      if btn(2) then     -- Up arrow
+         vis_system.viewport.y = vis_system.viewport.y - pan_speed
+      elseif btn(3) then -- Down arrow
+         vis_system.viewport.y = vis_system.viewport.y + pan_speed
+      elseif btn(0) then -- Left arrow
+         vis_system.viewport.x = vis_system.viewport.x - pan_speed
+      elseif btn(1) then -- Right arrow
+         vis_system.viewport.x = vis_system.viewport.x + pan_speed
       end
    end
 
@@ -170,6 +200,9 @@ function _draw()
    if debug_mode and vis_system then
       -- Debug visualization mode
       vis_system:render_strategy(loc, "fixed_grid")
+
+      -- Render visualization UI overlay
+      draw_visualization_ui()
    else
       -- Simple visualization mode - just show objects
       color(1)
