@@ -80,6 +80,7 @@ function SurvivorLikeScenario.new(config)
                local nearby = {}
                if self.perf_profiler and self.perf_profiler.enabled then
                   nearby = self.perf_profiler:measure_query(
+                     "fixed_grid",
                      function()
                         return loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
                            return other ~= obj and other.alive and other.type == "monster"

@@ -141,31 +141,20 @@ function switch_scenario(scenario_name)
    -- Create new spatial structure
    loc = Locustron.create(64) -- Fixed cell size for now
 
-   -- Create scenario
-   current_scenario = DemoScenarios.create_scenario(scenario_name, { max_objects = 200 })
-   current_scenario:init(loc, perf_profiler)
-
-   -- Update scenario index
-   for i, name in ipairs(scenario_names) do
-      if name == scenario_name then
-         current_scenario_index = i
-         break
-      end
-   end
-
-   -- Reinitialize debugging system with new strategy
-   if not vis_system then
-      vis_system = VisualizationSystem:new({
-         viewport = { x = 0, y = 0, w = GRID_SIZE, h = GRID_SIZE, scale = 1.0 },
-      })
-   end
-
+   -- Initialize debugging system components first
    if not perf_profiler then
       perf_profiler = PerformanceProfiler:new({
          enabled = true,
          sample_rate = 0.1,
       })
+   else
+      -- Reset profiler for new scenario
+      perf_profiler:clear()
    end
+
+   -- Create scenario
+   current_scenario = DemoScenarios.create_scenario(scenario_name, { max_objects = 200 })
+   current_scenario:init(loc, perf_profiler)
 
    local strategy = loc:get_strategy()
    if not debug_console then debug_console = DebugConsole:new() end

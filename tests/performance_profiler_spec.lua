@@ -69,7 +69,8 @@ describe("PerformanceProfiler", function()
 
          profiler:end_session()
          assert.is_nil(profiler.current_session.start_time)
-         assert.are.equal(20, profiler.stats.queries_per_second) -- 10 queries / 0.5 seconds
+         -- Allow for floating point precision issues with os.clock()
+         assert.is_true(profiler.stats.queries_per_second >= 19.9 and profiler.stats.queries_per_second <= 20.1)
       end)
 
       it("should handle ending session without starting", function()

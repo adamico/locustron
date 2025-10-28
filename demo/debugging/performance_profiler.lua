@@ -117,8 +117,8 @@ end
 --- Get high-resolution time for profiling (Picotron optimized)
 --- @return number Current time in seconds
 function PerformanceProfiler:get_time()
-   -- Use Picotron's high-resolution timer if available, fallback to os.time
-   return time and time() or os.time()
+   -- Use os.clock() for high-resolution timing in both Picotron and vanilla Lua
+   return os.clock()
 end
 
 --- Get current memory usage (Picotron specific)
@@ -317,6 +317,9 @@ end
 --- Get formatted performance report
 --- @return string Formatted performance report
 function PerformanceProfiler:get_report()
+   -- Update stats from measurements before generating report
+   self:update_aggregated_stats()
+
    local report = {}
 
    table.insert(report, "=== Performance Report ===")
