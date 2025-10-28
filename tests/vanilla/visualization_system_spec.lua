@@ -233,7 +233,16 @@ describe("VisualizationSystem", function()
       it("should render strategy without errors", function()
          local mock_strategy = {
             objects = {},
-            cell_size = 32
+            cell_size = 32,
+            get_debug_info = function()
+               return {
+                  cell_size = 32,
+                  cells = {
+                     {grid_x = 0, grid_y = 0, world_x = 0, world_y = 0, object_count = 2},
+                     {grid_x = 1, grid_y = 0, world_x = 32, world_y = 0, object_count = 1}
+                  }
+               }
+            end
          }
 
          -- This should not throw errors

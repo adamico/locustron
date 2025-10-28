@@ -17,9 +17,8 @@ local VisualizationSystem = class("VisualizationSystem")
 
 local time = os and os.time or time
 local add = add and add or table.insert
-local min = min and min or math.min
-local max = max and max or math.max
 local deli = deli and deli or table.remove
+local flr = flr and flr or math.floor
 
 --- Create a new visualization system instance
 --- @param config table Configuration table with colors and viewport settings
@@ -147,14 +146,6 @@ function VisualizationSystem:render_strategy(strategy, strategy_name)
    if self.show_structure then
       if strategy_name == "fixed_grid" then
          self:render_fixed_grid(strategy)
-      elseif strategy_name == "quadtree" then
-         self:render_quadtree(strategy)
-      elseif strategy_name == "hash_grid" then
-         self:render_hash_grid(strategy)
-      elseif strategy_name == "bsp_tree" then
-         self:render_bsp_tree(strategy)
-      elseif strategy_name == "bvh" then
-         self:render_bvh(strategy)
       end
    end
 
@@ -176,13 +167,14 @@ end
 --- Render fixed grid structure
 -- @param strategy Fixed grid strategy instance
 function VisualizationSystem:render_fixed_grid(strategy)
-   local cell_size = strategy.cell_size or 32
+   local debug_info = strategy:get_debug_info()
+   local cell_size = debug_info.cell_size
 
    -- Calculate visible grid range
-   local start_gx = math.floor(self.viewport.x / cell_size)
-   local end_gx = math.floor((self.viewport.x + self.viewport.w / self.viewport.scale) / cell_size) + 1
-   local start_gy = math.floor(self.viewport.y / cell_size)
-   local end_gy = math.floor((self.viewport.y + self.viewport.h / self.viewport.scale) / cell_size) + 1
+   local start_gx = flr(self.viewport.x / cell_size)
+   local end_gx = flr((self.viewport.x + self.viewport.w / self.viewport.scale) / cell_size) + 1
+   local start_gy = flr(self.viewport.y / cell_size)
+   local end_gy = flr((self.viewport.y + self.viewport.h / self.viewport.scale) / cell_size) + 1
 
    -- Draw grid lines
    for gx = start_gx, end_gx do
@@ -201,113 +193,24 @@ function VisualizationSystem:render_fixed_grid(strategy)
       end
    end
 
-   -- Draw occupied cells with object counts
-   if strategy.grid then
-      for gy, row in pairs(strategy.grid) do
-         if gy >= start_gy and gy <= end_gy then
-            for gx, cell in pairs(row) do
-               if gx >= start_gx and gx <= end_gx and cell.count > 0 then
-                  local world_x = gx * cell_size
-                  local world_y = gy * cell_size
-                  local screen_x = self:world_to_screen_x(world_x)
-                  local screen_y = self:world_to_screen_y(world_y)
-                  local screen_w = cell_size * self.viewport.scale
-                  local screen_h = cell_size * self.viewport.scale
+   -- Draw occupied cells with object counts using debug info
+   for _, cell_info in ipairs(debug_info.cells) do
+      if cell_info.object_count > 0 then
+         local screen_x = self:world_to_screen_x(cell_info.world_x)
+         local screen_y = self:world_to_screen_y(cell_info.world_y)
+         local screen_w = cell_size * self.viewport.scale
+         local screen_h = cell_size * self.viewport.scale
 
-                  -- Highlight occupied cells
-                  self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.grid_lines, true)
+         -- Highlight occupied cells
+         self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.grid_lines, true)
 
-                  -- Draw object count
-                  if self.viewport.scale > 0.5 then
-                     local count_str = tostring(cell.count)
-                     self:draw_text(count_str, screen_x + 2, screen_y + 2, self.colors.text)
-                  end
-               end
-            end
+         -- Draw object count
+         if self.viewport.scale > 0.5 then
+            local count_str = tostring(cell_info.object_count)
+            self:draw_text(count_str, screen_x + 2, screen_y + 2, self.colors.text)
          end
       end
    end
-end
-
---- Render quadtree structure
--- @param strategy Quadtree strategy instance
-function VisualizationSystem:render_quadtree(strategy)
-   if strategy.root then
-      self:render_quadtree_node(strategy.root, 0)
-   end
-end
-
---- Render a quadtree node recursively
--- @param node Quadtree node to render
--- @param depth Current depth for color coding
-function VisualizationSystem:render_quadtree_node(node, depth)
-   local screen_x = self:world_to_screen_x(node.x)
-   local screen_y = self:world_to_screen_y(node.y)
-   local screen_w = node.w * self.viewport.scale
-   local screen_h = node.h * self.viewport.scale
-
-   -- Draw node bounds with depth-based coloring
-   local color = (depth % 4) + 4 -- Cycle through colors based on depth
-   self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, color, false)
-
-   -- Draw object count for leaf nodes
-   if node.is_leaf and node.objects and #node.objects > 0 then
-      if self.viewport.scale > 0.3 then
-         local count_str = tostring(#node.objects)
-         self:draw_text(count_str, screen_x + 2, screen_y + 2, self.colors.text)
-      end
-   end
-
-   -- Recursively draw children
-   if not node.is_leaf and node.children then
-      for _, child in ipairs(node.children) do
-         self:render_quadtree_node(child, depth + 1)
-      end
-   end
-end
-
---- Render hash grid structure
--- @param strategy Hash grid strategy instance
-function VisualizationSystem:render_hash_grid(strategy)
-   -- Render hash grid by showing occupied cells
-   if strategy.cells then
-      for hash, bucket in pairs(strategy.cells) do
-         for _, cell in ipairs(bucket) do
-            if cell.count > 0 then
-               local world_x = cell.gx * (strategy.cell_size or 32)
-               local world_y = cell.gy * (strategy.cell_size or 32)
-               local screen_x = self:world_to_screen_x(world_x)
-               local screen_y = self:world_to_screen_y(world_y)
-               local screen_w = (strategy.cell_size or 32) * self.viewport.scale
-               local screen_h = (strategy.cell_size or 32) * self.viewport.scale
-
-               -- Color based on hash to show distribution
-               local color = (hash % 8) + 8
-               self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, color, true)
-
-               -- Draw coordinates and count if zoomed in
-               if self.viewport.scale > 1.0 then
-                  local label = string.format("(%d,%d):%d", cell.gx, cell.gy, cell.count)
-                  self:draw_text(label, screen_x + 2, screen_y + 2, self.colors.text)
-               end
-            end
-         end
-      end
-   end
-end
-
---- Render BSP tree structure (placeholder for future implementation)
--- @param strategy BSP tree strategy instance
-function VisualizationSystem:render_bsp_tree(strategy)
-   -- Placeholder - BSP tree rendering would go here
-   self:draw_text("BSP Tree visualization not yet implemented", 10, 10, self.colors.text)
-end
-
---- Render BVH structure (placeholder for future implementation)
--- @param strategy BVH strategy instance
-function VisualizationSystem:render_bvh(strategy)
-   -- Placeholder - BVH rendering would go here
-   self:draw_text("BVH visualization not yet implemented", 10, 30, self.colors.text)
 end
 
 --- Render objects in the spatial structure
@@ -355,7 +258,7 @@ end
 -- @param strategy Strategy to analyze for performance
 function VisualizationSystem:render_performance_heatmap(strategy)
    -- Placeholder - performance heatmap would show slow regions
-   self:draw_text("Performance heatmap not yet implemented", 10, 50, self.colors.performance_hot)
+   self:draw_text("Performance heatmap not yet implemented", 280, 220, self.colors.performance_hot)
 end
 
 --- Render user interface overlay
