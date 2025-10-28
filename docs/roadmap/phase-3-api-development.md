@@ -2,7 +2,7 @@
 
 ## Overview
 
-Phase 3 develops the main Locustron game engine API that provides a clean, unified interface for spatial partitioning operations. Building on the strategy pattern foundation from Phase 1 and benchmarking tools from Phase 2, this phase creates the primary developer-facing API that integrates all spatial strategies into a cohesive game engine component.
+Phase 3 develops the main Locustron game engine API that provides a clean, unified interface for spatial partitioning operations. Building on the strategy pattern foundation from Phase 1 and benchmarking tools from Phase 2, this phase creates the primary developer-facing API that integrates the fixed grid spatial strategy into a cohesive game engine component.
 
 ---
 
@@ -219,14 +219,6 @@ function Locustron._create_strategy(strategy_name, config)
 
   if strategy_name == "fixed_grid" then
     return FixedGridStrategy.new(config)
-  elseif strategy_name == "quadtree" then
-    return QuadtreeStrategy.new(config)
-  elseif strategy_name == "hash_grid" then
-    return HashGridStrategy.new(config)
-  elseif strategy_name == "bsp_tree" then
-    return BSPTreeStrategy.new(config)
-  elseif strategy_name == "bvh" then
-    return BVHStrategy.new(config)
   else
     error("unknown strategy: " .. tostring(strategy_name))
   end
@@ -236,11 +228,7 @@ end
 --- @return table List of strategy names
 function Locustron.get_available_strategies()
   return {
-    "fixed_grid",
-    "quadtree",
-    "hash_grid",
-    "bsp_tree",
-    "bvh"
+    "fixed_grid"
   }
 end
 
@@ -256,38 +244,6 @@ function Locustron.get_strategy_metadata(strategy_name)
       memory_usage = "low",
       performance = "excellent_uniform",
       supports_unbounded = false
-    },
-    quadtree = {
-      name = "Quadtree",
-      description = "Hierarchical spatial partitioning with adaptive subdivision",
-      optimal_for = {"clustered_objects", "bounded_worlds", "hierarchical_queries"},
-      memory_usage = "adaptive",
-      performance = "good_clustered",
-      supports_unbounded = false
-    },
-    hash_grid = {
-      name = "Hash Grid",
-      description = "Hash-based spatial grid for unbounded worlds",
-      optimal_for = {"sparse_distribution", "infinite_worlds", "negative_coordinates"},
-      memory_usage = "very_sparse",
-      performance = "excellent_sparse",
-      supports_unbounded = true
-    },
-    bsp_tree = {
-      name = "BSP Tree",
-      description = "Binary space partitioning for geometric operations",
-      optimal_for = {"ray_casting", "line_intersection", "geometric_queries"},
-      memory_usage = "moderate",
-      performance = "excellent_geometric",
-      supports_unbounded = false
-    },
-    bvh = {
-      name = "Bounding Volume Hierarchy",
-      description = "Hierarchical bounding volumes for complex shapes",
-      optimal_for = {"mixed_sizes", "nearest_neighbor", "dynamic_objects"},
-      memory_usage = "moderate",
-      performance = "good_dynamic",
-      supports_unbounded = true
     }
   }
 
@@ -383,76 +339,7 @@ end
 ### Integration Objectives
 
 - Create integration patterns for common game engine scenarios
-- Implement collision detection helpers
 - Develop viewport culling utilities
-- Build performance monitoring and optimization tools
-- Provide migration guides from legacy APIs
-
-### Collision Detection Integration
-
-```lua
---- @class CollisionSystem
---- Collision detection integration with spatial partitioning
-local CollisionSystem = {}
-
-function CollisionSystem.new(locustron_instance)
-  local self = setmetatable({}, CollisionSystem)
-
-  self.spatial = locustron_instance
-  self.collision_checks = 0
-  self.broad_phase_candidates = 0
-  self.narrow_phase_collisions = 0
-
-  return self
-end
-
-function CollisionSystem:check_collisions(entity, filter_fn)
-  local x, y, w, h = self.spatial:get_bbox(entity)
-
-  -- Broad phase: get potential collision candidates
-  local candidates = self.spatial:query(x, y, w, h, filter_fn)
-  self.broad_phase_candidates = self.broad_phase_candidates + self:count_table(candidates)
-
-  -- Narrow phase: check actual collisions
-  local collisions = {}
-  for candidate in pairs(candidates) do
-    if candidate ~= entity then
-      self.collision_checks = self.collision_checks + 1
-
-      if self:rectangles_collide(entity, candidate) then
-        table.insert(collisions, candidate)
-        self.narrow_phase_collisions = self.narrow_phase_collisions + 1
-      end
-    end
-  end
-
-  return collisions
-end
-
-function CollisionSystem:rectangles_collide(obj1, obj2)
-  local x1, y1, w1, h1 = self.spatial:get_bbox(obj1)
-  local x2, y2, w2, h2 = self.spatial:get_bbox(obj2)
-
-  return x1 < x2 + w2 and x2 < x1 + w1 and
-         y1 < y2 + h2 and y2 < y1 + h1
-end
-
-function CollisionSystem:get_stats()
-  return {
-    collision_checks = self.collision_checks,
-    broad_phase_candidates = self.broad_phase_candidates,
-    narrow_phase_collisions = self.narrow_phase_collisions,
-    efficiency_ratio = self.collision_checks > 0 and
-                      (self.broad_phase_candidates / self.collision_checks) or 0
-  }
-end
-
-function CollisionSystem:count_table(t)
-  local count = 0
-  for _ in pairs(t) do count = count + 1 end
-  return count
-end
-```
 
 ### Viewport Culling System
 
@@ -517,129 +404,11 @@ function ViewportCulling:count_table(t)
 end
 ```
 
-### Performance Monitoring
-
-```lua
---- @class PerformanceMonitor
---- Real-time performance monitoring for spatial operations
-local PerformanceMonitor = {}
-
-function PerformanceMonitor.new(locustron_instance)
-  local self = setmetatable({}, PerformanceMonitor)
-
-  self.spatial = locustron_instance
-  self.enabled = true
-  self.samples = {}
-  self.max_samples = 1000
-
-  self.operation_times = {
-    add = {},
-    update = {},
-    remove = {},
-    query = {}
-  }
-
-  return self
-end
-
-function PerformanceMonitor:time_operation(operation_name, fn, ...)
-  if not self.enabled then
-    return fn(...)
-  end
-
-  local start_time = os.clock()
-  local results = {fn(...)}
-  local end_time = os.clock()
-
-  local duration = end_time - start_time
-  self:record_sample(operation_name, duration)
-
-  return table.unpack(results)
-end
-
-function PerformanceMonitor:record_sample(operation_name, duration)
-  local samples = self.operation_times[operation_name]
-  if not samples then return end
-
-  table.insert(samples, duration)
-
-  -- Maintain sample limit
-  if #samples > self.max_samples then
-    table.remove(samples, 1)
-  end
-end
-
-function PerformanceMonitor:get_stats()
-  local stats = {}
-
-  for operation, samples in pairs(self.operation_times) do
-    if #samples > 0 then
-      stats[operation] = {
-        count = #samples,
-        avg_time = self:calculate_average(samples),
-        min_time = math.min(table.unpack(samples)),
-        max_time = math.max(table.unpack(samples)),
-        p95_time = self:calculate_percentile(samples, 0.95)
-      }
-    end
-  end
-
-  return stats
-end
-
-function PerformanceMonitor:calculate_average(samples)
-  local sum = 0
-  for _, sample in ipairs(samples) do
-    sum = sum + sample
-  end
-  return sum / #samples
-end
-
-function PerformanceMonitor:calculate_percentile(samples, percentile)
-  if #samples == 0 then return 0 end
-
-  table.sort(samples)
-  local index = math.ceil(#samples * percentile)
-  return samples[index]
-end
-```
-
-### Migration and Compatibility
-
-```lua
---- Legacy API compatibility layer
-local function create_legacy_api(cell_size)
-  local loc = Locustron.create({
-    strategy = "fixed_grid",
-    config = {cell_size = cell_size}
-  })
-
-  -- Legacy method names
-  loc.add_object = loc.add
-  loc.remove_object = loc.remove
-  loc.update_object = loc.update
-  loc.query_region = loc.query
-
-  return loc
-end
-
--- Global locustron function for backward compatibility
-function locustron(config)
-  -- Handle legacy usage: locustron(cell_size)
-  if type(config) == "number" then
-    return create_legacy_api(config)
-  end
-
-  return Locustron.create(config)
-end
-```
-
 ## Phase 3 Summary
 
 **Duration**: 2 weeks (14 days)
 **Key Achievement**: Complete game engine API for spatial partitioning
-**Core API**: Unified interface across all spatial strategies
-**Integration**: Collision detection, viewport culling, and performance monitoring
-**Compatibility**: Backward compatibility with legacy APIs
+**Core API**: Unified interface across spatial strategies
+**Integration**: Viewport culling utilities
 
 **Ready for Phase 4**: Advanced debugging and visualization tools.
