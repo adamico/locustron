@@ -1,4 +1,4 @@
-# Phase 5: Documentation & Examples (1 week)
+# Phase 5: Documentation & Examples
 
 ## Overview
 
@@ -6,7 +6,7 @@ Phase 5 creates comprehensive documentation, tutorials, and examples for the mul
 
 ---
 
-## Phase 5.1: Comprehensive Documentation (4 days)
+## Phase 5.1: Comprehensive Documentation
 
 ### Objectives
 
@@ -42,10 +42,10 @@ docs/
 │   ├── dynamic-objects.md      # Moving objects tutorial
 │   └── advanced-queries.md     # Complex spatial queries
 ├── examples/                   # Code examples
-│   ├── simple-game.lua         # Basic game implementation
-│   ├── platformer.lua          # Platformer with collision
-│   ├── rts-units.lua           # RTS unit management
-│   └── particle-system.lua     # Particle spatial optimization
+│   ├── survivor-like.lua       # Wave-based survival game
+│   ├── space-battle.lua        # Large world with objectives
+│   ├── platformer.lua          # Bounded level with platforms
+│   └── dynamic-ecosystem.lua   # Birth/death object lifecycle
 └── reference/                  # Reference materials
     ├── spatial-partitioning.md # Theory and concepts
     ├── performance-data.md     # Benchmark results
@@ -277,7 +277,7 @@ end
 
 ---
 
-## Phase 5.2: Educational Examples & Tutorials (3 days)
+## Phase 5.2: Educational Examples & Tutorials
 
 - Create interactive tutorials that teach spatial partitioning concepts
 - Develop complete game examples using different strategies
@@ -517,14 +517,130 @@ end
 ### Complete Game Examples
 
 ```lua
--- examples/simple-platformer.lua
+-- examples/survivor-like.lua - Wave-based survival game
+local function create_survivor_like_example()
+  local game = {
+    loc = locustron({strategy = "quadtree", config = {max_objects = 8, max_depth = 6}}),
+    player = {x = 128, y = 128, w = 8, h = 8},
+    monsters = {},
+    wave = 1,
+    spawn_timer = 0,
+    max_monsters = 200
+  }
+
+  -- Add player to spatial hash
+  game.loc.add(game.player, game.player.x, game.player.y, game.player.w, game.player.h)
+
+  return game
+end
+
+local function update_survivor_like(game, dt)
+  -- Spawn monsters in waves
+  game.spawn_timer = game.spawn_timer + dt
+  if game.spawn_timer > 2.0 and #game.monsters < game.max_monsters then
+    -- Spawn monsters around player
+    local monsters_per_wave = math.min(20 + game.wave * 5, 50)
+    local spawn_radius = 150
+
+    for i = 1, monsters_per_wave do
+      if #game.monsters >= game.max_monsters then break end
+
+      local angle = (i / monsters_per_wave) * 2 * math.pi
+      local distance = spawn_radius * (0.8 + math.random() * 0.4)
+
+      local monster = {
+        x = game.player.x + math.cos(angle) * distance,
+        y = game.player.y + math.sin(angle) * distance,
+        w = 6 + math.random(4),
+        h = 6 + math.random(4),
+        speed = 20 + math.random(20),
+        age = 0,
+        lifespan = 5 + math.random(2),
+        alive = true,
+        type = "monster"
+      }
+
+      table.insert(game.monsters, monster)
+      game.loc.add(monster, monster.x, monster.y, monster.w, monster.h)
+    end
+
+    game.spawn_timer = 0
+    game.wave = game.wave + 1
+  end
+
+  -- Update monsters
+  local to_remove = {}
+  for i, monster in ipairs(game.monsters) do
+    if monster.alive then
+      monster.age = monster.age + dt
+
+      if monster.age > monster.lifespan then
+        monster.alive = false
+        game.loc.remove(monster)
+        table.insert(to_remove, i)
+      else
+        -- Move toward player
+        local dx = game.player.x - monster.x
+        local dy = game.player.y - monster.y
+        local dist = math.sqrt(dx*dx + dy*dy)
+
+        if dist > 0 then
+          monster.x = monster.x + (dx/dist) * monster.speed * dt
+          monster.y = monster.y + (dy/dist) * monster.speed * dt
+          game.loc.update(monster, monster.x, monster.y, monster.w, monster.h)
+        end
+      end
+    end
+  end
+
+  -- Remove dead monsters
+  for i = #to_remove, 1, -1 do
+    table.remove(game.monsters, to_remove[i])
+  end
+end
+
+-- examples/space-battle.lua - Large world with objectives
+local function create_space_battle_example()
+  local game = {
+    loc = locustron({strategy = "hash_grid"}),
+    ships = {},
+    objectives = {},
+    max_ships = 150
+  }
+
+  -- Create objectives
+  game.objectives = {
+    {x = 200, y = 150, radius = 40},
+    {x = 600, y = 300, radius = 35},
+    {x = 400, y = 500, radius = 45}
+  }
+
+  -- Spawn initial ships
+  for i = 1, game.max_ships do
+    local ship = {
+      x = math.random(0, 800),
+      y = math.random(0, 600),
+      w = 4 + math.random(4),
+      h = 4 + math.random(4),
+      vx = (math.random() - 0.5) * 200,
+      vy = (math.random() - 0.5) * 200,
+      type = "ship"
+    }
+
+    table.insert(game.ships, ship)
+    game.loc.add(ship, ship.x, ship.y, ship.w, ship.h)
+  end
+
+  return game
+end
+
+-- examples/platformer.lua - Bounded level with platforms
 local function create_platformer_example()
   local game = {
     loc = locustron({strategy = "fixed_grid", config = {cell_size = 32}}),
-    player = {x = 100, y = 100, w = 16, h = 24, vx = 0, vy = 0},
+    player = {x = 100, y = 100, w = 16, h = 24, vx = 0, vy = 0, on_ground = false},
     platforms = {},
-    enemies = {},
-    collectibles = {}
+    enemies = {}
   }
 
   -- Create platforms
@@ -552,84 +668,39 @@ local function create_platformer_example()
   return game
 end
 
-local function update_platformer(game, dt)
-  local player = game.player
-  local loc = game.loc
+-- examples/dynamic-ecosystem.lua - Birth/death object lifecycle
+local function create_dynamic_ecosystem_example()
+  local game = {
+    loc = locustron({strategy = "quadtree", config = {max_objects = 8, max_depth = 6}}),
+    organisms = {},
+    spawn_timer = 0,
+    max_organisms = 120
+  }
 
-  -- Apply gravity
-  player.vy = player.vy + 800 * dt  -- Gravity acceleration
+  -- Start with initial organisms
+  for i = 1, 20 do
+    local organism = {
+      x = math.random(0, 512),
+      y = math.random(0, 384),
+      w = 4 + math.random(8),
+      h = 4 + math.random(8),
+      vx = (math.random() - 0.5) * 80,
+      vy = (math.random() - 0.5) * 80,
+      age = 0,
+      lifespan = 5 + math.random(10),
+      type = "organism"
+    }
 
-  -- Handle input
-  if btn(0) then player.vx = -150 end  -- Left
-  if btn(1) then player.vx = 150 end   -- Right
-  if btn(4) and player.on_ground then player.vy = -300 end  -- Jump
-
-  -- Apply friction
-  player.vx = player.vx * 0.8
-
-  -- Calculate new position
-  local new_x = player.x + player.vx * dt
-  local new_y = player.y + player.vy * dt
-
-  -- Check horizontal collision
-  local h_collisions = loc.query(new_x, player.y, player.w, player.h, function(obj)
-    return obj.type == "platform" and obj ~= player
-  end)
-
-  if not next(h_collisions) then
-    player.x = new_x
-  else
-    player.vx = 0
+    table.insert(game.organisms, organism)
+    game.loc.add(organism, organism.x, organism.y, organism.w, organism.h)
   end
 
-  -- Check vertical collision
-  local v_collisions = loc.query(player.x, new_y, player.w, player.h, function(obj)
-    return obj.type == "platform" and obj ~= player
-  end)
-
-  player.on_ground = false
-  if not next(v_collisions) then
-    player.y = new_y
-  else
-    if player.vy > 0 then  -- Falling, hit ground
-      player.on_ground = true
-    end
-    player.vy = 0
-  end
-
-  -- Update player in spatial hash
-  loc.update(player, player.x, player.y, player.w, player.h)
-end
-
-local function draw_platformer(game)
-  cls(1)  -- Clear screen
-
-  -- Draw platforms
-  for _, platform in ipairs(game.platforms) do
-    rectfill(platform.x, platform.y, platform.x + platform.w, platform.y + platform.h, 7)
-  end
-
-  -- Draw player
-  local player = game.player
-  local color = player.on_ground and 11 or 8  -- Blue on ground, red in air
-  rectfill(player.x, player.y, player.x + player.w, player.y + player.h, color)
-
-  -- Show spatial grid (debug)
-  if btnp(5) then
-    game.debug_mode = not game.debug_mode
-  end
-
-  if game.debug_mode then
-    -- Visualize grid and query regions
-    game.visualization = game.visualization or VisualizationSystem.new()
-    game.visualization:render_strategy(game.loc._strategy, "fixed_grid")
-  end
+  return game
 end
 ```
 
 ## Phase 5 Summary
 
-**Duration**: 1 week (7 days)
 **Key Achievement**: Complete documentation and educational resources
 **Documentation**: Comprehensive API docs, guides, and tutorials
 **Examples**: Real-world game implementations showcasing each strategy
