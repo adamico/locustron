@@ -10,12 +10,12 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 
 | Phase | Status | Focus Area |
 |-------|--------|------------|
-| **[Phase 1](./docs/roadmap/phase-1-foundation.md)** | ✅ Complete | Core Abstraction & Vanilla Lua Foundation |
-| **[Phase 2](./docs/roadmap/phase-2-benchmarks.md)** | ✅ Complete | Benchmarks & Advanced Testing with Busted |
-| **[Phase 3](./docs/roadmap/phase-3-api-development.md)** | ✅ Complete | Main Locustron Game Engine API Development |
-| **[Phase 4](./docs/roadmap/phase-4-debugging.md)** | ✅ Complete | Advanced Debugging & Visualization |
-| **[Phase 5](./docs/roadmap/phase-5-documentation.md)** | 🔄 In Progress | Documentation & Examples |
-| **[Phase 6](./docs/roadmap/phase-6-strategies.md)** | ⏳ Planned | Assess & Implement More Strategies |
+| **[Phase 1](./roadmap/phase-1-foundation.md)** | ✅ Complete | Core Abstraction & Vanilla Lua Foundation |
+| **[Phase 2](./roadmap/phase-2-benchmarks.md)** | ✅ Complete | Benchmarks & Advanced Testing with Busted |
+| **[Phase 3](./roadmap/phase-3-api-development.md)** | ✅ Complete | Main Locustron Game Engine API Development |
+| **[Phase 4](./roadmap/phase-4-debugging.md)** | ✅ Complete | Advanced Debugging & Visualization |
+| **[Phase 5](./roadmap/phase-5-documentation.md)** | 🔄 In Progress | Documentation & Examples |
+| **[Phase 6](./roadmap/phase-6-strategies.md)** | ⏳ Planned | Assess & Implement More Strategies |
 
 ## 🎯 Key Benefits
 
@@ -28,12 +28,12 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 
 ### Development Phases
 
-- **[Phase 1: Foundation](./docs/roadmap/phase-1-foundation.md)** - Core abstraction and vanilla Lua foundation ✅
-- **[Phase 2: Benchmarks](./docs/roadmap/phase-2-benchmarks.md)** - Advanced testing with busted ✅
-- **[Phase 3: Game Engine API](./docs/roadmap/phase-3-api-development.md)** - Main locustron game engine API development ✅
-- **[Phase 4: Debugging & Visualization](./docs/roadmap/phase-4-debugging.md)** - Advanced debugging and visualization 🔄
-- **[Phase 5: Documentation](./docs/roadmap/phase-5-documentation.md)** - Documentation and examples ⏳
-- **[Phase 6: Strategies](./docs/roadmap/phase-6-strategies.md)** - Assess and implement more strategies ⏳
+- **[Phase 1: Foundation](./roadmap/phase-1-foundation.md)** - Core abstraction and vanilla Lua foundation ✅
+- **[Phase 2: Benchmarks](./roadmap/phase-2-benchmarks.md)** - Advanced testing with busted ✅
+- **[Phase 3: Game Engine API](./roadmap/phase-3-api-development.md)** - Main locustron game engine API development ✅
+- **[Phase 4: Debugging & Visualization](./roadmap/phase-4-debugging.md)** - Advanced debugging and visualization 🔄
+- **[Phase 5: Documentation](./roadmap/phase-5-documentation.md)** - Documentation and examples ⏳
+- **[Phase 6: Strategies](./roadmap/phase-6-strategies.md)** - Assess and implement more strategies ⏳
 
 ### Architecture & Implementation
 
@@ -71,4 +71,4 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 
 ---
 
-**Next Step**: Begin [Phase 5: Documentation & Examples](./docs/roadmap/phase-5-documentation.md)
+**Next Step**: Begin [Phase 5: Documentation & Examples](./roadmap/phase-5-documentation.md)

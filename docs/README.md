@@ -138,7 +138,7 @@ end
 
 ## Contributing
 
-Found an issue or want to contribute? See our [development roadmap](../ROADMAP.md) and [contributing guidelines](../CONTRIBUTING.md).
+Found an issue or want to contribute? See our [development roadmap](../dev/ROADMAP.md) and [contributing guidelines](../CONTRIBUTING.md).
 
 ## License
 
