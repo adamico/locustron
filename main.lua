@@ -27,25 +27,34 @@ function rand(low, hi) return flr(low + rnd(hi - low)) end
 function draw_debug_overlay()
    -- Draw debug controls help
    local help_x = 280
-   local help_y = 100
+   local help_y = 120
    local line_height = 8
 
-   rrectfill(help_x - 2, help_y - 2, 180, 60, 0, 0)
-   rrect(help_x - 2, help_y - 2, 180, 60, 0, 7)
+   rrectfill(help_x - 2, help_y - 2, 180, 90, 0, 0)
+   rrect(help_x - 2, help_y - 2, 180, 90, 0, 7)
 
    color(11)
    print("CONTROLS", help_x, help_y)
-   help_y = help_y + line_height
+   help_y += line_height
 
    print("Z: Toggle UI", help_x, help_y)
-   help_y = help_y + line_height
+   help_y += line_height
    print("X: Toggle Debug Mode", help_x, help_y)
-   help_y = help_y + line_height
+   help_y += line_height * 1.5
 
    if debug_mode then
-      print("Arrows: Toggle Layers", help_x, help_y)
-      help_y = help_y + line_height
-      print("A/S: Zoom In/Out", help_x, help_y)
+      color(8)
+      print("G: Toggle Grid", help_x, help_y)
+      help_y += line_height
+      print("O: Toggle Objects", help_x, help_y)
+      help_y += line_height
+      print("Q: Toggle Queries", help_x, help_y)
+      help_y += line_height
+      print("P: Toggle Performance", help_x, help_y)
+      help_y += line_height
+      print("+/-: Zoom In/Out", help_x, help_y)
+      help_y += line_height
+      print("Arrows: Pan Viewport", help_x, help_y)
    end
 end
 
@@ -53,7 +62,7 @@ function draw_visualization_ui()
    if not vis_system or not vis_system.current_strategy then return end
 
    -- Strategy info
-   print(string.format("Strategy: %s", vis_system.current_strategy_name), 10, vis_system.viewport.h - 20, 7)
+   print(string.format("Strategy: %s", vis_system.current_strategy_name), 280, 230, 8)
 
    -- Object count
    local obj_count = 0
@@ -62,16 +71,13 @@ function draw_visualization_ui()
          obj_count = obj_count + 1
       end
    end
-   print(string.format("Objects: %d", obj_count), 10, vis_system.viewport.h - 10, 7)
-
-   -- Controls hint
-   print("G:toggle grid O:objects Q:queries P:perf +/-:zoom Arrows:pan", 10, 10, 7)
+   print(string.format("Objects: %d", obj_count), 280, 240, 8)
 end
 
 function draw_debug_info()
    -- Draw performance and system info
    local info_x = 280
-   local info_y = 10
+   local info_y = 28
    local line_height = 8
 
    rrectfill(info_x - 2, info_y - 2, 120, 80, 0, 0)
@@ -126,8 +132,9 @@ function _init()
       sample_rate = 0.1
    })
 
+   local strategy = loc:get_strategy()
    debug_console = DebugConsole:new()
-   debug_console:set_strategy(loc:get_strategy(), "fixed_grid")
+   debug_console:set_strategy(strategy, "fixed_grid")
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
 
@@ -171,7 +178,7 @@ function _update()
       end
 
       -- Pan controls
-      local pan_speed = 32 / vis_system.viewport.scale
+      local pan_speed = 16 / vis_system.viewport.scale
       if btn(2) then     -- Up arrow
          vis_system.viewport.y = vis_system.viewport.y - pan_speed
       elseif btn(3) then -- Down arrow
@@ -186,20 +193,29 @@ function _update()
    -- move all the objects in locus
    -- we use a bigger box than just the grid so that we also update the objects that
    -- are outside of the visible grid area
-   for obj in pairs(loc:query(-64, -64, 384, 384)) do
+   local update_query = loc:query(-64, -64, 384, 384)
+   local update_count = 0
+   for obj in pairs(update_query) do
       obj.x = obj.x + sin(obj.av * t()) * obj.r
       obj.y = obj.y + cos(obj.av * t()) * obj.r
       -- Use userdata-optimized update which leverages get_bbox internally
       loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+      update_count = update_count + 1
+   end
+
+   -- Track the update query for visualization
+   if debug_mode and vis_system then
+      vis_system:add_query(-64, -64, 384, 384, update_count)
    end
 end
 
 function _draw()
    cls()
 
+
    if debug_mode and vis_system then
       -- Debug visualization mode
-      vis_system:render_strategy(loc, "fixed_grid")
+      vis_system:render_strategy(loc:get_strategy(), "fixed_grid")
 
       -- Render visualization UI overlay
       draw_visualization_ui()
@@ -221,3 +237,5 @@ function _draw()
       draw_debug_info()
    end
 end
+
+include("error_explorer.lua")

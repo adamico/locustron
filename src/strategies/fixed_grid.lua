@@ -393,6 +393,23 @@ function FixedGridStrategy:get_debug_info()
    }
 end
 
+--- Get all objects in the spatial structure for visualization
+--- @return table Table of objects {obj = {x, y, w, h}}
+function FixedGridStrategy:get_all_objects()
+   local result = {}
+   for obj, obj_data in pairs(self.objects) do
+      local bbox = obj_data.bbox
+      result[obj] = {
+         x = bbox.x,
+         y = bbox.y,
+         w = bbox.w,
+         h = bbox.h,
+         id = obj.id or obj.name -- Try to get an ID for display
+      }
+   end
+   return result
+end
+
 --- Get current grid bounds (for debugging)
 --- @return table|nil Grid bounds {min_gx, min_gy, max_gx, max_gy}
 function FixedGridStrategy:_get_grid_bounds()

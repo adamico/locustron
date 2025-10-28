@@ -128,28 +128,6 @@ describe("VisualizationSystem", function()
       end)
    end)
 
-   describe("Rendering operations", function()
-      local vis
-
-      before_each(function()
-         vis = VisualizationSystem:new()
-      end)
-
-      it("should handle input without errors", function()
-         -- Mock btnp function for testing
-         _G.btnp = function() return false end
-         _G.keyp = function(key, _) return false end
-
-         assert.has_no_error(function()
-            vis:handle_input()
-         end)
-
-         -- Clean up
-         _G.btnp = nil
-         _G.keyp = nil
-      end)
-   end)
-
    describe("Drawing operations", function()
       local vis
       local draw_calls
@@ -241,6 +219,12 @@ describe("VisualizationSystem", function()
                      {grid_x = 0, grid_y = 0, world_x = 0, world_y = 0, object_count = 2},
                      {grid_x = 1, grid_y = 0, world_x = 32, world_y = 0, object_count = 1}
                   }
+               }
+            end,
+            get_all_objects = function()
+               return {
+                  obj1 = {x = 10, y = 10, w = 16, h = 16, id = 1},
+                  obj2 = {x = 50, y = 50, w = 16, h = 16, id = 2}
                }
             end
          }

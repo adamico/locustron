@@ -126,12 +126,10 @@ function SpatialStrategy:get_debug_info()
    }
 end
 
---- Visualize the spatial structure (for debugging)
---- @param renderer function Function to handle visualization rendering
-function SpatialStrategy:visualize_structure(renderer)
-   -- Default implementation - can be overridden by strategies
-   local debug_info = self:get_debug_info()
-   if renderer then renderer(debug_info) end
+--- Get all objects in the spatial structure for visualization
+--- @return table Table of objects {obj = {x, y, w, h, ...}}
+function SpatialStrategy:get_all_objects()
+   error("get_all_objects must be implemented by concrete strategy")
 end
 
 --- @class StrategyConfig

@@ -30,10 +30,11 @@ function VisualizationSystem:initialize(config)
 
    -- Default colors optimized for Picotron
    self.colors = config.colors or {
+      cells = 5,            -- Medium gray
       grid_lines = 7,        -- Light gray
       quadtree_bounds = 6,   -- Dark gray
       objects = 8,           -- Red
-      queries = 11,          -- Light blue
+      queries = 11,          -- Green
       performance_hot = 8,   -- Red
       performance_cold = 12, -- Light green
       text = 7,              -- White
@@ -70,6 +71,7 @@ end
 --- @param world_x number World x coordinate
 --- @return number Screen x coordinate
 function VisualizationSystem:world_to_screen_x(world_x)
+   if not world_x then return 0 end
    return (world_x - self.viewport.x) * self.viewport.scale
 end
 
@@ -77,6 +79,7 @@ end
 --- @param world_y number World y coordinate
 --- @return number Screen y coordinate
 function VisualizationSystem:world_to_screen_y(world_y)
+   if not world_y then return 0 end
    return (world_y - self.viewport.y) * self.viewport.scale
 end
 
@@ -168,7 +171,9 @@ end
 -- @param strategy Fixed grid strategy instance
 function VisualizationSystem:render_fixed_grid(strategy)
    local debug_info = strategy:get_debug_info()
-   local cell_size = debug_info.cell_size
+   if not debug_info or not debug_info.cells then return end
+
+   local cell_size = debug_info.cell_size or 32
 
    -- Calculate visible grid range
    local start_gx = flr(self.viewport.x / cell_size)
@@ -195,14 +200,14 @@ function VisualizationSystem:render_fixed_grid(strategy)
 
    -- Draw occupied cells with object counts using debug info
    for _, cell_info in ipairs(debug_info.cells) do
-      if cell_info.object_count > 0 then
+      if cell_info and cell_info.object_count and cell_info.object_count > 0 and cell_info.world_x and cell_info.world_y then
          local screen_x = self:world_to_screen_x(cell_info.world_x)
          local screen_y = self:world_to_screen_y(cell_info.world_y)
          local screen_w = cell_size * self.viewport.scale
          local screen_h = cell_size * self.viewport.scale
 
          -- Highlight occupied cells
-         self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.grid_lines, true)
+         self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.cells, true)
 
          -- Draw object count
          if self.viewport.scale > 0.5 then
@@ -216,20 +221,23 @@ end
 --- Render objects in the spatial structure
 -- @param strategy Strategy containing objects to render
 function VisualizationSystem:render_objects(strategy)
-   if not strategy.objects then return end
+   local objects = strategy:get_all_objects()
+   if not objects then return end
 
-   for obj, obj_data in pairs(strategy.objects) do
-      local screen_x = self:world_to_screen_x(obj_data.x)
-      local screen_y = self:world_to_screen_y(obj_data.y)
-      local screen_w = obj_data.w * self.viewport.scale
-      local screen_h = obj_data.h * self.viewport.scale
+   for obj, obj_data in pairs(objects) do
+      if obj_data.x and obj_data.y then
+         local screen_x = self:world_to_screen_x(obj_data.x)
+         local screen_y = self:world_to_screen_y(obj_data.y)
+         local screen_w = obj_data.w * self.viewport.scale
+         local screen_h = obj_data.h * self.viewport.scale
 
-      -- Draw object bounding box
-      self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.objects, true)
+         -- Draw object bounding box
+         self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.objects, true)
 
-      -- Draw object ID if zoom level is high enough
-      if self.viewport.scale > 2.0 and obj_data.id then
-         self:draw_text(tostring(obj_data.id), screen_x + 1, screen_y + 1, self.colors.text)
+         -- Draw object ID if zoom level is high enough
+         if self.viewport.scale > 2.0 and obj_data.id then
+            self:draw_text(tostring(obj_data.id), screen_x + 1, screen_y + 1, self.colors.text)
+         end
       end
    end
 end
@@ -239,17 +247,38 @@ function VisualizationSystem:render_query_history()
    for i, query in ipairs(self.query_history) do
       if i > 10 then break end -- Limit to last 10 queries
 
-      local screen_x = self:world_to_screen_x(query.x)
-      local screen_y = self:world_to_screen_y(query.y)
-      local screen_w = query.w * self.viewport.scale
-      local screen_h = query.h * self.viewport.scale
+      if query.x and query.y then
+         local screen_x = self:world_to_screen_x(query.x)
+         local screen_y = self:world_to_screen_y(query.y)
+         local screen_w = query.w * self.viewport.scale
+         local screen_h = query.h * self.viewport.scale
 
-      -- Draw query region
-      self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.queries, false)
+         -- Only draw if the query rectangle is visible on screen
+         if screen_x + screen_w > 0 and screen_x < self.viewport.w and
+            screen_y + screen_h > 0 and screen_y < self.viewport.h then
 
-      -- Draw result count if available
-      if query.result_count and self.viewport.scale > 0.5 then
-         self:draw_text(tostring(query.result_count), screen_x + 2, screen_y + 2, self.colors.queries)
+            -- For very large rectangles (when zoomed out), draw a border instead of outline
+            if screen_w > self.viewport.w * 0.8 or screen_h > self.viewport.h * 0.8 then
+               -- Draw a thick border for large query regions
+               local border_width = 3
+               -- Top border
+               self:draw_rect(screen_x, screen_y, screen_w, border_width, 0, self.colors.queries, true)
+               -- Bottom border
+               self:draw_rect(screen_x, screen_y + screen_h - border_width, screen_w, border_width, 0, self.colors.queries, true)
+               -- Left border
+               self:draw_rect(screen_x, screen_y, border_width, screen_h, 0, self.colors.queries, true)
+               -- Right border
+               self:draw_rect(screen_x + screen_w - border_width, screen_y, border_width, screen_h, 0, self.colors.queries, true)
+            else
+               -- Draw normal outline for smaller query regions
+               self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.queries, false)
+            end
+
+            -- Draw result count if available and rectangle is large enough to show text
+            if query.result_count and screen_w > 20 and screen_h > 10 then
+               self:draw_text(tostring(query.result_count), screen_x + 2, screen_y + 2, self.colors.queries)
+            end
+         end
       end
    end
 end
@@ -286,11 +315,6 @@ function VisualizationSystem:add_query(x, y, w, h, result_count)
    if #self.query_history > 50 then
       deli(self.query_history, 1)
    end
-end
-
---- Handle keyboard input for debugging controls
-function VisualizationSystem:handle_input()
-   -- Input handling moved to main.lua _update()
 end
 
 --- Reset viewport to default

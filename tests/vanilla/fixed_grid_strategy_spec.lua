@@ -2,8 +2,8 @@
 -- Fixed Grid Strategy Tests
 -- BDD tests for the vanilla Lua Fixed Grid implementation
 
-local FixedGridStrategy = require("src.vanilla.fixed_grid_strategy")
-local strategy_interface = require("src.vanilla.strategy_interface")
+local FixedGridStrategy = require("src.strategies.fixed_grid")
+local strategy_interface = require("src.strategies.interface")
 
 describe("FixedGridStrategy", function()
    local strategy
