@@ -37,8 +37,8 @@ describe("VisualizationSystem", function()
 
       it("should accept custom config", function()
          local config = {
-            viewport = {x = 100, y = 200, w = 800, h = 600, scale = 2.0},
-            colors = {grid_lines = 1, objects = 2, text = 3}
+            viewport = { x = 100, y = 200, w = 800, h = 600, scale = 2.0 },
+            colors = { grid_lines = 1, objects = 2, text = 3 },
          }
          local vis = VisualizationSystem:new(config)
 
@@ -57,9 +57,7 @@ describe("VisualizationSystem", function()
    describe("Viewport operations", function()
       local vis
 
-      before_each(function()
-         vis = VisualizationSystem:new()
-      end)
+      before_each(function() vis = VisualizationSystem:new() end)
 
       it("should set viewport parameters", function()
          vis:set_viewport(10, 20, 800, 600, 2.0)
@@ -100,9 +98,7 @@ describe("VisualizationSystem", function()
    describe("Query history", function()
       local vis
 
-      before_each(function()
-         vis = VisualizationSystem:new()
-      end)
+      before_each(function() vis = VisualizationSystem:new() end)
 
       it("should add queries to history", function()
          vis:add_query(10, 20, 30, 40, 5)
@@ -138,16 +134,16 @@ describe("VisualizationSystem", function()
          -- Mock Picotron drawing functions
          draw_calls = {}
          _G.line = function(x1, y1, x2, y2, color)
-            table.insert(draw_calls, {type = "line", x1 = x1, y1 = y1, x2 = x2, y2 = y2, color = color})
+            table.insert(draw_calls, { type = "line", x1 = x1, y1 = y1, x2 = x2, y2 = y2, color = color })
          end
          _G.rrectfill = function(x, y, w, h, radius, color)
-            table.insert(draw_calls, {type = "rrectfill", x = x, y = y, w = w, h = h, radius = radius, color = color})
+            table.insert(draw_calls, { type = "rrectfill", x = x, y = y, w = w, h = h, radius = radius, color = color })
          end
          _G.rrect = function(x, y, w, h, radius, color)
-            table.insert(draw_calls, {type = "rrect", x = x, y = y, w = w, h = h, radius = radius, color = color})
+            table.insert(draw_calls, { type = "rrect", x = x, y = y, w = w, h = h, radius = radius, color = color })
          end
          _G.print = function(text, x, y, color)
-            table.insert(draw_calls, {type = "print", text = text, x = x, y = y, color = color})
+            table.insert(draw_calls, { type = "print", text = text, x = x, y = y, color = color })
          end
       end)
 
@@ -216,23 +212,21 @@ describe("VisualizationSystem", function()
                return {
                   cell_size = 32,
                   cells = {
-                     {grid_x = 0, grid_y = 0, world_x = 0, world_y = 0, object_count = 2},
-                     {grid_x = 1, grid_y = 0, world_x = 32, world_y = 0, object_count = 1}
-                  }
+                     { grid_x = 0, grid_y = 0, world_x = 0, world_y = 0, object_count = 2 },
+                     { grid_x = 1, grid_y = 0, world_x = 32, world_y = 0, object_count = 1 },
+                  },
                }
             end,
             get_all_objects = function()
                return {
-                  obj1 = {x = 10, y = 10, w = 16, h = 16, id = 1},
-                  obj2 = {x = 50, y = 50, w = 16, h = 16, id = 2}
+                  obj1 = { x = 10, y = 10, w = 16, h = 16, id = 1 },
+                  obj2 = { x = 50, y = 50, w = 16, h = 16, id = 2 },
                }
-            end
+            end,
          }
 
          -- This should not throw errors
-         assert.has_no_error(function()
-            vis:render_strategy(mock_strategy, "fixed_grid")
-         end)
+         assert.has_no_error(function() vis:render_strategy(mock_strategy, "fixed_grid") end)
 
          assert.are.equal(mock_strategy, vis.current_strategy)
          assert.are.equal("fixed_grid", vis.current_strategy_name)
@@ -245,8 +239,8 @@ describe("VisualizationSystem", function()
          assert.are.equal("rrectfill", call.type)
          assert.are.equal(0, call.x)
          assert.are.equal(0, call.y)
-         assert.are.equal(400, call.w)  -- viewport width
-         assert.are.equal(300, call.h)  -- viewport height
+         assert.are.equal(400, call.w) -- viewport width
+         assert.are.equal(300, call.h) -- viewport height
          assert.are.equal(0, call.color) -- background color
       end)
    end)

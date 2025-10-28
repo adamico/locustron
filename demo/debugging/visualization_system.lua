@@ -26,20 +26,21 @@ function VisualizationSystem:initialize(config)
    config = config or {}
 
    -- Viewport configuration
-   self.viewport = config.viewport or {x = 0, y = 0, w = 400, h = 300, scale = 1.0}
+   self.viewport = config.viewport or { x = 0, y = 0, w = 400, h = 300, scale = 1.0 }
 
    -- Default colors optimized for Picotron
-   self.colors = config.colors or {
-      cells = 5,            -- Medium gray
-      grid_lines = 7,        -- Light gray
-      quadtree_bounds = 6,   -- Dark gray
-      objects = 8,           -- Red
-      queries = 11,          -- Green
-      performance_hot = 8,   -- Red
-      performance_cold = 12, -- Light green
-      text = 7,              -- White
-      background = 0         -- Black
-   }
+   self.colors = config.colors
+      or {
+         cells = 5, -- Medium gray
+         grid_lines = 7, -- Light gray
+         quadtree_bounds = 6, -- Dark gray
+         objects = 8, -- Red
+         queries = 11, -- Green
+         performance_hot = 8, -- Red
+         performance_cold = 12, -- Light green
+         text = 7, -- White
+         background = 0, -- Black
+      }
 
    -- Rendering flags
    self.show_structure = true
@@ -86,21 +87,15 @@ end
 --- Convert screen coordinates to world coordinates
 -- @param screen_x Screen x coordinate
 -- @return World x coordinate
-function VisualizationSystem:screen_to_world_x(screen_x)
-   return screen_x / self.viewport.scale + self.viewport.x
-end
+function VisualizationSystem:screen_to_world_x(screen_x) return screen_x / self.viewport.scale + self.viewport.x end
 
 --- Convert screen coordinates to world coordinates
 -- @param screen_y Screen y coordinate
 -- @return World y coordinate
-function VisualizationSystem:screen_to_world_y(screen_y)
-   return screen_y / self.viewport.scale + self.viewport.y
-end
+function VisualizationSystem:screen_to_world_y(screen_y) return screen_y / self.viewport.scale + self.viewport.y end
 
 --- Clear the screen with background color
-function VisualizationSystem:clear_screen()
-   rrectfill(0, 0, self.viewport.w, self.viewport.h, 0, self.colors.background)
-end
+function VisualizationSystem:clear_screen() rrectfill(0, 0, self.viewport.w, self.viewport.h, 0, self.colors.background) end
 
 --- Draw a line (Picotron optimized)
 --- @param x1 number Start x
@@ -108,9 +103,7 @@ end
 --- @param x2 number End x
 --- @param y2 number End y
 --- @param color number Color index
-function VisualizationSystem:draw_line(x1, y1, x2, y2, color)
-   line(x1, y1, x2, y2, color)
-end
+function VisualizationSystem:draw_line(x1, y1, x2, y2, color) line(x1, y1, x2, y2, color) end
 
 --- Draw a rectangle (Picotron optimized)
 --- @param x number X position
@@ -133,9 +126,7 @@ end
 --- @param x number X position
 --- @param y number Y position
 --- @param color number Color index
-function VisualizationSystem:draw_text(text, x, y, color)
-   print(text, x, y, color)
-end
+function VisualizationSystem:draw_text(text, x, y, color) print(text, x, y, color) end
 
 --- Render the current strategy
 --- @param strategy table The spatial strategy to render
@@ -147,22 +138,14 @@ function VisualizationSystem:render_strategy(strategy, strategy_name)
    self:clear_screen()
 
    if self.show_structure then
-      if strategy_name == "fixed_grid" then
-         self:render_fixed_grid(strategy)
-      end
+      if strategy_name == "fixed_grid" then self:render_fixed_grid(strategy) end
    end
 
-   if self.show_objects then
-      self:render_objects(strategy)
-   end
+   if self.show_objects then self:render_objects(strategy) end
 
-   if self.show_queries then
-      self:render_query_history()
-   end
+   if self.show_queries then self:render_query_history() end
 
-   if self.show_performance then
-      self:render_performance_heatmap(strategy)
-   end
+   if self.show_performance then self:render_performance_heatmap(strategy) end
 
    -- UI rendering moved to main.lua
 end
@@ -200,7 +183,13 @@ function VisualizationSystem:render_fixed_grid(strategy)
 
    -- Draw occupied cells with object counts using debug info
    for _, cell_info in ipairs(debug_info.cells) do
-      if cell_info and cell_info.object_count and cell_info.object_count > 0 and cell_info.world_x and cell_info.world_y then
+      if
+         cell_info
+         and cell_info.object_count
+         and cell_info.object_count > 0
+         and cell_info.world_x
+         and cell_info.world_y
+      then
          local screen_x = self:world_to_screen_x(cell_info.world_x)
          local screen_y = self:world_to_screen_y(cell_info.world_y)
          local screen_w = cell_size * self.viewport.scale
@@ -254,9 +243,12 @@ function VisualizationSystem:render_query_history()
          local screen_h = query.h * self.viewport.scale
 
          -- Only draw if the query rectangle is visible on screen
-         if screen_x + screen_w > 0 and screen_x < self.viewport.w and
-            screen_y + screen_h > 0 and screen_y < self.viewport.h then
-
+         if
+            screen_x + screen_w > 0
+            and screen_x < self.viewport.w
+            and screen_y + screen_h > 0
+            and screen_y < self.viewport.h
+         then
             -- For very large rectangles (when zoomed out), draw a border instead of outline
             if screen_w > self.viewport.w * 0.8 or screen_h > self.viewport.h * 0.8 then
                -- Draw a thick border for large query regions
@@ -264,11 +256,27 @@ function VisualizationSystem:render_query_history()
                -- Top border
                self:draw_rect(screen_x, screen_y, screen_w, border_width, 0, self.colors.queries, true)
                -- Bottom border
-               self:draw_rect(screen_x, screen_y + screen_h - border_width, screen_w, border_width, 0, self.colors.queries, true)
+               self:draw_rect(
+                  screen_x,
+                  screen_y + screen_h - border_width,
+                  screen_w,
+                  border_width,
+                  0,
+                  self.colors.queries,
+                  true
+               )
                -- Left border
                self:draw_rect(screen_x, screen_y, border_width, screen_h, 0, self.colors.queries, true)
                -- Right border
-               self:draw_rect(screen_x + screen_w - border_width, screen_y, border_width, screen_h, 0, self.colors.queries, true)
+               self:draw_rect(
+                  screen_x + screen_w - border_width,
+                  screen_y,
+                  border_width,
+                  screen_h,
+                  0,
+                  self.colors.queries,
+                  true
+               )
             else
                -- Draw normal outline for smaller query regions
                self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.queries, false)
@@ -308,13 +316,11 @@ function VisualizationSystem:add_query(x, y, w, h, result_count)
       w = w,
       h = h,
       result_count = result_count,
-      timestamp = time()
+      timestamp = time(),
    })
 
    -- Keep only last 50 queries
-   if #self.query_history > 50 then
-      deli(self.query_history, 1)
-   end
+   if #self.query_history > 50 then deli(self.query_history, 1) end
 end
 
 --- Reset viewport to default

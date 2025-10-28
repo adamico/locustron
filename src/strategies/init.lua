@@ -48,9 +48,7 @@ function StrategyFactory.create_strategy(strategy_name, config)
    config = config or {}
 
    -- Handle auto-selection
-   if strategy_name == "auto" then
-      strategy_name = StrategyFactory.auto_select_strategy(config)
-   end
+   if strategy_name == "auto" then strategy_name = StrategyFactory.auto_select_strategy(config) end
 
    local entry = strategy_registry[strategy_name]
    if not entry then
@@ -82,19 +80,13 @@ function StrategyFactory.auto_select_strategy(config)
    local object_count_hint = config.expected_object_count or 100
 
    -- Fixed Grid: Good default for most cases
-   if object_count_hint < 500 and world_size ~= "infinite" then
-      return "fixed_grid"
-   end
+   if object_count_hint < 500 and world_size ~= "infinite" then return "fixed_grid" end
 
    -- Quadtree: Good for clustered objects
-   if object_pattern == "clustered" then
-      return "quadtree"
-   end
+   if object_pattern == "clustered" then return "quadtree" end
 
    -- Hash Grid: Good for large, sparse worlds
-   if world_size == "large" or world_size == "infinite" then
-      return "hash_grid"
-   end
+   if world_size == "large" or world_size == "infinite" then return "hash_grid" end
 
    -- Default fallback
    return "fixed_grid"
@@ -106,19 +98,13 @@ end
 --- @return boolean valid, string|nil error_message
 function StrategyFactory.validate_config(strategy_name, config)
    local entry = strategy_registry[strategy_name]
-   if not entry then
-      return false, "Unknown strategy type: " .. strategy_name
-   end
+   if not entry then return false, "Unknown strategy type: " .. strategy_name end
 
    local metadata = entry.metadata
-   if metadata and metadata.validate_config then
-      return metadata.validate_config(config)
-   end
+   if metadata and metadata.validate_config then return metadata.validate_config(config) end
 
    -- Default validation - just check it's a table
-   if type(config) ~= "table" then
-      return false, "Configuration must be a table"
-   end
+   if type(config) ~= "table" then return false, "Configuration must be a table" end
 
    return true, nil
 end
@@ -126,7 +112,7 @@ end
 -- Initialize built-in strategies
 StrategyFactory.register_strategy("fixed_grid", FixedGridStrategy, {
    description = "Fixed grid spatial partitioning - good for uniform object distributions",
-   optimal_for = {"uniform", "static", "bounded_worlds"},
+   optimal_for = { "uniform", "static", "bounded_worlds" },
    memory_characteristics = "low_constant",
    supports_unbounded = false,
    supports_hierarchical = false,

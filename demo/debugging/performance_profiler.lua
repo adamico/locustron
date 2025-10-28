@@ -19,7 +19,7 @@ function PerformanceProfiler:initialize(config)
       max_measurements = config.max_measurements or 1000,
       sample_rate = config.sample_rate or 1.0, -- 1.0 = sample all queries
       enable_detailed = config.enable_detailed or false,
-      track_memory = config.track_memory or false
+      track_memory = config.track_memory or false,
    }
 
    -- Data storage
@@ -29,7 +29,7 @@ function PerformanceProfiler:initialize(config)
       query_count = 0,
       total_time = 0,
       peak_time = 0,
-      memory_usage = 0
+      memory_usage = 0,
    }
 
    -- Aggregated statistics
@@ -42,7 +42,7 @@ function PerformanceProfiler:initialize(config)
       total_time = 0,
       queries_per_second = 0,
       memory_peak = 0,
-      strategy_performance = {} -- Per-strategy stats
+      strategy_performance = {}, -- Per-strategy stats
    }
 end
 
@@ -53,7 +53,7 @@ function PerformanceProfiler:start_session()
       query_count = 0,
       total_time = 0,
       peak_time = 0,
-      memory_usage = self:get_memory_usage()
+      memory_usage = self:get_memory_usage(),
    }
 end
 
@@ -62,9 +62,7 @@ function PerformanceProfiler:end_session()
    if not self.current_session.start_time then return end
 
    local session_duration = self:get_time() - self.current_session.start_time
-   if session_duration > 0 then
-      self.stats.queries_per_second = self.current_session.query_count / session_duration
-   end
+   if session_duration > 0 then self.stats.queries_per_second = self.current_session.query_count / session_duration end
 
    self:update_aggregated_stats()
    self.current_session.start_time = nil
@@ -76,14 +74,12 @@ end
 --- @param ... any Arguments to pass to the query function
 --- @return ... The result of the query function
 function PerformanceProfiler:measure_query(strategy_name, query_func, ...)
-   if math.random() > self.config.sample_rate then
-      return query_func(...)
-   end
+   if math.random() > self.config.sample_rate then return query_func(...) end
 
    local start_time = self:get_time()
    local start_memory = self.config.track_memory and self:get_memory_usage() or 0
 
-   local results = {query_func(...)}
+   local results = { query_func(...) }
 
    local end_time = self:get_time()
    local end_memory = self.config.track_memory and self:get_memory_usage() or 0
@@ -98,7 +94,7 @@ function PerformanceProfiler:measure_query(strategy_name, query_func, ...)
       execution_time = execution_time,
       memory_delta = memory_delta,
       result_count = self:get_result_count(results),
-      session_id = self.current_session.start_time or 0
+      session_id = self.current_session.start_time or 0,
    }
 
    table.insert(self.measurements, measurement)
@@ -111,9 +107,7 @@ function PerformanceProfiler:measure_query(strategy_name, query_func, ...)
    end
 
    -- Maintain measurement limit
-   if #self.measurements > self.config.max_measurements then
-      table.remove(self.measurements, 1)
-   end
+   if #self.measurements > self.config.max_measurements then table.remove(self.measurements, 1) end
 
    return table.unpack(results)
 end
@@ -140,7 +134,9 @@ function PerformanceProfiler:get_result_count(results)
    local result = results[1]
    if type(result) == "table" then
       local count = 0
-      for _ in pairs(result) do count = count + 1 end
+      for _ in pairs(result) do
+         count = count + 1
+      end
       return count
    elseif type(result) == "number" then
       return result -- Some queries might return count directly
@@ -168,7 +164,7 @@ function PerformanceProfiler:update_aggregated_stats()
    -- Calculate percentiles
    table.sort(times)
    local n = #times
-   self.stats.median_query_time = times[math.floor(n/2) + 1] or 0
+   self.stats.median_query_time = times[math.floor(n / 2) + 1] or 0
    self.stats.p95_query_time = times[math.floor(n * 0.95) + 1] or 0
    self.stats.p99_query_time = times[math.floor(n * 0.99) + 1] or 0
 
@@ -187,7 +183,7 @@ function PerformanceProfiler:update_strategy_stats()
          strategy_data[strategy] = {
             count = 0,
             total_time = 0,
-            times = {}
+            times = {},
          }
       end
 
@@ -205,9 +201,9 @@ function PerformanceProfiler:update_strategy_stats()
       self.stats.strategy_performance[strategy] = {
          query_count = data.count,
          average_time = data.total_time / data.count,
-         median_time = data.times[math.floor(n/2) + 1],
+         median_time = data.times[math.floor(n / 2) + 1],
          p95_time = data.times[math.floor(n * 0.95) + 1],
-         total_time = data.total_time
+         total_time = data.total_time,
       }
    end
 end
@@ -216,13 +212,14 @@ end
 --- @param strategy_name string Name of the strategy
 --- @return table Performance statistics for the strategy
 function PerformanceProfiler:get_strategy_performance(strategy_name)
-   return self.stats.strategy_performance[strategy_name] or {
-      query_count = 0,
-      average_time = 0,
-      median_time = 0,
-      p95_time = 0,
-      total_time = 0
-   }
+   return self.stats.strategy_performance[strategy_name]
+      or {
+         query_count = 0,
+         average_time = 0,
+         median_time = 0,
+         p95_time = 0,
+         total_time = 0,
+      }
 end
 
 --- Get performance bottlenecks (slowest queries)
@@ -268,7 +265,10 @@ function PerformanceProfiler:get_recommendations()
    end
 
    if best_strategy then
-      table.insert(recommendations, string.format("Best performing strategy: %s (%.3fms avg)", best_strategy, best_time * 1000))
+      table.insert(
+         recommendations,
+         string.format("Best performing strategy: %s (%.3fms avg)", best_strategy, best_time * 1000)
+      )
    end
 
    -- Analyze P95 performance
@@ -296,7 +296,7 @@ function PerformanceProfiler:clear()
       total_time = 0,
       queries_per_second = 0,
       memory_peak = 0,
-      strategy_performance = {}
+      strategy_performance = {},
    }
 end
 
@@ -308,7 +308,7 @@ function PerformanceProfiler:export_data()
       stats = self.stats,
       measurements = self.measurements,
       session = self.current_session,
-      export_time = self:get_time()
+      export_time = self:get_time(),
    }
 end
 
@@ -328,8 +328,10 @@ function PerformanceProfiler:get_report()
       table.insert(report, "")
       table.insert(report, "Strategy Performance:")
       for strategy, stats in pairs(self.stats.strategy_performance) do
-         table.insert(report, string.format("  %s: %.3fms avg (%d queries)",
-            strategy, stats.average_time * 1000, stats.query_count))
+         table.insert(
+            report,
+            string.format("  %s: %.3fms avg (%d queries)", strategy, stats.average_time * 1000, stats.query_count)
+         )
       end
    end
 

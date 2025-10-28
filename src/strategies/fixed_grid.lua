@@ -2,8 +2,8 @@
 -- Vanilla Lua version using doubly linked lists instead of userdata
 -- Maintains 100% API compatibility with existing Locustron
 
-local dll = require("src/strategies/doubly_linked_list")
-local strategy_interface = require("src/strategies/interface")
+local dll = require("src.strategies.doubly_linked_list")
+local strategy_interface = require("src.strategies.interface")
 local SpatialStrategy = strategy_interface.SpatialStrategy
 
 --- @class FixedGridStrategy : SpatialStrategy
@@ -264,9 +264,7 @@ end
 --- Check if an object exists in the spatial structure
 --- @param obj any Object reference
 --- @return boolean True if object exists
-function FixedGridStrategy:contains(obj)
-   return self.objects[obj] ~= nil
-end
+function FixedGridStrategy:contains(obj) return self.objects[obj] ~= nil end
 
 --- Clear all objects from the spatial structure
 function FixedGridStrategy:clear()
@@ -404,7 +402,7 @@ function FixedGridStrategy:get_all_objects()
          y = bbox.y,
          w = bbox.w,
          h = bbox.h,
-         id = obj.id or obj.name -- Try to get an ID for display
+         id = obj.id or obj.name, -- Try to get an ID for display
       }
    end
    return result

@@ -59,7 +59,10 @@ describe("Strategy Interface Foundation", function()
          assert.equals("unknown", debug_info.structure_type)
 
          -- get_all_objects should throw error (abstract method)
-         assert.has_error(function() strategy:get_all_objects() end, "get_all_objects must be implemented by concrete strategy")
+         assert.has_error(
+            function() strategy:get_all_objects() end,
+            "get_all_objects must be implemented by concrete strategy"
+         )
       end)
    end)
 

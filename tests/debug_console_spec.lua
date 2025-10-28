@@ -33,7 +33,7 @@ describe("DebugConsole", function()
             max_history = 50,
             max_output_lines = 25,
             enable_echo = false,
-            case_sensitive = true
+            case_sensitive = true,
          }
          local console = DebugConsole:new(config)
 
@@ -47,9 +47,7 @@ describe("DebugConsole", function()
    describe("Command registration", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should register built-in commands", function()
          assert.is_not_nil(console.commands["help"])
@@ -61,7 +59,10 @@ describe("DebugConsole", function()
 
       it("should register custom commands", function()
          local called = false
-         console:register_command("test", function() called = true return "ok" end, "Test command")
+         console:register_command("test", function()
+            called = true
+            return "ok"
+         end, "Test command")
 
          assert.is_not_nil(console.commands["test"])
          assert.are.equal("Test command", console.commands["test"].description)
@@ -76,9 +77,7 @@ describe("DebugConsole", function()
    describe("Command execution", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should execute simple commands", function()
          local result = console:execute_command("echo hello world")
@@ -86,7 +85,7 @@ describe("DebugConsole", function()
       end)
 
       it("should handle quoted arguments", function()
-         local result = console:execute_command('echo "hello world" test')
+         local result = console:execute_command("echo \"hello world\" test")
          assert.are.equal("hello world test", result)
       end)
 
@@ -118,7 +117,7 @@ describe("DebugConsole", function()
       end)
 
       it("should limit command history", function()
-         local console = DebugConsole:new({max_history = 3})
+         local console = DebugConsole:new({ max_history = 3 })
 
          for i = 1, 5 do
             console:execute_command("echo " .. i)
@@ -132,9 +131,7 @@ describe("DebugConsole", function()
    describe("Command parsing", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should parse simple arguments", function()
          local args = console:parse_command_line("cmd arg1 arg2 arg3")
@@ -146,7 +143,7 @@ describe("DebugConsole", function()
       end)
 
       it("should handle quoted strings", function()
-         local args = console:parse_command_line('cmd "arg with spaces" normal_arg')
+         local args = console:parse_command_line("cmd \"arg with spaces\" normal_arg")
          assert.are.equal(3, #args)
          assert.are.equal("cmd", args[1])
          assert.are.equal("arg with spaces", args[2])
@@ -170,9 +167,7 @@ describe("DebugConsole", function()
    describe("Output buffer", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should add output to buffer", function()
          console:add_output("line 1")
@@ -184,7 +179,7 @@ describe("DebugConsole", function()
       end)
 
       it("should limit output buffer", function()
-         local console = DebugConsole:new({max_output_lines = 3})
+         local console = DebugConsole:new({ max_output_lines = 3 })
 
          for i = 1, 5 do
             console:add_output("line " .. i)
@@ -214,9 +209,7 @@ describe("DebugConsole", function()
    describe("Built-in commands", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should provide help text", function()
          local result = console:execute_command("help")
@@ -287,14 +280,14 @@ describe("DebugConsole", function()
          console = DebugConsole:new()
          mock_strategy = {
             objects = {
-               obj1 = {x = 10, y = 20, w = 16, h = 16},
-               obj2 = {x = 30, y = 40, w = 8, h = 8}
+               obj1 = { x = 10, y = 20, w = 16, h = 16 },
+               obj2 = { x = 30, y = 40, w = 8, h = 8 },
             },
             cell_size = 32,
             max_objects = 8,
             query_region = function(self, x, y, w, h)
-               return {obj1 = true} -- Mock result
-            end
+               return { obj1 = true } -- Mock result
+            end,
          }
          console:set_strategy(mock_strategy, "fixed_grid")
       end)
@@ -346,8 +339,8 @@ describe("DebugConsole", function()
             show_objects = false,
             show_queries = true,
             show_performance = false,
-            viewport = {scale = 1.0},
-            add_query = function() end
+            viewport = { scale = 1.0 },
+            add_query = function() end,
          }
          console:set_visualization_system(mock_vis)
       end)
@@ -391,20 +384,18 @@ describe("DebugConsole", function()
             stats = {
                total_queries = 100,
                average_query_time = 0.005,
-               queries_per_second = 200
+               queries_per_second = 200,
             },
-            get_report = function()
-               return "Mock performance report"
-            end,
+            get_report = function() return "Mock performance report" end,
             get_bottlenecks = function(count)
                return {
-                  {strategy = "test", execution_time = 0.1},
-                  {strategy = "test", execution_time = 0.05}
+                  { strategy = "test", execution_time = 0.1 },
+                  { strategy = "test", execution_time = 0.05 },
                }
             end,
             start_session = function() end,
             end_session = function() end,
-            measure_query = function() end
+            measure_query = function() end,
          }
          console:set_performance_profiler(mock_profiler)
       end)
@@ -426,10 +417,10 @@ describe("DebugConsole", function()
          -- Set up a mock strategy for the benchmark
          local mock_strategy = {
             _strategy_name = "test",
-            query_region = function() return {} end
+            query_region = function() return {} end,
          }
          console:set_strategy(mock_strategy, "test")
-         
+
          local result = console:execute_command("benchmark 10")
          assert.is_string(result)
          assert.is_true(string.find(result, "Benchmark completed") ~= nil)
@@ -439,9 +430,7 @@ describe("DebugConsole", function()
    describe("Error handling", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should handle missing visualization system", function()
          local result = console:execute_command("show structure")
@@ -462,14 +451,12 @@ describe("DebugConsole", function()
    describe("Utility functions", function()
       local console
 
-      before_each(function()
-         console = DebugConsole:new()
-      end)
+      before_each(function() console = DebugConsole:new() end)
 
       it("should get object count", function()
          assert.are.equal(0, console:get_object_count())
 
-         console:set_strategy({objects = {a = {}, b = {}, c = {}}})
+         console:set_strategy({ objects = { a = {}, b = {}, c = {} } })
          assert.are.equal(3, console:get_object_count())
       end)
 
@@ -479,7 +466,7 @@ describe("DebugConsole", function()
       end)
 
       it("should set strategy", function()
-         local strategy = {test = true}
+         local strategy = { test = true }
          console:set_strategy(strategy, "test_strategy")
 
          assert.are.equal(strategy, console.current_strategy)
@@ -487,8 +474,8 @@ describe("DebugConsole", function()
       end)
 
       it("should integrate with systems", function()
-         local vis = {test = "vis"}
-         local perf = {test = "perf"}
+         local vis = { test = "vis" }
+         local perf = { test = "perf" }
 
          console:set_visualization_system(vis)
          console:set_performance_profiler(perf)

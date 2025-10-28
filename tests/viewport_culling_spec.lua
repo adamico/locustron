@@ -22,7 +22,7 @@ describe("Viewport Culling Integration", function()
 
    it("should create viewport culling with custom config", function()
       local spatial = Locustron.create()
-      local config = {x = 100, y = 200, w = 800, h = 600, cull_margin = 64}
+      local config = { x = 100, y = 200, w = 800, h = 600, cull_margin = 64 }
       local culling = ViewportCulling.new(spatial, config)
 
       assert.are.equal(100, culling.viewport.x)
@@ -36,15 +36,15 @@ describe("Viewport Culling Integration", function()
       local spatial = Locustron.create()
 
       -- Add objects at different positions
-      local obj1 = {id = "visible"}
-      local obj2 = {id = "offscreen"}
-      local obj3 = {id = "edge"}
+      local obj1 = { id = "visible" }
+      local obj2 = { id = "offscreen" }
+      local obj3 = { id = "edge" }
 
       spatial:add(obj1, 50, 50, 16, 16) -- Inside viewport
       spatial:add(obj2, 500, 500, 16, 16) -- Outside viewport
       spatial:add(obj3, 380, 280, 16, 16) -- Near edge
 
-      local culling = ViewportCulling.new(spatial, {x = 0, y = 0, w = 400, h = 300})
+      local culling = ViewportCulling.new(spatial, { x = 0, y = 0, w = 400, h = 300 })
       local visible = culling:get_visible_objects()
 
       -- Should find objects within viewport bounds (with margin)
@@ -55,7 +55,7 @@ describe("Viewport Culling Integration", function()
 
    it("should update viewport position", function()
       local spatial = Locustron.create()
-      local culling = ViewportCulling.new(spatial, {x = 0, y = 0, w = 400, h = 300})
+      local culling = ViewportCulling.new(spatial, { x = 0, y = 0, w = 400, h = 300 })
 
       culling:update_viewport(100, 200, 800, 600)
 
@@ -71,11 +71,11 @@ describe("Viewport Culling Integration", function()
 
       -- Add several objects
       for i = 1, 10 do
-         local obj = {id = i}
+         local obj = { id = i }
          spatial:add(obj, i * 50, i * 30, 16, 16)
       end
 
-      local culling = ViewportCulling.new(spatial, {x = 0, y = 0, w = 200, h = 150})
+      local culling = ViewportCulling.new(spatial, { x = 0, y = 0, w = 200, h = 150 })
       local visible = culling:get_visible_objects()
 
       local stats = culling:get_stats()
@@ -89,10 +89,10 @@ describe("Viewport Culling Integration", function()
 
    it("should check object visibility", function()
       local spatial = Locustron.create()
-      local obj = {id = "test"}
+      local obj = { id = "test" }
       spatial:add(obj, 50, 50, 16, 16)
 
-      local culling = ViewportCulling.new(spatial, {x = 0, y = 0, w = 400, h = 300})
+      local culling = ViewportCulling.new(spatial, { x = 0, y = 0, w = 400, h = 300 })
 
       assert.is_true(culling:is_potentially_visible(obj))
    end)

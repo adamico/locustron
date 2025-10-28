@@ -68,9 +68,7 @@ function DynamicEcosystemScenario.new(config)
          loc:update(obj, obj.x, obj.y, obj.w, obj.h)
 
          -- Remove old objects
-         if obj.age > obj.lifetime then
-            table.insert(to_remove, i)
-         end
+         if obj.age > obj.lifetime then table.insert(to_remove, i) end
       end
 
       -- Remove dead objects (in reverse order to maintain indices)
@@ -87,15 +85,13 @@ function DynamicEcosystemScenario.new(config)
          if alpha < 1.0 then
             color = 1 -- Dimmer color for old objects
          end
-         rectfill(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, color)
+         rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, color)
       end
 
       print("Organisms: " .. #self.objects, 280, 8, 7)
    end
 
-   function scenario:get_objects()
-      return self.objects
-   end
+   function scenario:get_objects() return self.objects end
 
    return scenario
 end

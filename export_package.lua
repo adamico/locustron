@@ -151,7 +151,7 @@ local required_files = {
    "doubly_linked_list.lua",
    "fixed_grid.lua",
    "init.lua",
-   "interface.lua"
+   "interface.lua",
 }
 local exports_ok = true
 

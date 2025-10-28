@@ -35,7 +35,7 @@ describe("PerformanceProfiler", function()
             max_measurements = 500,
             sample_rate = 0.5,
             enable_detailed = true,
-            track_memory = true
+            track_memory = true,
          }
          local profiler = PerformanceProfiler:new(config)
 
@@ -49,9 +49,7 @@ describe("PerformanceProfiler", function()
    describe("Session management", function()
       local profiler
 
-      before_each(function()
-         profiler = PerformanceProfiler:new()
-      end)
+      before_each(function() profiler = PerformanceProfiler:new() end)
 
       it("should start a profiling session", function()
          profiler:start_session()
@@ -76,26 +74,24 @@ describe("PerformanceProfiler", function()
 
       it("should handle ending session without starting", function()
          -- Should not error
-         assert.has_no_error(function()
-            profiler:end_session()
-         end)
+         assert.has_no_error(function() profiler:end_session() end)
       end)
    end)
 
    describe("Query measurement", function()
       local profiler
 
-      before_each(function()
-         profiler = PerformanceProfiler:new()
-      end)
+      before_each(function() profiler = PerformanceProfiler:new() end)
 
       it("should measure query execution time", function()
          local mock_strategy = "fixed_grid"
          local mock_query = function(x, y, w, h)
             -- Simulate some work
             local sum = 0
-            for i = 1, 100 do sum = sum + i end
-            return {result = sum}
+            for i = 1, 100 do
+               sum = sum + i
+            end
+            return { result = sum }
          end
 
          local result = profiler:measure_query(mock_strategy, mock_query, 10, 20, 30, 40)
@@ -113,7 +109,7 @@ describe("PerformanceProfiler", function()
 
       it("should respect sampling rate", function()
          -- Test with sample rate = 0 (should never sample)
-         local profiler = PerformanceProfiler:new({sample_rate = 0})
+         local profiler = PerformanceProfiler:new({ sample_rate = 0 })
          local call_count = 0
          local mock_query = function()
             call_count = call_count + 1
@@ -142,7 +138,7 @@ describe("PerformanceProfiler", function()
       end)
 
       it("should maintain measurement limit", function()
-         local profiler = PerformanceProfiler:new({max_measurements = 3})
+         local profiler = PerformanceProfiler:new({ max_measurements = 3 })
 
          -- Add measurements directly to reach the limit
          for i = 1, 3 do
@@ -151,7 +147,7 @@ describe("PerformanceProfiler", function()
                execution_time = 0.01,
                timestamp = os.time(),
                result_count = 1,
-               session_id = i
+               session_id = i,
             })
          end
 
@@ -161,13 +157,11 @@ describe("PerformanceProfiler", function()
             execution_time = 0.01,
             timestamp = os.time(),
             result_count = 1,
-            session_id = 4
+            session_id = 4,
          })
 
          -- Simulate the limit enforcement (normally done in measure_query)
-         if #profiler.measurements > profiler.config.max_measurements then
-            table.remove(profiler.measurements, 1)
-         end
+         if #profiler.measurements > profiler.config.max_measurements then table.remove(profiler.measurements, 1) end
 
          assert.are.equal(3, #profiler.measurements)
          -- First measurement should be removed (FIFO)
@@ -178,26 +172,24 @@ describe("PerformanceProfiler", function()
    describe("Statistics calculation", function()
       local profiler
 
-      before_each(function()
-         profiler = PerformanceProfiler:new()
-      end)
+      before_each(function() profiler = PerformanceProfiler:new() end)
 
       it("should calculate basic statistics", function()
          -- Add some mock measurements
          table.insert(profiler.measurements, {
             strategy = "fixed_grid",
             execution_time = 0.01,
-            result_count = 5
+            result_count = 5,
          })
          table.insert(profiler.measurements, {
             strategy = "fixed_grid",
             execution_time = 0.02,
-            result_count = 3
+            result_count = 3,
          })
          table.insert(profiler.measurements, {
             strategy = "quadtree",
             execution_time = 0.015,
-            result_count = 7
+            result_count = 7,
          })
 
          profiler:update_aggregated_stats()
@@ -212,15 +204,15 @@ describe("PerformanceProfiler", function()
          -- Add measurements for different strategies
          table.insert(profiler.measurements, {
             strategy = "fixed_grid",
-            execution_time = 0.01
+            execution_time = 0.01,
          })
          table.insert(profiler.measurements, {
             strategy = "fixed_grid",
-            execution_time = 0.02
+            execution_time = 0.02,
          })
          table.insert(profiler.measurements, {
             strategy = "quadtree",
-            execution_time = 0.015
+            execution_time = 0.015,
          })
 
          profiler:update_aggregated_stats()
@@ -256,15 +248,15 @@ describe("PerformanceProfiler", function()
                average_time = 0.01,
                median_time = 0.009,
                p95_time = 0.015,
-               total_time = 0.1
+               total_time = 0.1,
             },
             quadtree = {
                query_count = 5,
                average_time = 0.02,
                median_time = 0.018,
                p95_time = 0.025,
-               total_time = 0.1
-            }
+               total_time = 0.1,
+            },
          }
       end)
 
@@ -294,17 +286,17 @@ describe("PerformanceProfiler", function()
          table.insert(profiler.measurements, {
             strategy = "test",
             execution_time = 0.1,
-            result_count = 1
+            result_count = 1,
          })
          table.insert(profiler.measurements, {
             strategy = "test",
             execution_time = 0.05,
-            result_count = 2
+            result_count = 2,
          })
          table.insert(profiler.measurements, {
             strategy = "test",
             execution_time = 0.2,
-            result_count = 3
+            result_count = 3,
          })
       end)
 
@@ -342,8 +334,8 @@ describe("PerformanceProfiler", function()
       it("should recommend best performing strategy", function()
          local profiler = PerformanceProfiler:new()
          profiler.stats.strategy_performance = {
-            fixed_grid = {average_time = 0.01, query_count = 10},
-            quadtree = {average_time = 0.005, query_count = 10}
+            fixed_grid = { average_time = 0.01, query_count = 10 },
+            quadtree = { average_time = 0.005, query_count = 10 },
          }
 
          local recommendations = profiler:get_recommendations()
@@ -376,7 +368,7 @@ describe("PerformanceProfiler", function()
             strategy = "test",
             execution_time = 0.01,
             timestamp = 123456,
-            result_count = 5
+            result_count = 5,
          })
       end)
 
@@ -404,7 +396,7 @@ describe("PerformanceProfiler", function()
          table.insert(profiler.measurements, {
             strategy = "test",
             execution_time = 0.01,
-            result_count = 5
+            result_count = 5,
          })
          profiler:update_aggregated_stats()
 
@@ -421,22 +413,20 @@ describe("PerformanceProfiler", function()
    describe("Utility functions", function()
       local profiler
 
-      before_each(function()
-         profiler = PerformanceProfiler:new()
-      end)
+      before_each(function() profiler = PerformanceProfiler:new() end)
 
       it("should get result count from table", function()
-         local result = profiler:get_result_count({{a = 1, b = 2, c = 3}})
+         local result = profiler:get_result_count({ { a = 1, b = 2, c = 3 } })
          assert.are.equal(3, result)
       end)
 
       it("should get result count from number", function()
-         local result = profiler:get_result_count({42})
+         local result = profiler:get_result_count({ 42 })
          assert.are.equal(42, result)
       end)
 
       it("should handle empty results", function()
-         local result = profiler:get_result_count({nil})
+         local result = profiler:get_result_count({ nil })
          assert.are.equal(0, result)
       end)
 

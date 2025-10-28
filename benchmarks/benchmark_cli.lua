@@ -156,9 +156,7 @@ function BenchmarkCLI.run_benchmark(config)
             if config.verbose then print("    Strategy: " .. strategy_name) end
 
             -- Run benchmark
-            local strategy_results = benchmark_suite:benchmark_strategy(
-               strategy_name, objects
-            )
+            local strategy_results = benchmark_suite:benchmark_strategy(strategy_name, objects)
 
             results[scenario_name][count][strategy_name] = strategy_results
 

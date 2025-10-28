@@ -19,7 +19,7 @@ function ViewportCulling.new(locustron_instance, viewport_config)
    local self = setmetatable({}, ViewportCulling)
 
    self.spatial = locustron_instance
-   self.viewport = viewport_config or {x = 0, y = 0, w = 400, h = 300}
+   self.viewport = viewport_config or { x = 0, y = 0, w = 400, h = 300 }
    self.cull_margin = viewport_config and viewport_config.cull_margin or 32 -- Extra margin for safety
 
    -- Statistics for performance monitoring
@@ -29,7 +29,7 @@ function ViewportCulling.new(locustron_instance, viewport_config)
       culled_objects = 0,
       cull_ratio = 0,
       query_count = 0,
-      average_query_time = 0
+      average_query_time = 0,
    }
 
    return self
@@ -54,8 +54,7 @@ function ViewportCulling:get_visible_objects(filter_fn)
    self.stats.total_objects = self.spatial:count()
    self.stats.visible_objects = self:count_table(visible)
    self.stats.culled_objects = self.stats.total_objects - self.stats.visible_objects
-   self.stats.cull_ratio = self.stats.total_objects > 0 and
-      (self.stats.visible_objects / self.stats.total_objects) or 0
+   self.stats.cull_ratio = self.stats.total_objects > 0 and (self.stats.visible_objects / self.stats.total_objects) or 0
    self.stats.query_count = self.stats.query_count + 1
 
    return visible
@@ -75,18 +74,14 @@ end
 
 --- Set the cull margin for viewport expansion
 --- @param margin number Extra margin around viewport for culling (pixels)
-function ViewportCulling:set_cull_margin(margin)
-   self.cull_margin = margin
-end
+function ViewportCulling:set_cull_margin(margin) self.cull_margin = margin end
 
 --- Get current viewport configuration
 --- @return number x Viewport x-coordinate
 --- @return number y Viewport y-coordinate
 --- @return number w Viewport width
 --- @return number h Viewport height
-function ViewportCulling:get_viewport()
-   return self.viewport.x, self.viewport.y, self.viewport.w, self.viewport.h
-end
+function ViewportCulling:get_viewport() return self.viewport.x, self.viewport.y, self.viewport.w, self.viewport.h end
 
 --- Get culling statistics
 --- @return table Statistics table
@@ -97,7 +92,7 @@ function ViewportCulling:get_stats()
       culled_objects = self.stats.culled_objects,
       cull_ratio = self.stats.cull_ratio,
       query_count = self.stats.query_count,
-      cull_margin = self.cull_margin
+      cull_margin = self.cull_margin,
    }
 end
 
@@ -132,8 +127,7 @@ end
 --- @param h2 number Second rectangle height
 --- @return boolean True if rectangles intersect
 function ViewportCulling:rectangles_intersect(x1, y1, w1, h1, x2, y2, w2, h2)
-   if x1 < x2 + w2 and x1 + w1 > x2 and
-      y1 < y2 + h2 and y1 + h1 > y2 then
+   if x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2 then
       return true
    else
       return false
@@ -163,8 +157,15 @@ function ViewportCulling:get_offscreen_objects(margin)
    local offscreen = {}
    for obj in pairs(large_area) do
       local obj_x, obj_y, obj_w, obj_h = self.spatial:get_bbox(obj)
-      if obj_x and not (obj_x < expanded_x + expanded_w and obj_x + obj_w > expanded_x and
-            obj_y < expanded_y + expanded_h and obj_y + obj_h > expanded_y) then
+      if
+         obj_x
+         and not (
+            obj_x < expanded_x + expanded_w
+            and obj_x + obj_w > expanded_x
+            and obj_y < expanded_y + expanded_h
+            and obj_y + obj_h > expanded_y
+         )
+      then
          offscreen[obj] = true
       end
    end
@@ -177,7 +178,9 @@ end
 --- @return number Number of items
 function ViewportCulling:count_table(t)
    local count = 0
-   for _ in pairs(t) do count = count + 1 end
+   for _ in pairs(t) do
+      count = count + 1
+   end
    return count
 end
 
@@ -189,8 +192,8 @@ function ViewportCulling.create(spatial)
       x = 0,
       y = 0,
       w = 400,
-      h = 300,                      -- Standard viewport
-      cull_margin = 64              -- Generous margin for most games
+      h = 300, -- Standard viewport
+      cull_margin = 64, -- Generous margin for most games
    })
 end
 

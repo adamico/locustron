@@ -17,9 +17,9 @@ function SpaceBattleScenario.new(config)
    function scenario:init(loc)
       -- Create objectives (planets/stations)
       self.objectives = {
-         {x = 100, y = 100, radius = 30, ships = 0},
-         {x = 400, y = 200, radius = 25, ships = 0},
-         {x = 200, y = 350, radius = 35, ships = 0},
+         { x = 100, y = 100, radius = 30, ships = 0 },
+         { x = 400, y = 200, radius = 25, ships = 0 },
+         { x = 200, y = 350, radius = 35, ships = 0 },
       }
 
       -- Spawn initial ships
@@ -77,9 +77,7 @@ function SpaceBattleScenario.new(config)
       end
 
       -- Occasionally spawn new ships
-      if math.random() < 0.02 then
-         self:spawn_ship(loc)
-      end
+      if math.random() < 0.02 then self:spawn_ship(loc) end
    end
 
    function scenario:draw()
@@ -91,15 +89,13 @@ function SpaceBattleScenario.new(config)
 
       -- Draw ships
       for _, obj in ipairs(self.objects) do
-         rectfill(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, obj.color)
+         rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, obj.color)
       end
 
       print("Ships: " .. #self.objects, 280, 8, 7)
    end
 
-   function scenario:get_objects()
-      return self.objects
-   end
+   function scenario:get_objects() return self.objects end
 
    return scenario
 end

@@ -128,9 +128,7 @@ end
 
 --- Get all objects in the spatial structure for visualization
 --- @return table Table of objects {obj = {x, y, w, h, ...}}
-function SpatialStrategy:get_all_objects()
-   error("get_all_objects must be implemented by concrete strategy")
-end
+function SpatialStrategy:get_all_objects() error("get_all_objects must be implemented by concrete strategy") end
 
 --- @class StrategyConfig
 --- @field strategy string Strategy type name

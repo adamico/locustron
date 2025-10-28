@@ -17,10 +17,10 @@ function PlatformerScenario.new(config)
    function scenario:init(loc)
       -- Create platforms
       self.platforms = {
-         {x = 50, y = 200, w = 100, h = 20},
-         {x = 200, y = 150, w = 80, h = 20},
-         {x = 350, y = 250, w = 120, h = 20},
-         {x = 100, y = 320, w = 150, h = 20},
+         { x = 50, y = 200, w = 100, h = 20 },
+         { x = 200, y = 150, w = 80, h = 20 },
+         { x = 350, y = 250, w = 120, h = 20 },
+         { x = 100, y = 320, w = 150, h = 20 },
       }
 
       -- Spawn objects on platforms
@@ -63,11 +63,14 @@ function PlatformerScenario.new(config)
          -- Platform collision (simple)
          obj.grounded = false
          for _, platform in ipairs(self.platforms) do
-            if obj.x + obj.w/2 > platform.x and obj.x - obj.w/2 < platform.x + platform.w and
-               obj.y + obj.h/2 > platform.y and obj.y - obj.h/2 < platform.y + platform.h then
-
+            if
+               obj.x + obj.w / 2 > platform.x
+               and obj.x - obj.w / 2 < platform.x + platform.w
+               and obj.y + obj.h / 2 > platform.y
+               and obj.y - obj.h / 2 < platform.y + platform.h
+            then
                if obj.vy > 0 then -- Falling down
-                  obj.y = platform.y - obj.h/2
+                  obj.y = platform.y - obj.h / 2
                   obj.vy = 0
                   obj.grounded = true
                end
@@ -97,15 +100,13 @@ function PlatformerScenario.new(config)
 
       -- Draw objects
       for _, obj in ipairs(self.objects) do
-         rectfill(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, obj.color)
+         rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, obj.color)
       end
 
       print("Enemies: " .. #self.objects, 280, 8, 7)
    end
 
-   function scenario:get_objects()
-      return self.objects
-   end
+   function scenario:get_objects() return self.objects end
 
    return scenario
 end

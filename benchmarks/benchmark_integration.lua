@@ -66,7 +66,6 @@ function BenchmarkIntegration.benchmark_all_strategies(scenarios, config)
          local objects = benchmark_suite.scenarios[scenario_name](count)
 
          for _, strategy_name in ipairs(available_strategies) do
-
             -- Run benchmark
             local strategy_results = benchmark_suite:benchmark_strategy(strategy_name, objects)
 

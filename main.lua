@@ -9,8 +9,8 @@ local DebugConsole = require("demo.debugging.debug_console")
 
 local loc
 local GRID_SIZE = 256 -- Main grid display area
-local GRID_X = 16     -- Grid offset from left
-local GRID_Y = 8      -- Grid offset from top
+local GRID_X = 16 -- Grid offset from left
+local GRID_Y = 8 -- Grid offset from top
 
 -- Demo scenario system
 local current_scenario
@@ -90,23 +90,23 @@ function draw_debug_info()
    print("LOCUSTRON", info_x, info_y, 11)
    info_y = info_y + line_height * 1.5
 
-   print("Objects: "..tostr(loc:count()), info_x, info_y, 7)
+   print("Objects: " .. tostr(loc:count()), info_x, info_y, 7)
    info_y = info_y + line_height
 
    -- Get strategy statistics
    local strategy = loc:get_strategy()
    local stats = strategy:get_statistics()
 
-   print("Cells: "..tostr(stats.cell_count), info_x, info_y)
+   print("Cells: " .. tostr(stats.cell_count), info_x, info_y)
    info_y = info_y + line_height
 
-   print("Cell size: "..tostr(stats.cell_size), info_x, info_y)
+   print("Cell size: " .. tostr(stats.cell_size), info_x, info_y)
    info_y = info_y + line_height
 
-   print("CPU: "..tostr(flr(stat(1) * 100)).."%", info_x, info_y)
+   print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
    info_y = info_y + line_height
 
-   print("MEM: "..tostr(flr(stat(3) / 1024)).."KB", info_x, info_y)
+   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB", info_x, info_y)
    info_y = info_y + line_height
 
    if perf_profiler.enabled then
@@ -118,10 +118,10 @@ function draw_debug_info()
          info_y = info_y + line_height
 
          color(7)
-         print("Total: "..tostr(stats.total_queries), info_x, info_y)
+         print("Total: " .. tostr(stats.total_queries), info_x, info_y)
          info_y = info_y + line_height
 
-         print("Avg: "..tostr(flr(stats.average_query_time * 1000)).."ms", info_x, info_y)
+         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", info_x, info_y)
       end
    end
 end
@@ -133,15 +133,13 @@ end
 
 function switch_scenario(scenario_name)
    -- Clear existing spatial structure
-   if loc then
-      loc:clear()
-   end
+   if loc then loc:clear() end
 
    -- Create new spatial structure
    loc = Locustron.create(64) -- Fixed cell size for now
 
    -- Create scenario
-   current_scenario = DemoScenarios.create_scenario(scenario_name, {max_objects = 200})
+   current_scenario = DemoScenarios.create_scenario(scenario_name, { max_objects = 200 })
    current_scenario:init(loc)
 
    -- Update scenario index
@@ -155,21 +153,19 @@ function switch_scenario(scenario_name)
    -- Reinitialize debugging system with new strategy
    if not vis_system then
       vis_system = VisualizationSystem:new({
-         viewport = {x = 0, y = 0, w = GRID_SIZE, h = GRID_SIZE, scale = 1.0}
+         viewport = { x = 0, y = 0, w = GRID_SIZE, h = GRID_SIZE, scale = 1.0 },
       })
    end
 
    if not perf_profiler then
       perf_profiler = PerformanceProfiler:new({
          enabled = true,
-         sample_rate = 0.1
+         sample_rate = 0.1,
       })
    end
 
    local strategy = loc:get_strategy()
-   if not debug_console then
-      debug_console = DebugConsole:new()
-   end
+   if not debug_console then debug_console = DebugConsole:new() end
    debug_console:set_strategy(strategy, "fixed_grid")
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
@@ -208,7 +204,7 @@ function _update()
 
       -- Pan controls
       local pan_speed = 16 / vis_system.viewport.scale
-      if btn(2) then     -- Up arrow
+      if btn(2) then -- Up arrow
          vis_system.viewport.y = vis_system.viewport.y - pan_speed
       elseif btn(3) then -- Down arrow
          vis_system.viewport.y = vis_system.viewport.y + pan_speed
@@ -221,15 +217,13 @@ function _update()
 
    -- Update current scenario
    if current_scenario then
-      current_scenario:update(loc, 1/30) -- Assume 30 FPS
+      current_scenario:update(loc, 1 / 30) -- Assume 30 FPS
    end
 
    -- Track the update query for visualization (if scenario supports it)
    if debug_mode and vis_system and current_scenario.get_objects then
       local objects = current_scenario:get_objects()
-      if vis_system then
-         vis_system:add_query(0, 0, 256, 256, #objects)
-      end
+      if vis_system then vis_system:add_query(0, 0, 256, 256, #objects) end
    end
 end
 
@@ -244,9 +238,7 @@ function _draw()
       draw_visualization_ui()
    else
       -- Scenario visualization mode
-      if current_scenario and current_scenario.draw then
-         current_scenario:draw()
-      end
+      if current_scenario and current_scenario.draw then current_scenario:draw() end
    end
 
    -- Render debug UI overlay

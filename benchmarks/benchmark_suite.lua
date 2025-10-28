@@ -118,8 +118,8 @@ function BenchmarkSuite:setup_scenarios()
          local obj = { id = string.format("large_%d", i) }
          local size_category = math.random(1, 3)
          local size_range = {
-            { 8,  16 },  -- Small objects
-            { 32, 64 },  -- Medium objects
+            { 8, 16 }, -- Small objects
+            { 32, 64 }, -- Medium objects
             { 64, 128 }, -- Large objects
          }
          local range = size_range[size_category]
@@ -343,9 +343,7 @@ end
 --- @param strategies table|nil Strategy results {[strategy_name] = results}
 --- @return string|nil, table|nil Best strategy name and its results
 function BenchmarkSuite:find_best_strategy(strategies)
-   if not strategies then
-      return nil, nil
-   end
+   if not strategies then return nil, nil end
 
    local best_strategy = nil
    local best_score = math.huge
@@ -354,9 +352,9 @@ function BenchmarkSuite:find_best_strategy(strategies)
    for strategy_name, results in pairs(strategies) do
       -- Composite score: weighted average of normalized metrics
       local score = (results.add_time * 1000) * 0.3 -- 30% weight on add time
-          + (results.query_time * 1000) * 0.4       -- 40% weight on query time
-          + (results.memory_usage / 1024) * 0.2     -- 20% weight on memory
-          + ((1.0 - results.accuracy) * 100) * 0.1  -- 10% weight on accuracy loss
+         + (results.query_time * 1000) * 0.4 -- 40% weight on query time
+         + (results.memory_usage / 1024) * 0.2 -- 20% weight on memory
+         + ((1.0 - results.accuracy) * 100) * 0.1 -- 10% weight on accuracy loss
 
       if score < best_score then
          best_score = score
@@ -378,10 +376,7 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
    local metric_name = string.gsub(metric, "_", " ")
    metric_name = string.gsub(metric_name, "^%l", string.upper)
 
-   table.insert(
-      chart_lines,
-      string.format("%s Performance (lower is better):", metric_name)
-   )
+   table.insert(chart_lines, string.format("%s Performance (lower is better):", metric_name))
    table.insert(chart_lines, "```")
 
    local max_value = 0
@@ -395,7 +390,7 @@ function BenchmarkSuite:generate_performance_chart(scenario_results, metric)
          if metric == "memory_usage" then
             value = value / (1024 * 1024) -- Convert to MB
          elseif string.match(metric_name, "_time$") then
-            value = value * 1000          -- Convert to milliseconds
+            value = value * 1000 -- Convert to milliseconds
          end
          max_value = math.max(max_value, value)
       end
@@ -441,9 +436,7 @@ function BenchmarkSuite:format_scenario_name(scenario_name)
    -- Convert snake_case to Title Case
    local result = string.gsub(scenario_name, "_", " ")
    result = string.gsub(result, "^%l", string.upper)
-   result = string.gsub(result, " %l", function(match)
-      return " " .. string.upper(match)
-   end)
+   result = string.gsub(result, " %l", function(match) return " " .. string.upper(match) end)
    return result
 end
 

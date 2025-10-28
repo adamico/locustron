@@ -1,4 +1,4 @@
---- @diagnostic disable: undefined-global undefined-field
+---@diagnostic disable: undefined-field
 -- BDD Tests for Doubly Linked List Implementation
 -- Following Phase 1.1 specifications
 
@@ -335,7 +335,7 @@ describe("Doubly Linked List Foundation", function()
          for i = 1, 100 do
             local node = cell:find(objects[i])
             assert.truthy(node)
----@diagnostic disable-next-line: param-type-mismatch
+            ---@diagnostic disable-next-line: param-type-mismatch
             cell:remove(node)
          end
 

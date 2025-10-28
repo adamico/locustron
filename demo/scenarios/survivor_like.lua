@@ -47,11 +47,11 @@ function SurvivorLikeScenario.new(config)
                -- Update movement (move toward player)
                local dx = self.player.x - obj.x
                local dy = self.player.y - obj.y
-               local dist = math.sqrt(dx*dx + dy*dy)
+               local dist = math.sqrt(dx * dx + dy * dy)
 
                if dist > 0 then
-                  obj.x = obj.x + (dx/dist) * obj.speed * dt
-                  obj.y = obj.y + (dy/dist) * obj.speed * dt
+                  obj.x = obj.x + (dx / dist) * obj.speed * dt
+                  obj.y = obj.y + (dy / dist) * obj.speed * dt
                   loc:update(obj, obj.x, obj.y, obj.w, obj.h)
                end
             end
@@ -107,7 +107,7 @@ function SurvivorLikeScenario.new(config)
                -- Fade to darker color as they age
                color = 1 -- Dark grey for old monsters
             end
-            rectfill(obj.x - obj.w/2, obj.y - obj.h/2, obj.x + obj.w/2, obj.y + obj.h/2, color)
+            rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, color)
          end
       end
 
@@ -117,11 +117,9 @@ function SurvivorLikeScenario.new(config)
    end
 
    function scenario:get_objects()
-      local all_objects = {self.player}
+      local all_objects = { self.player }
       for _, obj in ipairs(self.objects) do
-         if obj.alive then
-            table.insert(all_objects, obj)
-         end
+         if obj.alive then table.insert(all_objects, obj) end
       end
       return all_objects
    end
