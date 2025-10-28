@@ -1,7 +1,7 @@
 --- Busted tests for VisualizationSystem
 --- Tests the Picotron visualization system functionality
 
-local class = require("middleclass")
+local class = require("lib.middleclass")
 
 describe("VisualizationSystem", function()
    local VisualizationSystem

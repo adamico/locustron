@@ -1,7 +1,7 @@
 --- Busted tests for PerformanceProfiler
 --- Tests the performance profiling system functionality
 
-local class = require("middleclass")
+local class = require("lib.middleclass")
 
 describe("PerformanceProfiler", function()
    local PerformanceProfiler

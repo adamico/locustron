@@ -6,7 +6,7 @@
 --- @field current_session table Current profiling session data
 --- @field config table Profiling configuration
 --- @field stats table Aggregated performance statistics
-local class = require("middleclass")
+local class = require("lib.middleclass")
 local PerformanceProfiler = class("PerformanceProfiler")
 
 --- Create a new performance profiler instance

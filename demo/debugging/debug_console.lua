@@ -9,7 +9,7 @@
 --- @field current_strategy table Currently inspected strategy
 --- @field visualization_system table Visualization system integration
 --- @field performance_profiler table Performance profiler integration
-local class = require("middleclass")
+local class = require("lib.middleclass")
 local DebugConsole = class("DebugConsole")
 
 local time = os and os.time or time

@@ -12,7 +12,7 @@
 --- @field performance_data table Performance profiling data
 --- @field current_strategy table Currently rendered strategy
 --- @field current_strategy_name string Name of current strategy
-local class = require("middleclass")
+local class = require("lib.middleclass")
 local VisualizationSystem = class("VisualizationSystem")
 
 local time = os and os.time or time
