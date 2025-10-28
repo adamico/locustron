@@ -12,6 +12,10 @@
 local class = require("middleclass")
 local DebugConsole = class("DebugConsole")
 
+local time = os and os.time or time
+local add = add and add or table.insert
+local deli = deli and deli or table.remove
+
 --- Create a new debug console instance
 --- @param config table Configuration table with console settings
 function DebugConsole:initialize(config)
@@ -145,7 +149,7 @@ function DebugConsole:execute_command(command_line)
    end
 
    -- Add to history
-   table.insert(self.history, {
+   add(self.history, {
       command = command_line,
       timestamp = time(),
       output = nil
@@ -153,12 +157,12 @@ function DebugConsole:execute_command(command_line)
 
    -- Maintain history limit
    if #self.history > self.config.max_history then
-      table.remove(self.history, 1)
+      deli(self.history, 1)
    end
 
    -- Parse command
    local args = self:parse_command_line(command_line)
-   local cmd_name = table.remove(args, 1)
+   local cmd_name = deli(args, 1)
 
    if not cmd_name then
       return "Error: Empty command"
@@ -205,7 +209,7 @@ function DebugConsole:parse_command_line(command_line)
          in_quotes = not in_quotes
       elseif char == " " and not in_quotes then
          if current_arg ~= "" then
-            table.insert(args, current_arg)
+            add(args, current_arg)
             current_arg = ""
          end
       else
@@ -214,7 +218,7 @@ function DebugConsole:parse_command_line(command_line)
    end
 
    if current_arg ~= "" then
-      table.insert(args, current_arg)
+      add(args, current_arg)
    end
 
    return args
@@ -223,11 +227,11 @@ end
 --- Add output to the console buffer
 --- @param text string Text to add
 function DebugConsole:add_output(text)
-   table.insert(self.output_buffer, text)
+   add(self.output_buffer, text)
 
    -- Maintain buffer limit
    if #self.output_buffer > self.config.max_output_lines then
-      table.remove(self.output_buffer, 1)
+      deli(self.output_buffer, 1)
    end
 end
 
@@ -244,16 +248,16 @@ function DebugConsole:get_help_text()
    -- Sort commands alphabetically
    local sorted_commands = {}
    for name, cmd in pairs(self.commands) do
-      table.insert(sorted_commands, {name = name, desc = cmd.description})
+      add(sorted_commands, {name = name, desc = cmd.description})
    end
    table.sort(sorted_commands, function(a, b) return a.name < b.name end)
 
    for _, cmd in ipairs(sorted_commands) do
-      table.insert(lines, string.format("  %-12s %s", cmd.name, cmd.desc))
+      add(lines, string.format("  %-12s %s", cmd.name, cmd.desc))
    end
 
-   table.insert(lines, "")
-   table.insert(lines, "Type 'help <command>' for detailed help on a specific command.")
+   add(lines, "")
+   add(lines, "Type 'help <command>' for detailed help on a specific command.")
 
    return table.concat(lines, "\n")
 end
@@ -264,21 +268,21 @@ function DebugConsole:get_system_info()
    local lines = {"System Information:"}
 
    if self.current_strategy then
-      table.insert(lines, string.format("Strategy: %s", self.current_strategy._strategy_name or "unknown"))
-      table.insert(lines, string.format("Objects: %d", self:get_object_count()))
+      add(lines, string.format("Strategy: %s", self.current_strategy._strategy_name or "unknown"))
+      add(lines, string.format("Objects: %d", self:get_object_count()))
    else
-      table.insert(lines, "Strategy: None loaded")
+      add(lines, "Strategy: None loaded")
    end
 
    if self.performance_profiler then
       local stats = self.performance_profiler.stats
-      table.insert(lines, string.format("Queries: %d", stats.total_queries))
-      table.insert(lines, string.format("Avg Query Time: %.3fms", stats.average_query_time * 1000))
+      add(lines, string.format("Queries: %d", stats.total_queries))
+      add(lines, string.format("Avg Query Time: %.3fms", stats.average_query_time * 1000))
    end
 
    if self.visualization_system then
       local vp = self.visualization_system.viewport
-      table.insert(lines, string.format("Viewport: (%.1f, %.1f) scale: %.2f", vp.x, vp.y, vp.scale))
+      add(lines, string.format("Viewport: (%.1f, %.1f) scale: %.2f", vp.x, vp.y, vp.scale))
    end
 
    return table.concat(lines, "\n")
@@ -295,20 +299,20 @@ function DebugConsole:get_strategy_stats()
 
    -- Basic counts
    local obj_count = self:get_object_count()
-   table.insert(lines, string.format("Total Objects: %d", obj_count))
+   add(lines, string.format("Total Objects: %d", obj_count))
 
    -- Strategy-specific stats
    if self.current_strategy.cell_size then
-      table.insert(lines, string.format("Cell Size: %d", self.current_strategy.cell_size))
+      add(lines, string.format("Cell Size: %d", self.current_strategy.cell_size))
    end
 
    if self.current_strategy.max_objects then
-      table.insert(lines, string.format("Max Objects per Node: %d", self.current_strategy.max_objects))
+      add(lines, string.format("Max Objects per Node: %d", self.current_strategy.max_objects))
    end
 
    -- Memory estimation
    local estimated_memory = obj_count * 32 -- Rough estimate: 32 bytes per object
-   table.insert(lines, string.format("Estimated Memory: %d KB", math.floor(estimated_memory / 1024)))
+   add(lines, string.format("Estimated Memory: %d KB", math.floor(estimated_memory / 1024)))
 
    return table.concat(lines, "\n")
 end
@@ -339,20 +343,20 @@ function DebugConsole:list_objects(filter)
 
    for obj_id, obj_data in pairs(self.current_strategy.objects) do
       if count >= limit then
-         table.insert(lines, string.format("... and %d more objects", self:get_object_count() - limit))
+         add(lines, string.format("... and %d more objects", self:get_object_count() - limit))
          break
       end
 
       local matches_filter = not filter or string.find(tostring(obj_id), filter)
       if matches_filter then
-         table.insert(lines, string.format("  ID:%s Pos:(%.1f,%.1f) Size:(%.1f,%.1f)",
+         add(lines, string.format("  ID:%s Pos:(%.1f,%.1f) Size:(%.1f,%.1f)",
             obj_id, obj_data.x or 0, obj_data.y or 0, obj_data.w or 0, obj_data.h or 0))
          count = count + 1
       end
    end
 
    if count == 0 then
-      table.insert(lines, "  No objects found")
+      add(lines, "  No objects found")
    end
 
    return table.concat(lines, "\n")
@@ -371,7 +375,7 @@ function DebugConsole:list_cells(limit_str)
 
    -- This would need strategy-specific implementation
    -- For now, return placeholder
-   table.insert(lines, "Cell listing not yet implemented for current strategy")
+   add(lines, "Cell listing not yet implemented for current strategy")
 
    return table.concat(lines, "\n")
 end
@@ -481,7 +485,7 @@ function DebugConsole:get_bottlenecks(count_str)
 
    local lines = {"Performance Bottlenecks:"}
    for i, bottleneck in ipairs(bottlenecks) do
-      table.insert(lines, string.format("%d. %s: %.3fms",
+      add(lines, string.format("%d. %s: %.3fms",
          i, bottleneck.strategy, bottleneck.execution_time * 1000))
    end
 
@@ -540,7 +544,7 @@ function DebugConsole:show_config()
    local lines = {"Console Configuration:"}
 
    for key, value in pairs(self.config) do
-      table.insert(lines, string.format("  %s: %s", key, tostring(value)))
+      add(lines, string.format("  %s: %s", key, tostring(value)))
    end
 
    return table.concat(lines, "\n")
@@ -584,11 +588,11 @@ function DebugConsole:show_history(count_str)
    local start_idx = math.max(1, #self.history - count + 1)
    for i = start_idx, #self.history do
       local entry = self.history[i]
-      table.insert(lines, string.format("%d. %s", i, entry.command))
+      add(lines, string.format("%d. %s", i, entry.command))
    end
 
    if #self.history == 0 then
-      table.insert(lines, "  No commands in history")
+      add(lines, "  No commands in history")
    end
 
    return table.concat(lines, "\n")

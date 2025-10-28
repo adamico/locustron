@@ -1,15 +1,13 @@
 --- Busted tests for DebugConsole
 --- Tests the debug console functionality
 
-local class = require("middleclass")
-
 describe("DebugConsole", function()
    local DebugConsole
 
    before_each(function()
       -- Load the module fresh for each test
-      package.loaded["debugging.debug_console"] = nil
-      DebugConsole = require("debugging.debug_console")
+      package.loaded["src.debugging.debug_console"] = nil
+      DebugConsole = require("src.debugging.debug_console")
    end)
 
    describe("Class creation", function()
