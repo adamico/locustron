@@ -404,6 +404,88 @@ function ViewportCulling:count_table(t)
 end
 ```
 
+## Phase 3 File Structure
+
+### Core API (`src/`)
+
+```text
+src/
+├── locustron.lua                    # NEW: Main unified API (uses strategy pattern internally)
+└── require.lua                      # EXISTING: Bundled require library
+```
+
+### Strategy Layer (`src/strategies/`) - CLEAN IMPLEMENTATION
+
+```text
+src/strategies/
+├── interface.lua                    # RENAMED: strategy_interface.lua (simplified)
+├── fixed_grid.lua                   # RENAMED: fixed_grid_strategy.lua (optimized)
+└── doubly_linked_list.lua           # MOVED: doubly_linked_list.lua (utility)
+```
+
+### Integration Layer (`src/integration/`)
+
+```text
+src/integration/
+└── viewport_culling.lua             # NEW: Viewport culling utilities
+```
+
+### Legacy Code (`src/legacy/`) - PRESERVED UNCHANGED
+
+```text
+src/legacy/
+├── locustron_userdata.lua           # RENAMED: current src/picotron/locustron.lua
+├── require.lua                      # MOVED: current src/picotron/require.lua
+├── init_strategies.lua              # MOVED: current src/vanilla/init_strategies.lua
+└── strategy_interface.lua           # MOVED: current src/vanilla/strategy_interface.lua
+```
+
+### Export Layer (`exports/` & `lib/`) - EMPTY FOR NOW
+
+```text
+exports/                             # Empty - for yotta deployment
+lib/                                 # Empty - local library copies
+```
+
+### Test Layer (`tests/`) - ORGANIZED
+
+```text
+tests/
+├── api_spec.lua                     # NEW: Main API tests
+├── viewport_spec.lua                # NEW: Viewport culling tests
+├── benchmark_suite_spec.lua         # EXISTING: Strategy benchmark tests
+├── doubly_linked_list_spec.lua      # EXISTING: Data structure tests
+├── fixed_grid_strategy_spec.lua     # EXISTING: Strategy implementation tests
+├── setup_spec.lua                   # EXISTING: Test setup
+├── strategy_interface_spec.lua      # EXISTING: Interface contract tests
+└── legacy/                          # EXISTING: Picotron-specific tests
+    ├── test_helpers.lua
+    └── test_locustron_unit.lua
+```
+
+### Benchmark Layer (`benchmarks/`) - ORGANIZED
+
+```text
+benchmarks/
+├── benchmark_cli.lua                # EXISTING: CLI benchmarking
+├── benchmark_integration.lua        # EXISTING: Integration benchmarks
+├── benchmark_suite.lua              # EXISTING: Strategy comparison
+├── performance_profiler.lua         # EXISTING: Performance profiling
+└── legacy/                          # EXISTING: Picotron benchmarks
+    ├── benchmark_diagnostics.lua
+    ├── benchmark_grid_tuning.lua
+    ├── benchmark_userdata_performance.lua
+    └── run_all_benchmarks.lua
+```
+
+### Documentation (`docs/`) - NEW
+
+```text
+docs/
+├── api-reference.md                 # NEW: Complete API reference
+└── integration-patterns.md          # NEW: Game engine integration guides
+```
+
 ## Phase 3 Summary
 
 **Duration**: 2 weeks (14 days)
