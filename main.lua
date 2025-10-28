@@ -1,11 +1,11 @@
 include("src/require.lua")
 
 local Locustron = require("src.locustron")
-local DemoScenarios = require("src.demo_scenarios")
+local DemoScenarios = require("demo.demo_scenarios")
 
-local VisualizationSystem = require("src.debugging.visualization_system")
-local PerformanceProfiler = require("src.debugging.performance_profiler")
-local DebugConsole = require("src.debugging.debug_console")
+local VisualizationSystem = require("demo.debugging.visualization_system")
+local PerformanceProfiler = require("demo.debugging.performance_profiler")
+local DebugConsole = require("demo.debugging.debug_console")
 
 local loc
 local GRID_SIZE = 256 -- Main grid display area

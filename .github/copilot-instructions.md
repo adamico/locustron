@@ -89,11 +89,6 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 ├── src/                           # Unified source code (development files)
 │   ├── locustron.lua              # Main library entry point
 │   ├── require.lua                # Custom require system
-│   ├── demo_scenarios.lua         # Demo scenario definitions
-│   ├── debugging/                 # Debug utilities and visualization
-│   │   ├── debug_console.lua      # Interactive debugging console
-│   │   ├── performance_profiler.lua # Performance analysis tools
-│   │   └── visualization_system.lua # Spatial partitioning visualization
 │   ├── integration/               # Game engine integration utilities
 │   │   └── viewport_culling.lua   # Viewport culling implementation
 │   └── strategies/                # Spatial partitioning strategies
@@ -101,6 +96,17 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 │       ├── fixed_grid.lua         # Fixed Grid strategy
 │       ├── init.lua               # Strategy registration
 │       └── interface.lua          # Strategy interface contract
+├── demo/                          # Demo cartridge files
+│   ├── demo_scenarios.lua         # Demo scenario definitions
+│   ├── debugging/                 # Debug utilities and visualization
+│   │   ├── debug_console.lua      # Interactive debugging console
+│   │   ├── performance_profiler.lua # Performance analysis tools
+│   │   └── visualization_system.lua # Spatial partitioning visualization
+│   └── scenarios/                 # Individual demo scenario implementations
+│       ├── survivor_like.lua      # Survivor-like game scenario
+│       ├── space_battle.lua       # Space battle scenario
+│       ├── platformer.lua         # Platformer level scenario
+│       └── dynamic_ecosystem.lua  # Dynamic ecosystem scenario
 ├── tests/                         # Unified cross-platform test suites
 │   ├── api_spec.lua               # API contract tests
 │   ├── benchmark_suite_spec.lua   # Benchmark suite tests
@@ -140,7 +146,7 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 - **Unified Codebase**: Single source of truth with Picotron-optimized implementations
 - **Strategy Registration**: `src/strategies/init.lua` registers concrete strategies with the factory
 - **Integration Utilities**: `src/integration/viewport_culling.lua` provides game engine integration patterns
-- **Debug Infrastructure**: `src/debugging/` provides comprehensive debugging and visualization tools
+- **Debug Infrastructure**: `demo/debugging/` provides comprehensive debugging and visualization tools
 - **Test Coverage**: Busted-based BDD tests for all components in unified `tests/` directory
 - **Benchmark Suite**: Comprehensive performance analysis tools in `benchmarks/` directory
 - **Demo Integration**: `main.lua` demonstrates library with interactive visualization

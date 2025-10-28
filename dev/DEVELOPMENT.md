@@ -104,8 +104,6 @@ Locustron follows a unified architecture with modular components:
 src/
 ├── locustron.lua              # Main library entry point
 ├── require.lua                 # Custom module system
-├── demo_scenarios.lua          # Demo scenario definitions
-├── debugging/                  # Debug utilities
 ├── integration/                # Game engine integration utilities
 │   └── viewport_culling.lua    # Viewport culling implementation
 └── strategies/                 # Spatial partitioning strategies
@@ -113,6 +111,17 @@ src/
     ├── fixed_grid.lua          # Fixed Grid strategy
     ├── init.lua                # Strategy registration
     └── interface.lua           # Strategy interface contract
+demo/
+├── demo_scenarios.lua          # Demo scenario definitions
+├── debugging/                  # Debug utilities and visualization
+│   ├── debug_console.lua       # Interactive debugging console
+│   ├── performance_profiler.lua # Performance analysis tools
+│   └── visualization_system.lua # Spatial partitioning visualization
+└── scenarios/                  # Individual demo scenario implementations
+    ├── survivor_like.lua       # Survivor-like game scenario
+    ├── space_battle.lua        # Space battle scenario
+    ├── platformer.lua          # Platformer level scenario
+    └── dynamic_ecosystem.lua   # Dynamic ecosystem scenario
 lib/                            # Yotta package installations (excluded from git)
 exports/                        # Build artifacts (excluded from git)
 tests/                          # BDD test suite
