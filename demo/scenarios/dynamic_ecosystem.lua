@@ -14,7 +14,10 @@ function DynamicEcosystemScenario.new(config)
       max_objects = config.max_objects or 120,
    }
 
-   function scenario:init(loc)
+   function scenario:init(loc, perf_profiler)
+      -- Store performance profiler for measuring queries
+      self.perf_profiler = perf_profiler
+
       -- Start with some initial objects
       for i = 1, 20 do
          self:spawn_object(loc)
@@ -55,6 +58,47 @@ function DynamicEcosystemScenario.new(config)
       for i, obj in ipairs(self.objects) do
          -- Update age
          obj.age = obj.age + dt
+
+         -- Flocking behavior: avoid crowding
+         local nearby = {}
+         if self.perf_profiler and self.perf_profiler.enabled then
+            nearby = self.perf_profiler:measure_query(
+               function() return loc:query(obj.x - 25, obj.y - 25, 50, 50, function(other)
+                  return other ~= obj and other.type == "organism"
+               end) end
+            )
+         else
+            nearby = loc:query(obj.x - 25, obj.y - 25, 50, 50, function(other)
+               return other ~= obj and other.type == "organism"
+            end)
+         end
+
+         -- Convert hash table to array
+         local nearby_array = {}
+         for other in pairs(nearby) do
+            table.insert(nearby_array, other)
+         end
+
+         -- Separation: move away from nearby organisms
+         if #nearby_array > 0 then
+            local center_x, center_y = 0, 0
+            for _, other in ipairs(nearby_array) do
+               center_x = center_x + other.x
+               center_y = center_y + other.y
+            end
+            center_x = center_x / #nearby_array
+            center_y = center_y / #nearby_array
+
+            local sep_dx = obj.x - center_x
+            local sep_dy = obj.y - center_y
+            local sep_dist = math.sqrt(sep_dx * sep_dx + sep_dy * sep_dy)
+
+            if sep_dist > 0 then
+               -- Apply separation force
+               obj.vx = obj.vx + (sep_dx / sep_dist) * 40 * dt
+               obj.vy = obj.vy + (sep_dy / sep_dist) * 40 * dt
+            end
+         end
 
          -- Update position
          obj.x = obj.x + obj.vx * dt

@@ -143,7 +143,7 @@ function switch_scenario(scenario_name)
 
    -- Create scenario
    current_scenario = DemoScenarios.create_scenario(scenario_name, { max_objects = 200 })
-   current_scenario:init(loc)
+   current_scenario:init(loc, perf_profiler)
 
    -- Update scenario index
    for i, name in ipairs(scenario_names) do

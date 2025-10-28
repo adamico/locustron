@@ -11,10 +11,15 @@ function SpaceBattleScenario.new(config)
       optimal_strategy = "hash_grid",
       objects = {},
       objectives = {},
-      max_objects = config.max_objects or 150,
+      max_objects = config.max_objects or 25, -- Further reduced from 100
+      update_cooldown = 0,
+      update_interval = 2, -- Update every other frame
    }
 
-   function scenario:init(loc)
+   function scenario:init(loc, perf_profiler)
+      -- Store performance profiler for measuring queries
+      self.perf_profiler = perf_profiler
+
       -- Create objectives (planets/stations)
       self.objectives = {
          { x = 100, y = 100, radius = 30, ships = 0 },
@@ -31,28 +36,17 @@ function SpaceBattleScenario.new(config)
    function scenario:spawn_ship(loc)
       if #self.objects >= self.max_objects then return end
 
-      -- 70% chance to spawn near an objective, 30% chance random
-      local spawn_near_objective = math.random() < 0.7
-      local x, y
-
-      if spawn_near_objective and #self.objectives > 0 then
-         local obj = self.objectives[math.random(#self.objectives)]
-         local angle = math.random() * 2 * math.pi
-         local distance = math.random() * obj.radius
-         x = obj.x + math.cos(angle) * distance
-         y = obj.y + math.sin(angle) * distance
-      else
-         x = math.random(0, 512)
-         y = math.random(0, 384)
-      end
+      -- Simple random spawning
+      local x = math.random(0, 512)
+      local y = math.random(0, 384)
 
       local obj = {
          x = x,
          y = y,
          w = 4 + math.random(4), -- 4-8 pixels
          h = 4 + math.random(4),
-         vx = (math.random() - 0.5) * 100, -- -50 to 50
-         vy = (math.random() - 0.5) * 100,
+         vx = (math.random() - 0.5) * 40, -- Further reduced speed
+         vy = (math.random() - 0.5) * 40,
          type = "ship",
          color = 12 + math.random(3), -- Blue colors
       }
@@ -62,8 +56,30 @@ function SpaceBattleScenario.new(config)
    end
 
    function scenario:update(loc, dt)
-      -- Update ship positions
-      for _, obj in ipairs(self.objects) do
+      -- Update cooldown for batched operations
+      self.update_cooldown = self.update_cooldown - 1
+      if self.update_cooldown <= 0 then
+         self.update_cooldown = self.update_interval
+      end
+
+      -- Update ship positions (only some ships per frame for performance)
+      local ships_to_update = math.ceil(#self.objects / self.update_interval)
+      local start_idx = ((self.update_cooldown - 1) * ships_to_update) + 1
+      local end_idx = math.min(start_idx + ships_to_update - 1, #self.objects)
+
+      for i = start_idx, end_idx do
+         local obj = self.objects[i]
+
+         -- Very simple AI: occasional random direction changes
+         if math.random() < 0.02 then -- 2% chance per update to change direction
+            obj.vx = (math.random() - 0.5) * 60 -- Reduced speed
+            obj.vy = (math.random() - 0.5) * 60
+         end
+
+         -- Apply some drag to prevent infinite acceleration
+         obj.vx = obj.vx * 0.995
+         obj.vy = obj.vy * 0.995
+
          obj.x = obj.x + obj.vx * dt
          obj.y = obj.y + obj.vy * dt
 
@@ -76,8 +92,10 @@ function SpaceBattleScenario.new(config)
          loc:update(obj, obj.x, obj.y, obj.w, obj.h)
       end
 
-      -- Occasionally spawn new ships
-      if math.random() < 0.02 then self:spawn_ship(loc) end
+      -- Very rare spawning
+      if math.random() < 0.001 and #self.objects < self.max_objects then
+         self:spawn_ship(loc)
+      end
    end
 
    function scenario:draw()
