@@ -116,9 +116,9 @@ local loc = locustron({strategy = "quadtree", config = config})
 
 ```lua
 -- Add timing to queries
-local start_time = os.clock()
+local start_time = time()  -- Picotron's high-resolution timer
 local results = loc.query(x, y, w, h)
-local query_time = os.clock() - start_time
+local query_time = time() - start_time
 
 if query_time > 0.016 then  -- Over 16ms (60 FPS)
   print(string.format("Slow query: %.3fms for %d objects",
@@ -170,8 +170,10 @@ end
 ```lua
 -- Monitor memory usage
 function debug_memory()
-  local memory_mb = collectgarbage("count") / 1024
-  print(string.format("Memory: %.1fMB", memory_mb))
+  local memory_kb = stat(3)  -- Picotron memory usage in KB
+  local cpu_percent = stat(1) * 100  -- CPU usage percentage
+
+  print(string.format("Memory: %dKB, CPU: %.1f%%", memory_kb, cpu_percent))
 
   -- Locustron-specific stats (if available)
   if loc._pool then
@@ -227,9 +229,9 @@ local update_times = {}
 local update_count = 0
 
 function profile_update(obj, x, y, w, h)
-  local start = os.clock()
+  local start = time()  -- Picotron's high-resolution timer
   loc.update(obj, x, y, w, h)
-  local elapsed = os.clock() - start
+  local elapsed = time() - start
 
   update_count = update_count + 1
   table.insert(update_times, elapsed)
@@ -522,11 +524,11 @@ local profiler = {
 }
 
 function profiler.start_query()
-  profiler.query_start = os.clock()
+  profiler.query_start = time()  -- Picotron's high-resolution timer
 end
 
 function profiler.end_query(result_count)
-  local elapsed = os.clock() - profiler.query_start
+  local elapsed = time() - profiler.query_start
   table.insert(profiler.queries, {
     time = elapsed,
     results = result_count
@@ -534,11 +536,11 @@ function profiler.end_query(result_count)
 end
 
 function profiler.start_update()
-  profiler.update_start = os.clock()
+  profiler.update_start = time()  -- Picotron's high-resolution timer
 end
 
 function profiler.end_update()
-  local elapsed = os.clock() - profiler.update_start
+  local elapsed = time() - profiler.update_start
   table.insert(profiler.updates, elapsed)
 end
 
@@ -581,14 +583,14 @@ local memory_tracker = {
 function memory_tracker.take_snapshot(label)
   local snapshot = {
     label = label,
-    time = os.clock(),
-    memory = collectgarbage("count"),
+    time = time(),  -- Picotron's high-resolution timer
+    memory = stat(3),  -- Memory usage in KB
     objects = loc._obj_count and loc._obj_count() or 0
   }
 
   table.insert(memory_tracker.snapshots, snapshot)
-  print(string.format("%s: %.1fMB, %d objects",
-    label, snapshot.memory / 1024, snapshot.objects))
+  print(string.format("%s: %dKB, %d objects",
+    label, snapshot.memory, snapshot.objects))
 end
 
 function memory_tracker.check_leaks()
@@ -600,9 +602,9 @@ function memory_tracker.check_leaks()
   local memory_diff = last.memory - first.memory
   local object_diff = last.objects - first.objects
 
-  if memory_diff > 1000 then  -- 1MB increase
-    print(string.format("Warning: Memory leak detected (+%.1fMB)",
-      memory_diff / 1024))
+  if memory_diff > 1000 then  -- 1000KB (1MB) increase
+    print(string.format("Warning: Memory leak detected (+%dKB)",
+      memory_diff))
   end
 
   if object_diff > 0 then

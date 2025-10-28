@@ -42,7 +42,7 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 
 ### Related Projects
 
-- **[Collision Detection Reference](./docs/collision-detection-reference.md)** - Specifications for future high-performance collision detection library (hit.p8 port) designed to integrate with Locustron for optimal performance
+- **[Collision Detection Reference](./docs/reference/collision-detection-reference.md)** - Specifications for future high-performance collision detection library (hit.p8 port) designed to integrate with Locustron for optimal performance
 
 ## 📊 Current Status
 

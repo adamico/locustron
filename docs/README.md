@@ -57,6 +57,15 @@ Complete game examples showcasing different strategies.
 - [Platformer](examples/platformer.lua) - Bounded level with fixed grid
 - [Dynamic Ecosystem](examples/dynamic-ecosystem.lua) - Birth/death lifecycle
 
+### 📖 [Reference](reference/)
+
+Technical reference materials and theory.
+
+- [Spatial Partitioning Theory](reference/spatial-partitioning.md)
+- [Performance Data](reference/performance-data.md)
+- [Algorithm Comparison](reference/algorithm-comparison.md)
+- [Collision Detection Reference](reference/collision-detection-reference.md)
+
 ## Available Strategies
 
 | Strategy | Best For | Performance | Memory |

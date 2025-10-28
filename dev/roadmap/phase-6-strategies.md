@@ -494,7 +494,7 @@ local report = benchmark_suite:generate_report(results)
 print(report)
 ```
 
-The benchmarking will provide concrete data for the [Strategy Selection Guide](./strategy-selection-guide.md), enabling developers to make informed decisions based on real performance measurements.
+The benchmarking will provide concrete data for the [Strategy Selection Guide](../docs/guides/strategy-selection.md), enabling developers to make informed decisions based on real performance measurements.
 
 ## Phase 6 Summary
 

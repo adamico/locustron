@@ -472,7 +472,7 @@ describe("Collision Detection Performance", function()
     -- Test swarm collision detection
     local batch_count = 0
     local total_collisions = 0
-    local start_time = os.clock()
+    local start_time = time()  -- Picotron's high-resolution timer
     
     resolver:detect_collisions({
       x = player.x, y = player.y, w = player.w, h = player.h
@@ -487,7 +487,7 @@ describe("Collision Detection Performance", function()
       end
     })
     
-    local duration = os.clock() - start_time
+    local duration = time() - start_time
     
     -- Verify performance and correctness
     assert.truthy(total_collisions > 0)

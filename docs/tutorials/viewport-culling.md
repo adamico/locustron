@@ -309,9 +309,9 @@ local performance = {
 }
 
 function measure_performance(fn, ...)
-  local start = os.clock()
+  local start = time()  -- Picotron's high-resolution timer
   local results = {fn(...)}
-  local elapsed = os.clock() - start
+  local elapsed = time() - start
   return elapsed, unpack(results)
 end
 

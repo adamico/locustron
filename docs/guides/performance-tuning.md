@@ -16,20 +16,20 @@ Before tuning, understand what to measure:
 ### Profiling Setup
 
 ```lua
--- Simple profiling utility
+-- Simple profiling utility for Picotron
 local profiler = {}
 
 function profiler.start()
-  profiler.start_time = os.clock()
+  profiler.start_time = time()  -- Picotron's high-resolution timer
   profiler.frames = 0
 end
 
 function profiler.update()
   profiler.frames = profiler.frames + 1
-  if profiler.frames % 60 == 0 then  -- Every second
-    local elapsed = os.clock() - profiler.start_time
+  if profiler.frames % 60 == 0 then  -- Every second at 60 FPS
+    local elapsed = time() - profiler.start_time
     print(string.format("FPS: %.1f", 60 / elapsed))
-    profiler.start_time = os.clock()
+    profiler.start_time = time()
   end
 end
 
@@ -83,12 +83,12 @@ function benchmark.spatial_performance(strategy_config, object_count)
   local queries = 100
 
   for i = 1, queries do
-    local start = os.clock()
+    local start = time()  -- Picotron's high-resolution timer
     local results = loc.query(
       math.random(0, 1024), math.random(0, 1024),
       64, 64
     )
-    query_time = query_time + (os.clock() - start)
+    query_time = query_time + (time() - start)
   end
 
   return {
@@ -151,18 +151,19 @@ Locustron automatically manages object pools, but you can monitor usage:
 ```lua
 -- Monitor memory usage (Picotron specific)
 function monitor_memory()
-  local stats = {
-    pool_size = loc._pool and loc._pool() or 0,
-    object_count = loc._obj_count and loc._obj_count() or 0,
-    memory_mb = collectgarbage("count") / 1024
-  }
+  -- Use Picotron's stat() function for memory info
+  local memory_kb = stat(3)  -- Memory usage in KB
+  local cpu_percent = stat(1) * 100  -- CPU usage percentage
 
   print(string.format(
-    "Pool: %d, Objects: %d, Memory: %.1fMB",
-    stats.pool_size, stats.object_count, stats.memory_mb
+    "CPU: %.1f%%, Memory: %dKB",
+    cpu_percent, memory_kb
   ))
 
-  return stats
+  return {
+    cpu_percent = cpu_percent,
+    memory_kb = memory_kb
+  }
 end
 ```
 
@@ -447,9 +448,9 @@ function performance_monitor.report_metrics()
   local avg_update = average(self.update_times)
 
   print(string.format(
-    "Avg Query: %.3fms, Avg Update: %.3fms, Memory: %.1fMB",
+    "Avg Query: %.3fms, Avg Update: %.3fms, Memory: %dKB",
     avg_query * 1000, avg_update * 1000,
-    collectgarbage("count") / 1024
+    stat(3)  -- Picotron memory usage in KB
   ))
 end
 
@@ -534,9 +535,9 @@ include("benchmarks/picotron/benchmark_userdata_performance.lua")
 local profiler = {}
 
 function profiler.time_function(fn, ...)
-  local start = os.clock()
+  local start = time()  -- Picotron's high-resolution timer
   local results = {fn(...)}
-  local elapsed = os.clock() - start
+  local elapsed = time() - start
   return elapsed, unpack(results)
 end
 
