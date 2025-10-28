@@ -1,7 +1,8 @@
 -- Benchmarking Suite for Spatial Partitioning Strategies
 -- Comprehensive performance testing and analysis framework
 
-local strategy_interface = require("src.vanilla.strategy_interface")
+local strategy_interface = require("src.strategies.interface")
+local FixedGridStrategy = require("src.strategies.fixed_grid")
 
 --- @class BenchmarkSuite
 --- @field scenarios table Test scenario generators
@@ -140,7 +141,13 @@ end
 --- @param objects table Array of object data
 --- @return table Performance results
 function BenchmarkSuite:benchmark_strategy(strategy_name, objects)
-   local strategy = strategy_interface.create_strategy(strategy_name)
+   local strategy
+
+   if strategy_name == "fixed_grid" then
+      strategy = FixedGridStrategy.new({ cell_size = 32 })
+   else
+      error("Unknown strategy: " .. strategy_name)
+   end
 
    local results = {
       add_time = 0,
@@ -207,7 +214,13 @@ end
 --- @param objects table Object data
 --- @return number Accuracy percentage (0.0 to 1.0)
 function BenchmarkSuite:measure_accuracy(strategy_name, objects)
-   local strategy = strategy_interface.create_strategy(strategy_name)
+   local strategy
+
+   if strategy_name == "fixed_grid" then
+      strategy = FixedGridStrategy.new({ cell_size = 32 })
+   else
+      error("Unknown strategy: " .. strategy_name)
+   end
 
    -- Add all objects
    for _, obj_data in ipairs(objects) do

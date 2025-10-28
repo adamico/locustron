@@ -16,38 +16,81 @@ Objects in locustron are represented by "axis-aligned bounding boxes", which we 
 The library uses a grid of squared cells and keeps track of which objects "touch" each cell.
 
 This is useful in several scenarios:
+
 * It can tell "Which objects are in a given rectangular section" quite efficiently
 * This is useful for collision detection; instead of checking n-to-n interactions, locustron can be used to restrict the amount of objects to be checked, sometimes dramatically reducing the number of checks.
 * Given that the query area is rectangular, locustron can be used to optimize the draw stage, by "only rendering objects that intersect with the screen"
 
-
 [![locustron demo](https://www.lexaloffle.com/bbs/cposts/lo/locustron-0.p64.png)](https://www.lexaloffle.com/bbs/?tid=152310)
 
-# API
+## Demo Scenarios
+
+Locustron includes multiple interactive demo scenarios to showcase different spatial partitioning use cases and help you choose the optimal strategy for your game:
+
+## Available Scenarios
+
+| Scenario | Description | Optimal Strategy | Key Challenge |
+|----------|-------------|------------------|---------------|
+| **Vampire Survivor** | Wave-based survival with monsters spawning around player | Quadtree | Clustered objects, dynamic spawning |
+| **Space Battle** | Large world with ships clustering around objectives | Hash Grid | Large world, sparse areas |
+| **Platformer Level** | Bounded level with enemies on platforms | Fixed Grid | Uniform areas, bounded world |
+| **Dynamic Ecosystem** | Living system with birth/death cycles | Quadtree | Changing distributions, object lifecycle |
+
+## Running Demos
+
+```lua
+-- Load the demo cartridge
+load("locustron.p64")
+
+-- Controls:
+-- Tab: Switch between scenarios
+-- Z: Toggle debug UI
+-- X: Toggle debug visualization mode
+-- G/O/Q/P: Toggle grid/objects/queries/performance (in debug mode)
+-- +/-: Zoom in/out (in debug mode)
+-- Arrow keys: Pan viewport (in debug mode)
+```
+
+Each scenario demonstrates different spatial partitioning challenges and shows which strategy performs best for that use case.
+
+## Performance Comparison
+
+The demo scenarios help validate that different strategies excel in different situations:
+
+* **Fixed Grid**: Best for uniform distributions (Platformer Level)
+* **Quadtree**: Best for clustered/dynamic objects (Vampire Survivor, Dynamic Ecosystem)
+* **Hash Grid**: Best for large sparse worlds (Space Battle)
+
+## API
 
 ## Creating a locustron instance
 
 ``` lua
 local loc=locustron([size])
 ```
+
 Parameters:
-- `size`: An optional parameter that specifies the dimensions (width and height) of the squared cells inside this locustron instance. Defaults to `32` when not specified.
+
+* `size`: An optional parameter that specifies the dimensions (width and height) of the squared cells inside this locustron instance. Defaults to `32` when not specified.
 
 Return values:
-- `loc`: The newly created locustron instance, containing a spatial grid
+
+* `loc`: The newly created locustron instance, containing a spatial grid
 
 It is recommended that the grid size is at least as big as one of the "typical" objects in a game, or a multiple of it. For Picotron this may be 16, 32, 64, or 128.
 
 **Performance Note**: Grid size affects two competing factors:
-- **Spatial precision**: Smaller grids (closer to object size) provide better spatial filtering with fewer false positives
-- **Memory efficiency**: Larger grids reduce the number of cells and memory overhead
+
+* **Spatial precision**: Smaller grids (closer to object size) provide better spatial filtering with fewer false positives
+* **Memory efficiency**: Larger grids reduce the number of cells and memory overhead
 
 For optimal **query performance**, the ideal situation is that each cell contains 1 (and only 1) game object, minimizing false positives. However, for **memory efficiency** with many small objects, larger grid sizes can be beneficial.
 
 The ideal situation balances these factors based on your game's needs:
-- **High query frequency**: Use grid size ≈ object size (better spatial precision)
-- **Memory constrained**: Use larger grid sizes (fewer cells, more objects per cell)
-- **Many small objects**: Consider grid size 64-128 for efficiency
+
+* **High query frequency**: Use grid size ≈ object size (better spatial precision)
+* **Memory constrained**: Use larger grid sizes (fewer cells, more objects per cell)
+* **Many small objects**: Consider grid size 64-128 for efficiency
 
 A too small size will make the cells not very efficient, because every object will appear in more than one cell grid.
 
@@ -55,107 +98,126 @@ Making the size too big will have the opposite problem: too many objects on a si
 
 You can try experimenting with several sizes in order to arrive to the most optimal one for your game. The choice depends on whether you prioritize query precision (smaller grids) or memory efficiency (larger grids). For most Picotron games, sizes between 32-64 provide a good balance.
 
-
-## Adding an object to an existing grid:
+## Adding an object to an existing grid
 
 ``` lua
 local o=loc.add(obj,x,y,w,h)
 ```
+
 Parameters:
-- `obj`: the object to be added (usually, a table representing a game object)
-- `x,y`: The `left` and `top` coordinates of the axis-aligned bounding box containing the object
-- `w,h`: The `width` and `height` of the axis-aligned bounding box containing the object
+
+* `obj`: the object to be added (usually, a table representing a game object)
+* `x,y`: The `left` and `top` coordinates of the axis-aligned bounding box containing the object
+* `w,h`: The `width` and `height` of the axis-aligned bounding box containing the object
 
 Return values:
-- `o`: the object being added (same as `obj`)
+
+* `o`: the object being added (same as `obj`)
 
 Note that objects are *not* represented by "2 corners", but instead by a top-left corner plus width and height.
 
-## Removing an object from locus:
+## Removing an object from locus
 
 ``` lua
 local o=loc.del(obj)
 ```
+
 Parameters:
-- `obj` the object to be removed from locus
+
+* `obj` the object to be removed from locus
 
 Return values:
-- `o`: the object being removed (same as `obj`)
+
+* `o`: the object being removed (same as `obj`)
 
 Throws:
-- The error `"unknown object"` if `obj` was not previously added to locus
+
+* The error `"unknown object"` if `obj` was not previously added to locus
 
 Locus keeps (strong) references to the objects added to it. If you want to remove an object, you *must* call `del`.
 
-
-## Updating an object inside locus:
+## Updating an object inside locus
 
 ``` lua
 local o=loc.update(obj,x,y,w,h)
 ```
+
 Parameters:
-- `obj`: the object to be updated (usually, represented by a table)
-- `x,y`: The `left` and`top` coordinates of the axis-aligned bounding box containing the object
-- `w,h`: The `width` and `height` of the axis-aligned bounding box containing the object
+
+ `obj`: the object to be updated (usually, represented by a table)
+
+* `x,y`: The `left` and`top` coordinates of the axis-aligned bounding box containing the object
+* `w,h`: The `width` and `height` of the axis-aligned bounding box containing the object
 
 Return values:
-- `o`: the object being updated (same as `obj`)
+
+* `o`: the object being updated (same as `obj`)
 
 Throws:
-- The error `"unknown object"` if `obj` was not previously added to locus
 
-## Querying an area for objects:
+* The error `"unknown object"` if `obj` was not previously added to locus
+
+## Querying an area for objects
 
 ``` lua
 local res=loc.query(x,y,w,h,[filter])
 ```
+
 Parameters:
-- `x,y`: The `left` and`top` coordinates of the axis-aligned rectangle being queried
-- `w,h`: The `width` and `height` of the axis-aligned rectangle being queried
-- `filter`: An optional function which can be used to "exclude" or include object from the result. `filter` is a function which takes an object as parameter and returns "truthy" when the object should be included in the result, or "falsy" to not include it. If no filter is specified `locus` will include all objects it encounters on the rectangle
+
+* `x,y`: The `left` and`top` coordinates of the axis-aligned rectangle being queried
+* `w,h`: The `width` and `height` of the axis-aligned rectangle being queried
+* `filter`: An optional function which can be used to "exclude" or include object from the result. `filter` is a function which takes an object as parameter and returns "truthy" when the object should be included in the result, or "falsy" to not include it. If no filter is specified `locus` will include all objects it encounters on the rectangle
 
 Return values:
-- res: A table of the form `{[obj1]=true, [obj2]=true}` containing all the objects whose boxes intersecting with the specified axis-aligned bounding box.
+
+* res: A table of the form `{[obj1]=true, [obj2]=true}` containing all the objects whose boxes intersecting with the specified axis-aligned bounding box.
 
 Notes:
-- The table returned is *not ordered* in any way. You might need to sort it out in order for it to make sense in your game.
-- The objects returned are *the objects contained in cells that touch the specified rectangle*. They are *not guaranteed to actually be intersecting with the given rectangle*. You might need an extra check in order to have this guarantee (see example with `rectintersect` in the FAQ section)
 
+* The table returned is *not ordered* in any way. You might need to sort it out in order for it to make sense in your game.
+* The objects returned are *the objects contained in cells that touch the specified rectangle*. They are *not guaranteed to actually be intersecting with the given rectangle*. You might need an extra check in order to have this guarantee (see example with `rectintersect` in the FAQ section)
 
-# Usage
+## Usage
 
 ## With yotta
+
 The lib can be installed in an existing cart with [Yotta](https://www.lexaloffle.com/bbs/?pid=143592#p):
 
 ### Install Yotta (one-time setup)
+
 1. `> load #yotta -u` (load unsandboxed to access filesystem)
 2. `> Ctrl+R` to run installer cartridge
 3. `> Press X` to install yotta globally
 
 ### Install Locustron in your cart
+
 1. `> cd /ram/cart`
 2. `> yotta init`
 3. `> yotta add #locustron`
 4. `> yotta apply`
 
-
 ## Without yotta
+
 You can also manually install locustron using one of these methods:
 
 ### From published cartridge (recommended for users)
+
 1. Download the locustron cartridge from the BBS
 2. Copy `exports/locustron.lua` to your cart
 3. Copy `exports/require.lua` to your cart (if you don't have a require system)
 
 ### From source repository (for developers)
+
 1. `git clone` this repository
 2. Copy `src/picotron/locustron.lua` to your cart
 3. Copy `src/picotron/require.lua` to your cart (if you don't have a require system)
 
 ## Including
+
 A [require lib](https://www.lexaloffle.com/bbs/?tid=140784) by [elgopher](https://www.lexaloffle.com/bbs/?uid=81157) is included, but you can use any require library.
 
-# Example
+## Example
 
 ``` lua
 local locus = require("locustron")
@@ -199,21 +261,20 @@ local enemies = loc.query(0,0,128,128,is_enemy)
 
 See the contents of `main.lua` for a complete interactive example with moving objects and our comprehensive benchmark suite for performance analysis tools:
 
-- `benchmarks/picotron/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
-- `benchmarks/picotron/benchmark_userdata_performance.lua` - Absolute performance measurements  
-- `benchmarks/picotron/benchmark_run_all_benchmarks.lua` - Complete benchmark suite runner 
+* `benchmarks/picotron/benchmark_grid_tuning.lua` - Grid size optimization for different object sizes
+* `benchmarks/picotron/benchmark_userdata_performance.lua` - Absolute performance measurements  
+* `benchmarks/picotron/benchmark_run_all_benchmarks.lua` - Complete benchmark suite runner
 
-
-# Performance
+## Performance
 
 Locustron is designed for high performance with thousands of objects. Based on comprehensive benchmarking with our userdata implementation:
 
 ## Performance Characteristics
 
-- **Add operations**: ~0.001ms per object (11ms for 10,000 objects)
-- **Query operations**: ~0.013ms per query (13ms for 1,000 queries)
-- **Update operations**: Very fast when objects don't cross cell boundaries
-- **Memory usage**: Object pooling minimizes garbage collection
+* **Add operations**: ~0.001ms per object (11ms for 10,000 objects)
+* **Query operations**: ~0.013ms per query (13ms for 1,000 queries)
+* **Update operations**: Very fast when objects don't cross cell boundaries
+* **Memory usage**: Object pooling minimizes garbage collection
 
 ## Grid Size Impact
 
@@ -229,19 +290,20 @@ Grid size dramatically affects performance efficiency:
 
 ## Memory Management
 
-- **Object pooling**: Tables are recycled to minimize GC pressure
-- **Sparse allocation**: Grid cells created only when needed
-- **Pool behavior**: Queries act as "pool sink", balancing memory usage
-- **Stable memory**: Pool size stabilizes after initial allocation phase
+* **Object pooling**: Tables are recycled to minimize GC pressure
+* **Sparse allocation**: Grid cells created only when needed
+* **Pool behavior**: Queries act as "pool sink", balancing memory usage
+* **Stable memory**: Pool size stabilizes after initial allocation phase
 
 ## Scaling
 
 Locustron handles object density well:
-- **Linear scaling**: Performance remains consistent as object count increases
-- **Spatial locality**: Query performance depends on result size, not total objects
-- **Viewport culling**: Excellent for rendering optimization
 
-# Benchmarking & Testing
+* **Linear scaling**: Performance remains consistent as object count increases
+* **Spatial locality**: Query performance depends on result size, not total objects
+* **Viewport culling**: Excellent for rendering optimization
+
+## Benchmarking & Testing
 
 ## Compact Benchmark Suite
 
@@ -250,6 +312,7 @@ Locustron includes a comprehensive benchmark tool to help you choose optimal gri
 ### Running Benchmarks
 
 **Running Grid Tuning Benchmark:**
+
 ```lua
 include("benchmarks/picotron/benchmark_grid_tuning.lua")
 ```
@@ -258,7 +321,7 @@ include("benchmarks/picotron/benchmark_grid_tuning.lua")
 
 The benchmark tests different grid sizes against various object sizes and provides clear recommendations:
 
-```
+``` markdown
 OBJECT SIZE: small (8x8)
 Grid | Cells | Obj/Cell | Precision | Recommendation
 -----|-------|----------|-----------|---------------
@@ -270,30 +333,32 @@ Grid | Cells | Obj/Cell | Precision | Recommendation
 
 ### Understanding Results
 
-- **Grid**: Grid cell size being tested
-- **Cells**: Number of allocated grid cells (lower = more memory efficient)
-- **Obj/Cell**: Average objects per cell (higher = denser packing)
-- **Precision**: Percentage of query results that are actual hits (higher = fewer false positives)
-- **Recommendation**: 
-  - **EXCELLENT/GOOD/OK/POOR**: Based on query precision
-  - **MEM+**: Memory efficient (few cells)
-  - **MEM-**: Memory intensive (many cells)
+* **Grid**: Grid cell size being tested
+* **Cells**: Number of allocated grid cells (lower = more memory efficient)
+* **Obj/Cell**: Average objects per cell (higher = denser packing)
+* **Precision**: Percentage of query results that are actual hits (higher = fewer false positives)
+* **Recommendation**:
+  * **EXCELLENT/GOOD/OK/POOR**: Based on query precision
+  * **MEM+**: Memory efficient (few cells)
+  * **MEM-**: Memory intensive (many cells)
 
 ### Choosing Grid Size
 
 The benchmark helps you decide between two optimization strategies:
 
 **For Query Performance (High Precision)**
-- Choose grid sizes close to your object size
-- Results in more cells but better spatial filtering
-- Fewer false positives requiring `rectintersect()` checks
-- Best for games with frequent collision detection
+
+* Choose grid sizes close to your object size
+* Results in more cells but better spatial filtering
+* Fewer false positives requiring `rectintersect()` checks
+* Best for games with frequent collision detection
 
 **For Memory Efficiency**
-- Choose larger grid sizes (2-4x object size)
-- Results in fewer cells but more false positives
-- Better for memory-constrained games
-- Best when queries are infrequent
+
+* Choose larger grid sizes (2-4x object size)
+* Results in fewer cells but more false positives
+* Better for memory-constrained games
+* Best when queries are infrequent
 
 ### Visual Testing
 
@@ -312,27 +377,29 @@ The included `main.lua` provides a visual testing of the locustron:
 3. **Monitor in real gameplay**: Use the visual debugging tools during actual game sessions
 4. **Validate with profiling**: Check that chosen grid size works well under game load
 
-# Preemptive FAQ
+## Preemptive FAQ
 
 ## What spatial partitioning pattern does Locustron use?
 
 Locustron implements a **Fixed Grid** spatial partitioning pattern, as described in [Game Programming Patterns](https://gameprogrammingpatterns.com/spatial-partition.html). This means:
 
-- **Flat (Non-Hierarchical)**: Uses a single-level grid structure, not recursive subdivision like quadtrees
-- **Object-Independent Partitioning**: Grid cell boundaries are fixed regardless of object positions  
-- **Sparse Allocation**: Only creates cells when objects are present to save memory
+* **Flat (Non-Hierarchical)**: Uses a single-level grid structure, not recursive subdivision like quadtrees
+* **Object-Independent Partitioning**: Grid cell boundaries are fixed regardless of object positions  
+* **Sparse Allocation**: Only creates cells when objects are present to save memory
 
 **Comparison to other spatial partitioning patterns:**
-- **vs Quadtrees/Octrees**: Simpler implementation, constant memory usage, faster updates, but can be imbalanced with clustered objects
-- **vs BSP/k-d trees**: No tree traversal overhead, easier to understand, but less adaptive to object distribution
-- **vs Bounding Volume Hierarchies**: Better for dynamic objects that move frequently, simpler memory management
+
+* **vs Quadtrees/Octrees**: Simpler implementation, constant memory usage, faster updates, but can be imbalanced with clustered objects
+* **vs BSP/k-d trees**: No tree traversal overhead, easier to understand, but less adaptive to object distribution
+* **vs Bounding Volume Hierarchies**: Better for dynamic objects that move frequently, simpler memory management
 
 **Why Fixed Grid for Locustron:**
-- ✅ **Simple**: Straightforward 2D grid structure easy to debug and optimize
-- ✅ **Fast updates**: Moving objects between cells is a simple operation
-- ✅ **Predictable performance**: No tree rebalancing or complex subdivision logic
-- ✅ **Memory efficient**: Sparse allocation only creates cells when needed
-- ✅ **Picotron optimized**: Works well with userdata and Picotron's constraints
+
+* ✅ **Simple**: Straightforward 2D grid structure easy to debug and optimize
+* ✅ **Fast updates**: Moving objects between cells is a simple operation
+* ✅ **Predictable performance**: No tree rebalancing or complex subdivision logic
+* ✅ **Memory efficient**: Sparse allocation only creates cells when needed
+* ✅ **Picotron optimized**: Works well with userdata and Picotron's constraints
 
 The trade-off is that performance can degrade if objects cluster heavily in one area, but the benchmarking tools help you choose optimal grid sizes to minimize this issue.
 
@@ -365,7 +432,6 @@ Yes. You can use the `query` method to get a "fast rough list of candidate objec
 ## Could you show me how to use it in combination with hit.p8?
 
 Here's a partial example:
-
 
 ``` lua
 local locustron = require("locustron")
@@ -454,6 +520,7 @@ end
 In this case, we immediately move the player to a new position and then use query on the new player's coordinates to detect coins that might be touching the player.
 
 Notes:
+
 * With this method, if the player is moving fast enough, they will "tunnel" through coins and other objects. With this method the velocity of the player must be limited, or we must split the movement into smaller step and do a check on every step. The method above (using hit.p8) does not have this problem
 * Notice that eventhough we gave the player's bounding rectangle to `query`, we still need to call `rectintersect` to properly detect that a coin is actually intersecting with the player. This is because `query` will return the *objects that are on the cells that intersect with the given rectangle, but will not guarantee that the objects intersect the rectangle*. For example, on a grid of 32 pixels, the player might be touching 1 grid cell by only 1 pixel on the left, and a coin might be starting on pixel 22 from the left. That coin will still be returned by `query`, eventhough it is not touched by the player.
 * `query` will return the objects in random order. There's no way to detect which coins get "touched" first. It is not important on this example, but it might be important in more complex games (e.g. if there's an enemy before the coins, then the player might get hurt and not pick up the coins). With hit.p8 you can know which objects go first (smaller `t`).
@@ -462,27 +529,27 @@ Notes:
 
 Yes! Locustron is specifically designed for Picotron with several optimizations:
 
-- **Userdata storage**: Uses Picotron's userdata for efficient cell storage and reduced garbage collection
-- **Standard query format**: Returns `{[obj]=true}` hash tables for maximum compatibility
-- **Custom require system**: Includes error handling via `send_message()` for Picotron
-- **Performance profiling**: Includes benchmarking tools adapted for Picotron's timer resolution
-- **10,000 object capacity**: Handles large numbers of objects efficiently within Picotron's constraints
-- **Comprehensive testing**: Full unit test suite using unitron framework with 18 test cases
+* **Userdata storage**: Uses Picotron's userdata for efficient cell storage and reduced garbage collection
+* **Standard query format**: Returns `{[obj]=true}` hash tables for maximum compatibility
+* **Custom require system**: Includes error handling via `send_message()` for Picotron
+* **Performance profiling**: Includes benchmarking tools adapted for Picotron's timer resolution
+* **10,000 object capacity**: Handles large numbers of objects efficiently within Picotron's constraints
+* **Comprehensive testing**: Full unit test suite using unitron framework with 18 test cases
 
 The library handles thousands of objects efficiently while staying within Picotron's resource constraints and provides excellent performance for typical game scenarios.
 
 ## Can locustron have rectangular (non-squared) grid cells?
 
 No, only squared grid cells are supported. It would be very easy to add support for rectangular cells, but it would cost some tokens that I didn't want to spend. Feel free to fork and add support for that if you need to.
- 
+
 ## I am having trouble with locustron, it does not seem to work. How can I debug it?
 
 You can visualize the spatial grid by drawing it on screen. The included `main.lua` file has an example function (`draw_locus`) which shows:
 
-- Grid cell boundaries
-- Object count per cell  
-- Active vs empty cells
-- Pool size for memory debugging
+* Grid cell boundaries
+* Object count per cell  
+* Active vs empty cells
+* Pool size for memory debugging
 
 You can also run the included benchmark in the Picotron console to analyze performance and validate your grid size choice:
 
@@ -492,28 +559,30 @@ include("benchmarks/picotron/benchmark_grid_tuning.lua")
 ```
 
 For debugging specific issues:
-- **Check grid size**: Use the benchmark to verify optimal grid size for your objects
-- **Verify object lifecycle**: Ensure objects are added before being updated/deleted
-- **Validate coordinates**: Check that bounding box coordinates are correct
-- **Monitor memory usage**: Watch pool size to detect memory leaks
-- **Test query precision**: Use benchmark precision metrics to understand false positive rates
+
+* **Check grid size**: Use the benchmark to verify optimal grid size for your objects
+* **Verify object lifecycle**: Ensure objects are added before being updated/deleted
+* **Validate coordinates**: Check that bounding box coordinates are correct
+* **Monitor memory usage**: Watch pool size to detect memory leaks
+* **Test query precision**: Use benchmark precision metrics to understand false positive rates
 
 ## Testing
 
 Locustron includes a comprehensive unit test suite using the unitron framework:
 
-```
+``` markdown
 tests/test_locustron_unit.lua    -- 20 test cases covering all functionality
 ```
 
 **Running Tests**: Drag and drop `tests/picotron/test_locustron_unit.lua` into the unitron window in Picotron to run the full test suite.
 
 **Test Coverage**:
-- Object creation and lifecycle (add, update, delete)
-- Query functionality (single objects, multiple objects, filtering)
-- Grid coordinate calculations and boundary handling
-- Memory management and pool usage
-- Edge cases (zero-size objects, negative coordinates)
-- Performance characteristics (deduplication, large objects)
+
+* Object creation and lifecycle (add, update, delete)
+* Query functionality (single objects, multiple objects, filtering)
+* Grid coordinate calculations and boundary handling
+* Memory management and pool usage
+* Edge cases (zero-size objects, negative coordinates)
+* Performance characteristics (deduplication, large objects)
 
 All tests are currently passing, ensuring the library's reliability and correctness.

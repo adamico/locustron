@@ -2,7 +2,7 @@
 -- BDD Tests for Doubly Linked List Implementation
 -- Following Phase 1.1 specifications
 
-local dll = require("src.vanilla.doubly_linked_list")
+local dll = require("src.strategies.doubly_linked_list")
 
 describe("Doubly Linked List Foundation", function()
    describe("SpatialNode creation", function()

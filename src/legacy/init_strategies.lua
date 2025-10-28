@@ -1,8 +1,8 @@
 -- Initialize and register all strategies
 -- This module should be loaded before using the strategy system
 
-local strategy_interface = require("src.vanilla.strategy_interface")
-local FixedGridStrategy = require("src.vanilla.fixed_grid_strategy")
+local strategy_interface = require("src.strategies.interface")
+local FixedGridStrategy = require("src.strategies.fixed_grid")
 
 -- Register Fixed Grid Strategy
 strategy_interface.register_strategy("fixed_grid", FixedGridStrategy, {

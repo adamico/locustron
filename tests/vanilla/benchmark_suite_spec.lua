@@ -6,21 +6,10 @@ local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
 local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")
 
 -- Manually register strategies for testing
-local strategy_interface = require("src.vanilla.strategy_interface")
-local FixedGridStrategy = require("src.vanilla.fixed_grid_strategy")
+local strategy_interface = require("src.strategies.interface")
+local FixedGridStrategy = require("src.strategies.fixed_grid")
 
--- Register Fixed Grid Strategy
-strategy_interface.register_strategy("fixed_grid", FixedGridStrategy, {
-   description = "Fixed grid spatial hash with sparse allocation",
-   optimal_for = { "uniform_distribution", "medium_worlds", "frequent_updates" },
-   memory_characteristics = "sparse_grid",
-   supports_unbounded = true,
-   supports_hierarchical = false,
-   supports_dynamic_resize = false,
-   default_config = {
-      cell_size = 32,
-   },
-})
+-- Note: Strategy registration not yet implemented, using direct instantiation
 
 describe("BenchmarkSuite", function()
    local benchmark_suite

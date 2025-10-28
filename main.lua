@@ -1,6 +1,7 @@
 include("src/require.lua")
 
 local Locustron = require("src.locustron")
+local DemoScenarios = require("src.demo_scenarios")
 
 local VisualizationSystem = require("src.debugging.visualization_system")
 local PerformanceProfiler = require("src.debugging.performance_profiler")
@@ -11,9 +12,10 @@ local GRID_SIZE = 256 -- Main grid display area
 local GRID_X = 16     -- Grid offset from left
 local GRID_Y = 8      -- Grid offset from top
 
-local OBJECTS_MIN_WIDTH = 10
-local OBJECTS_MAX_WIDTH = 32
-local MAX_OBJECTS = 100
+-- Demo scenario system
+local current_scenario
+local scenario_names = DemoScenarios.get_available_scenarios()
+local current_scenario_index = 1
 
 -- Debugging system components
 local vis_system
@@ -30,8 +32,8 @@ function draw_debug_overlay()
    local help_y = 120
    local line_height = 8
 
-   rrectfill(help_x - 2, help_y - 2, 180, 90, 0, 0)
-   rrect(help_x - 2, help_y - 2, 180, 90, 0, 7)
+   rrectfill(help_x - 2, help_y - 2, 180, 110, 0, 0)
+   rrect(help_x - 2, help_y - 2, 180, 110, 0, 7)
 
    color(11)
    print("CONTROLS", help_x, help_y)
@@ -40,6 +42,8 @@ function draw_debug_overlay()
    print("Z: Toggle UI", help_x, help_y)
    help_y += line_height
    print("X: Toggle Debug Mode", help_x, help_y)
+   help_y += line_height
+   print("Tab: Switch Scenario", help_x, help_y)
    help_y += line_height * 1.5
 
    if debug_mode then
@@ -96,6 +100,9 @@ function draw_debug_info()
    print("Cells: "..tostr(stats.cell_count), info_x, info_y)
    info_y = info_y + line_height
 
+   print("Cell size: "..tostr(stats.cell_size), info_x, info_y)
+   info_y = info_y + line_height
+
    print("CPU: "..tostr(flr(stat(1) * 100)).."%", info_x, info_y)
    info_y = info_y + line_height
 
@@ -120,37 +127,52 @@ function draw_debug_info()
 end
 
 function _init()
-   loc = Locustron.create(32)
+   -- Initialize with default scenario (vampire survivor)
+   switch_scenario("vampire_survivor")
+end
 
-   -- Initialize debugging system
-   vis_system = VisualizationSystem:new({
-      viewport = {x = 0, y = 0, w = GRID_SIZE, h = GRID_SIZE, scale = 1.0}
-   })
+function switch_scenario(scenario_name)
+   -- Clear existing spatial structure
+   if loc then
+      loc:clear()
+   end
 
-   perf_profiler = PerformanceProfiler:new({
-      enabled = true,
-      sample_rate = 0.1
-   })
+   -- Create new spatial structure
+   loc = Locustron.create(64) -- Fixed cell size for now
+
+   -- Create scenario
+   current_scenario = DemoScenarios.create_scenario(scenario_name, {max_objects = 200})
+   current_scenario:init(loc)
+
+   -- Update scenario index
+   for i, name in ipairs(scenario_names) do
+      if name == scenario_name then
+         current_scenario_index = i
+         break
+      end
+   end
+
+   -- Reinitialize debugging system with new strategy
+   if not vis_system then
+      vis_system = VisualizationSystem:new({
+         viewport = {x = 0, y = 0, w = GRID_SIZE, h = GRID_SIZE, scale = 1.0}
+      })
+   end
+
+   if not perf_profiler then
+      perf_profiler = PerformanceProfiler:new({
+         enabled = true,
+         sample_rate = 0.1
+      })
+   end
 
    local strategy = loc:get_strategy()
-   debug_console = DebugConsole:new()
+   if not debug_console then
+      debug_console = DebugConsole:new()
+   end
    debug_console:set_strategy(strategy, "fixed_grid")
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
-
-   for _ = 1, MAX_OBJECTS do
-      local w = rand(OBJECTS_MIN_WIDTH, OBJECTS_MAX_WIDTH)
-      local obj = {
-         x = rand(20, 220), -- Spread across the 256x256 grid area
-         y = rand(20, 220),
-         w = w,
-         h = w,
-         av = rnd(),
-         r = rnd() * 2, -- Slightly more movement for the larger space
-         col = rand(6, 15),
-      }
-      loc:add(obj, obj.x, obj.y, obj.w, obj.h)
-   end
 end
 
 function _update()
@@ -161,6 +183,13 @@ function _update()
 
    if btnp(5) then -- X key - toggle debug mode
       debug_mode = not debug_mode
+   end
+
+   -- Scenario switching (Tab key)
+   if keyp("tab", true) then
+      current_scenario_index = current_scenario_index % #scenario_names + 1
+      local next_scenario = scenario_names[current_scenario_index]
+      switch_scenario(next_scenario)
    end
 
    if debug_mode and vis_system then
@@ -190,28 +219,22 @@ function _update()
       end
    end
 
-   -- move all the objects in locus
-   -- we use a bigger box than just the grid so that we also update the objects that
-   -- are outside of the visible grid area
-   local update_query = loc:query(-64, -64, 384, 384)
-   local update_count = 0
-   for obj in pairs(update_query) do
-      obj.x = obj.x + sin(obj.av * t()) * obj.r
-      obj.y = obj.y + cos(obj.av * t()) * obj.r
-      -- Use userdata-optimized update which leverages get_bbox internally
-      loc:update(obj, obj.x, obj.y, obj.w, obj.h)
-      update_count = update_count + 1
+   -- Update current scenario
+   if current_scenario then
+      current_scenario:update(loc, 1/30) -- Assume 30 FPS
    end
 
-   -- Track the update query for visualization
-   if debug_mode and vis_system then
-      vis_system:add_query(-64, -64, 384, 384, update_count)
+   -- Track the update query for visualization (if scenario supports it)
+   if debug_mode and vis_system and current_scenario.get_objects then
+      local objects = current_scenario:get_objects()
+      if vis_system then
+         vis_system:add_query(0, 0, 256, 256, #objects)
+      end
    end
 end
 
 function _draw()
    cls()
-
 
    if debug_mode and vis_system then
       -- Debug visualization mode
@@ -220,14 +243,9 @@ function _draw()
       -- Render visualization UI overlay
       draw_visualization_ui()
    else
-      -- Simple visualization mode - just show objects
-      color(1)
-      for obj in pairs(loc:query(-64, -64, 384, 384)) do
-         local x, y, w, h = loc:get_bbox(obj)
-         if x then
-            rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col)
-            rrect(GRID_X + x, GRID_Y + y, w, h, 0, 0)
-         end
+      -- Scenario visualization mode
+      if current_scenario and current_scenario.draw then
+         current_scenario:draw()
       end
    end
 
@@ -235,7 +253,35 @@ function _draw()
    if show_debug_ui then
       draw_debug_overlay()
       draw_debug_info()
+      draw_scenario_info()
    end
+end
+
+function draw_scenario_info()
+   if not current_scenario then return end
+
+   local info = DemoScenarios.get_scenario_info(scenario_names[current_scenario_index])
+   if not info then return end
+
+   local info_x = 8
+   local info_y = 120
+   local line_height = 8
+
+   rrectfill(info_x - 2, info_y - 2, 140, 50, 0, 0)
+   rrect(info_x - 2, info_y - 2, 140, 50, 0, 7)
+
+   color(11)
+   print("SCENARIO", info_x, info_y)
+   info_y += line_height
+
+   color(7)
+   print(info.name, info_x, info_y)
+   info_y += line_height
+
+   print("Tab: Switch", info_x, info_y)
+   info_y += line_height
+
+   print("Best: " .. info.optimal_strategy, info_x, info_y)
 end
 
 include("error_explorer.lua")

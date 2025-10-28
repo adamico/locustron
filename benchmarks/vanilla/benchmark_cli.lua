@@ -2,7 +2,7 @@
 -- Command-line interface for running spatial partitioning benchmarks
 
 -- Initialize strategies first
-require("src.vanilla.init_strategies")
+require("src.strategies.init")
 
 local BenchmarkSuite = require("benchmarks.vanilla.benchmark_suite")
 local PerformanceProfiler = require("benchmarks.vanilla.performance_profiler")

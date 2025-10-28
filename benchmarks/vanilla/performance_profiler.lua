@@ -27,8 +27,15 @@ end
 --- @param workload table Workload specification {objects, queries, config}
 --- @return table Complete performance profile
 function PerformanceProfiler:profile_strategy(strategy_name, workload)
-   local strategy_interface = require("src.vanilla.strategy_interface")
-   local strategy = strategy_interface.create_strategy(strategy_name)
+   local strategy_interface = require("src.strategies.interface")
+   local FixedGridStrategy = require("src.strategies.fixed_grid")
+
+   local strategy
+   if strategy_name == "fixed_grid" then
+      strategy = FixedGridStrategy.new({ cell_size = 32 })
+   else
+      error("Unknown strategy: " .. strategy_name)
+   end
 
    local profile = {
       strategy_name = strategy_name,
