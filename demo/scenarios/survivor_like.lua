@@ -78,7 +78,7 @@ function SurvivorLikeScenario.new(config)
 
                -- Collision detection with other monsters (avoid crowding)
                local nearby = {}
-               if self.perf_profiler and self.perf_profiler.enabled then
+               if self.perf_profiler then
                   nearby = self.perf_profiler:measure_query(
                      "fixed_grid",
                      function()

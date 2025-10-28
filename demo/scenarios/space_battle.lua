@@ -76,6 +76,31 @@ function SpaceBattleScenario.new(config)
             obj.vy = (math.random() - 0.5) * 60
          end
 
+         -- Occasionally check for nearby ships (for collision avoidance)
+         if math.random() < 0.03 then -- 3% chance to check nearby ships
+            local nearby_ships = {}
+            if self.perf_profiler then
+               nearby_ships = self.perf_profiler:measure_query(
+                  "fixed_grid",
+                  function() return loc:query(obj.x - 20, obj.y - 20, 40, 40, function(other)
+                     return other ~= obj and other.type == "ship"
+                  end) end
+               )
+            else
+               nearby_ships = loc:query(obj.x - 20, obj.y - 20, 40, 40, function(other)
+                  return other ~= obj and other.type == "ship"
+               end)
+            end
+
+            -- If too many ships nearby, change direction (avoidance behavior)
+            local ship_count = 0
+            for _ in pairs(nearby_ships) do ship_count = ship_count + 1 end
+            if ship_count > 2 then
+               obj.vx = (math.random() - 0.5) * 80 -- Random direction change
+               obj.vy = (math.random() - 0.5) * 80
+            end
+         end
+
          -- Apply some drag to prevent infinite acceleration
          obj.vx = obj.vx * 0.995
          obj.vy = obj.vy * 0.995

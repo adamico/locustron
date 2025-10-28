@@ -402,11 +402,7 @@ function DebugConsole:execute_query(args)
    if self.performance_profiler then
       self.performance_profiler:measure_query(
          self.current_strategy._strategy_name or "unknown",
-         function() return self.current_strategy:query_region(x, y, w, h) end,
-         x,
-         y,
-         w,
-         h
+         function() return self.current_strategy:query_region(x, y, w, h) end
       )
    end
 
@@ -438,11 +434,7 @@ function DebugConsole:run_benchmark(args)
       local x, y = math.random(0, 1000), math.random(0, 1000)
       self.performance_profiler:measure_query(
          self.current_strategy._strategy_name or "benchmark",
-         function() return self.current_strategy:query_region(x, y, 64, 64) end,
-         x,
-         y,
-         64,
-         64
+         function() return self.current_strategy:query_region(x, y, 64, 64) end
       )
    end
 

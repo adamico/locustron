@@ -61,8 +61,9 @@ function DynamicEcosystemScenario.new(config)
 
          -- Flocking behavior: avoid crowding
          local nearby = {}
-         if self.perf_profiler and self.perf_profiler.enabled then
+         if self.perf_profiler then
             nearby = self.perf_profiler:measure_query(
+               "fixed_grid",
                function() return loc:query(obj.x - 25, obj.y - 25, 50, 50, function(other)
                   return other ~= obj and other.type == "organism"
                end) end

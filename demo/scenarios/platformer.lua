@@ -14,9 +14,9 @@ function PlatformerScenario.new(config)
       objects = {},
       platforms = {},
       player = { x = 256, y = 100, w = 8, h = 16, vx = 0, vy = 0, grounded = false },
-      max_objects = config.max_objects or 30, -- Reduced from 100
-      ai_update_cooldown = 0,
-      ai_update_interval = 5, -- Update AI every 5 frames
+      max_objects = config.max_objects or 20, -- Reduced from 30 for better performance
+      query_cooldown = 0,
+      query_interval = 6, -- Perform spatial queries every 6 frames
    }
 
    function scenario:init(loc, perf_profiler)
@@ -65,9 +65,9 @@ function PlatformerScenario.new(config)
       local gravity = 200
 
       -- Update AI cooldown
-      self.ai_update_cooldown = self.ai_update_cooldown - 1
-      if self.ai_update_cooldown <= 0 then
-         self.ai_update_cooldown = self.ai_update_interval
+      self.query_cooldown = self.query_cooldown - 1
+      if self.query_cooldown <= 0 then
+         self.query_cooldown = self.query_interval
       end
 
       -- Simple player movement (for demo purposes)
@@ -102,29 +102,44 @@ function PlatformerScenario.new(config)
          obj.lifetime = (obj.lifetime or 0) + dt
 
          -- Remove enemies that have lived too long or fallen off screen
-         if obj.lifetime > 15 or obj.y > 450 then -- 15 second lifetime or off screen
+         if obj.lifetime > 30 or obj.y > 450 then -- 30 second lifetime (increased)
             loc:remove(obj)
             table.insert(to_remove, i)
          else
-            -- Only update AI occasionally
-            if self.ai_update_cooldown == self.ai_update_interval then
-               -- Simplified AI: random movement with occasional player pursuit
-               local dist_to_player = math.sqrt((obj.x - self.player.x)^2 + (obj.y - self.player.y)^2)
-
-               if dist_to_player < 80 and math.random() < 0.3 then -- 30% chance to pursue when close
-                  -- Simple pursuit without expensive queries
-                  local dx = self.player.x - obj.x
-                  if dx > 0 then
-                     obj.vx = 25 -- Move right toward player
-                  elseif dx < 0 then
-                     obj.vx = -25 -- Move left toward player
-                  end
-               elseif math.random() < 0.1 then -- 10% chance for random movement
-                  obj.vx = (math.random() - 0.5) * 40
+            -- Update AI with occasional spatial queries for player detection
+            if self.query_cooldown == self.query_interval then
+               -- Perform spatial query to check player proximity
+               local nearby_player = {}
+               if self.perf_profiler then
+                  nearby_player = self.perf_profiler:measure_query(
+                     "fixed_grid",
+                     function() return loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+                        return other == self.player
+                     end) end
+                  )
                else
-                  -- Slow down gradually
-                  obj.vx = obj.vx * 0.9
+                  nearby_player = loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+                     return other == self.player
+                  end)
                end
+
+               -- Cache player proximity for smooth AI
+               obj.player_nearby = next(nearby_player) ~= nil
+            end
+
+            -- Smooth AI behavior based on cached player proximity
+            if obj.player_nearby and math.random() < 0.3 then -- 30% chance to pursue when player nearby
+               local dx = self.player.x - obj.x
+               if dx > 0 then
+                  obj.vx = obj.vx + 15 * dt -- Smooth acceleration toward player
+               elseif dx < 0 then
+                  obj.vx = obj.vx - 15 * dt
+               end
+            elseif math.random() < 0.05 then -- 5% chance for random direction change
+               obj.vx = (math.random() - 0.5) * 30
+            else
+               -- Gradual slowdown
+               obj.vx = obj.vx * 0.95
             end
 
             -- Apply gravity (always)
@@ -161,8 +176,9 @@ function PlatformerScenario.new(config)
          table.remove(self.objects, to_remove[i])
       end
 
-      -- Spawn new enemies occasionally (reduced frequency)
-      if math.random() < 0.01 and #self.objects < self.max_objects then
+      -- Spawn new enemies to maintain population
+      local target_population = math.floor(self.max_objects * 0.7) -- Maintain ~70% of max
+      if #self.objects < target_population and math.random() < 0.03 then -- 3% chance per frame
          self:spawn_on_platform(loc)
       end
    end
