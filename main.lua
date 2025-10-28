@@ -127,8 +127,8 @@ function draw_debug_info()
 end
 
 function _init()
-   -- Initialize with default scenario (vampire survivor)
-   switch_scenario("vampire_survivor")
+   -- Initialize with default scenario (survivor like)
+   switch_scenario("survivor_like")
 end
 
 function switch_scenario(scenario_name)
