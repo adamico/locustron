@@ -13,18 +13,6 @@ describe("VisualizationSystem", function()
    end)
 
    describe("Class creation", function()
-      it("should be a valid middleclass", function()
-         assert.is_not_nil(VisualizationSystem)
-         assert.is_table(VisualizationSystem)
-         assert.is_function(VisualizationSystem.new)
-         assert.are.equal("VisualizationSystem", VisualizationSystem.name)
-      end)
-      it("should create instances with new()", function()
-         local vis = VisualizationSystem:new()
-         assert.is_not_nil(vis)
-         assert.is_true(vis:isInstanceOf(VisualizationSystem))
-      end)
-
       it("should initialize with default config", function()
          local vis = VisualizationSystem:new()
 

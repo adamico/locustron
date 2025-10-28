@@ -12,8 +12,8 @@
 --- @field performance_data table Performance profiling data
 --- @field current_strategy table Currently rendered strategy
 --- @field current_strategy_name string Name of current strategy
-local class = require('middleclass')
-local VisualizationSystem = class('VisualizationSystem')
+local class = require("middleclass")
+local VisualizationSystem = class("VisualizationSystem")
 
 --- Create a new visualization system instance
 --- @param config table Configuration table with colors and viewport settings
@@ -25,14 +25,14 @@ function VisualizationSystem:initialize(config)
 
    -- Default colors optimized for Picotron
    self.colors = config.colors or {
-      grid_lines = 7,      -- Light gray
-      quadtree_bounds = 6, -- Dark gray
-      objects = 8,         -- Red
-      queries = 11,        -- Light blue
-      performance_hot = 8, -- Red
+      grid_lines = 7,        -- Light gray
+      quadtree_bounds = 6,   -- Dark gray
+      objects = 8,           -- Red
+      queries = 11,          -- Light blue
+      performance_hot = 8,   -- Red
       performance_cold = 12, -- Light green
-      text = 7,            -- White
-      background = 0       -- Black
+      text = 7,              -- White
+      background = 0         -- Black
    }
 
    -- Rendering flags
@@ -41,12 +41,13 @@ function VisualizationSystem:initialize(config)
    self.show_queries = true
    self.show_performance = false
 
-  -- Data storage
-  self.query_history = {}
-  self.performance_data = {}
-  self.current_strategy = nil
-  self.current_strategy_name = ""
-end--- Set the viewport parameters
+   -- Data storage
+   self.query_history = {}
+   self.performance_data = {}
+   self.current_strategy = nil
+   self.current_strategy_name = ""
+end --- Set the viewport parameters
+
 --- @param x number Viewport x offset
 --- @param y number Viewport y offset
 --- @param w number Viewport width
@@ -413,7 +414,7 @@ function VisualizationSystem:handle_input()
    end
 
    -- Zoom controls
-   if btnp(11) then    -- + key
+   if btnp(11) then     -- + key
       self:zoom_in()
    elseif btnp(12) then -- - key
       self:zoom_out()
@@ -421,7 +422,7 @@ function VisualizationSystem:handle_input()
 
    -- Pan controls
    local pan_speed = 32 / self.viewport.scale
-   if btnp(2) then    -- Up arrow
+   if btnp(2) then     -- Up arrow
       self:pan(0, -pan_speed)
    elseif btnp(3) then -- Down arrow
       self:pan(0, pan_speed)
