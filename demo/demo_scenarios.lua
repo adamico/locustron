@@ -4,10 +4,10 @@
 local DemoScenarios = {}
 
 -- Load individual scenario modules
-local SurvivorLikeScenario = require("scenarios.survivor_like")
-local SpaceBattleScenario = require("scenarios.space_battle")
-local PlatformerScenario = require("scenarios.platformer")
-local DynamicEcosystemScenario = require("scenarios.dynamic_ecosystem")
+local SurvivorLikeScenario = require("demo.scenarios.survivor_like")
+local SpaceBattleScenario = require("demo.scenarios.space_battle")
+local PlatformerScenario = require("demo.scenarios.platformer")
+local DynamicEcosystemScenario = require("demo.scenarios.dynamic_ecosystem")
 
 -- Scenario: Survivor Like
 -- Monsters spawn in waves around player, creating dense clusters
