@@ -1,3 +1,5 @@
+local sort = require("demo.debugging.sort")
+
 --- @class DebugConsole
 --- Runtime debugging console for Locustron spatial partitioning
 --- Provides command-line interface for inspecting and controlling spatial structures
@@ -53,9 +55,7 @@ end
 function DebugConsole:register_builtin_commands()
    -- Information commands
    self:register_command("help", function(args) return self:get_help_text() end, "Show available commands")
-
    self:register_command("info", function(args) return self:get_system_info() end, "Show system information")
-
    self:register_command("stats", function(args) return self:get_strategy_stats() end, "Show strategy statistics")
 
    -- Strategy inspection commands
@@ -185,6 +185,7 @@ function DebugConsole:execute_command(command_line)
       for line in result:gmatch("[^\n]+") do
          self:add_output(line)
       end
+      if printh then printh(result) end
    end
 
    return result
@@ -209,7 +210,7 @@ function DebugConsole:parse_command_line(command_line)
             current_arg = ""
          end
       else
-         current_arg = current_arg .. char
+         current_arg = current_arg..char
       end
    end
 
@@ -233,14 +234,14 @@ function DebugConsole:clear_output() self.output_buffer = {} end
 --- Get formatted help text
 --- @return string Help text
 function DebugConsole:get_help_text()
-   local lines = { "Available commands:" }
+   local lines = {"Available commands:"}
 
    -- Sort commands alphabetically
    local sorted_commands = {}
    for name, cmd in pairs(self.commands) do
-      add(sorted_commands, { name = name, desc = cmd.description })
+      add(sorted_commands, {name = name, desc = cmd.description})
    end
-   table.sort(sorted_commands, function(a, b) return a.name < b.name end)
+   sort(sorted_commands, function(a, b) return a.name < b.name end)
 
    for _, cmd in ipairs(sorted_commands) do
       add(lines, string.format("  %-12s %s", cmd.name, cmd.desc))
@@ -255,7 +256,7 @@ end
 --- Get system information
 --- @return string System info
 function DebugConsole:get_system_info()
-   local lines = { "System Information:" }
+   local lines = {"System Information:"}
 
    if self.current_strategy then
       add(lines, string.format("Strategy: %s", self.current_strategy._strategy_name or "unknown"))
@@ -283,7 +284,7 @@ end
 function DebugConsole:get_strategy_stats()
    if not self.current_strategy then return "No strategy loaded" end
 
-   local lines = { "Strategy Statistics:" }
+   local lines = {"Strategy Statistics:"}
 
    -- Basic counts
    local obj_count = self:get_object_count()
@@ -323,7 +324,7 @@ function DebugConsole:list_objects(filter)
       return "No strategy loaded or no objects available"
    end
 
-   local lines = { "Objects in strategy:" }
+   local lines = {"Objects in strategy:"}
    local count = 0
    local limit = 20 -- Limit output
 
@@ -362,7 +363,7 @@ function DebugConsole:list_cells(limit_str)
    if not self.current_strategy then return "No strategy loaded" end
 
    local limit = tonumber(limit_str) or 10
-   local lines = { "Occupied cells:" }
+   local lines = {"Occupied cells:"}
 
    -- This would need strategy-specific implementation
    -- For now, return placeholder
@@ -475,7 +476,7 @@ function DebugConsole:get_bottlenecks(count_str)
 
    if #bottlenecks == 0 then return "No performance data available" end
 
-   local lines = { "Performance Bottlenecks:" }
+   local lines = {"Performance Bottlenecks:"}
    for i, bottleneck in ipairs(bottlenecks) do
       add(lines, string.format("%d. %s: %.3fms", i, bottleneck.strategy, bottleneck.execution_time * 1000))
    end
@@ -525,7 +526,7 @@ end
 --- Show current configuration
 --- @return string Configuration display
 function DebugConsole:show_config()
-   local lines = { "Console Configuration:" }
+   local lines = {"Console Configuration:"}
 
    for key, value in pairs(self.config) do
       add(lines, string.format("  %s: %s", key, tostring(value)))
@@ -563,7 +564,7 @@ end
 --- @return string History display
 function DebugConsole:show_history(count_str)
    local count = tonumber(count_str) or 10
-   local lines = { "Command History:" }
+   local lines = {"Command History:"}
 
    local start_idx = math.max(1, #self.history - count + 1)
    for i = start_idx, #self.history do

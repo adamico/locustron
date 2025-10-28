@@ -23,6 +23,7 @@ local perf_profiler
 local debug_console
 local show_debug_ui = true
 local debug_mode = false
+local show_debug_console = false
 
 function rand(low, hi) return flr(low + rnd(hi - low)) end
 
@@ -42,6 +43,8 @@ function draw_debug_overlay()
    print("Z: Toggle UI", help_x, help_y)
    help_y += line_height
    print("X: Toggle Debug Mode", help_x, help_y)
+   help_y += line_height
+   print("`: Toggle Console", help_x, help_y)
    help_y += line_height
    print("Tab: Switch Scenario", help_x, help_y)
    help_y += line_height * 1.5
@@ -169,6 +172,7 @@ function switch_scenario(scenario_name)
    debug_console:set_strategy(strategy, "fixed_grid")
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
+   debug_console.input_buffer = debug_console.input_buffer or ""
 end
 
 function _update()
@@ -179,6 +183,54 @@ function _update()
 
    if btnp(5) then -- X key - toggle debug mode
       debug_mode = not debug_mode
+   end
+
+   -- Debug console toggle (backtick key)
+   if keyp("`", true) then
+      show_debug_console = not show_debug_console
+   end
+
+   -- Handle debug console input when active
+   if show_debug_console and debug_console then
+      -- Disable pause menu to prevent conflicts with debug console
+      window{pauseable = false}
+
+      -- Handle alphanumeric and symbol input
+      local key_map = {
+         ["a"] = "a", ["b"] = "b", ["c"] = "c", ["d"] = "d", ["e"] = "e",
+         ["f"] = "f", ["g"] = "g", ["h"] = "h", ["i"] = "i", ["j"] = "j",
+         ["k"] = "k", ["l"] = "l", ["m"] = "m", ["n"] = "n", ["o"] = "o",
+         ["p"] = "p", ["q"] = "q", ["r"] = "r", ["s"] = "s", ["t"] = "t",
+         ["u"] = "u", ["v"] = "v", ["w"] = "w", ["x"] = "x", ["y"] = "y",
+         ["z"] = "z", ["0"] = "0", ["1"] = "1", ["2"] = "2", ["3"] = "3",
+         ["4"] = "4", ["5"] = "5", ["6"] = "6", ["7"] = "7", ["8"] = "8",
+         ["9"] = "9", [" "] = " ", ["-"] = "-", ["="] = "=", ["["] = "[",
+         ["]"] = "]", ["\\"] = "\\", [";"] = ";", ["'"] = "'", [","] = ",",
+         ["."] = ".", ["/"] = "/"
+      }
+
+      for key, char in pairs(key_map) do
+         if keyp(key, true) then
+            debug_console.input_buffer = debug_console.input_buffer .. char
+            break
+         end
+      end
+
+      -- Handle backspace
+      if keyp("backspace", true) and #debug_console.input_buffer > 0 then
+         debug_console.input_buffer = debug_console.input_buffer:sub(1, -2)
+      end
+
+      -- Handle enter to execute command
+      if keyp("return", true) or keyp("enter", true) then
+         if debug_console.input_buffer ~= "" then
+            debug_console:execute_command(debug_console.input_buffer)
+            debug_console.input_buffer = ""
+         end
+      end
+   else
+      -- Re-enable pause menu when console is closed
+      window{pauseable = true}
    end
 
    -- Scenario switching (Tab key)
@@ -247,6 +299,9 @@ function _draw()
       draw_debug_info()
       draw_scenario_info()
    end
+
+   -- Render debug console if active
+   draw_debug_console()
 end
 
 function draw_scenario_info()
@@ -274,6 +329,57 @@ function draw_scenario_info()
    info_y += line_height
 
    print("Best: " .. info.optimal_strategy, info_x, info_y)
+end
+
+function draw_debug_console()
+   if not show_debug_console or not debug_console then return end
+
+   -- Console dimensions and positioning
+   local console_width = 400
+   local console_height = 200
+   local console_x = 8
+   local console_y = 240 - console_height - 8
+   local line_height = 8
+   local max_visible_lines = 20
+
+   -- Draw console background
+   rrectfill(console_x - 2, console_y - 2, console_width + 4, console_height + 4, 0, 0)
+   rrect(console_x - 2, console_y - 2, console_width + 4, console_height + 4, 0, 7)
+
+   -- Draw console header
+   color(11)
+   print("DEBUG CONSOLE", console_x, console_y)
+   local header_y = console_y + line_height
+
+   -- Draw output buffer (command history and results)
+   local output_start = math.max(1, #debug_console.output_buffer - max_visible_lines + 3) -- +3 for input area
+   local output_y = header_y
+
+   for i = output_start, #debug_console.output_buffer do
+      if output_y + line_height > console_y + console_height - line_height * 2 then break end
+      print(debug_console.output_buffer[i], console_x, output_y, 7)
+      output_y += line_height
+   end
+
+   -- Draw input prompt and current input
+   local input_y = console_y + console_height - line_height * 2
+   print("> ", console_x, input_y, 10)
+
+   local input_text = debug_console.input_buffer
+   if #input_text > 50 then -- Truncate long input
+      input_text = "..." .. input_text:sub(-47)
+   end
+   print(input_text, console_x + 16, input_y, 7)
+
+   -- Draw cursor (blinking effect)
+   if time() % 1 < 0.5 then
+      local cursor_x = console_x + 16 + print(input_text, 0, -100) -- Measure text width
+      line(cursor_x, input_y, cursor_x, input_y + line_height - 1, 7)
+   end
+
+   -- Draw help text at bottom
+   local help_y = console_y + console_height - line_height
+   print("Enter: Execute | `: Toggle", console_x, help_y, 6)
 end
 
 include("error_explorer.lua")
