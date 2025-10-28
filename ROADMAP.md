@@ -8,16 +8,14 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 
 ### 📋 Phase Summary
 
-| Phase | Duration | Status | Focus Area |
-|-------|----------|--------|------------|
-| **[Phase 1](./docs/roadmap/phase-1-foundation.md)** | 2 weeks | ✅ Complete | Core Abstraction & Vanilla Lua Foundation |
-| **[Phase 2](./docs/roadmap/phase-2-benchmarks.md)** | 3 weeks | ✅ Complete | Benchmarks & Advanced Testing with Busted |
-| **[Phase 3](./docs/roadmap/phase-3-api-development.md)** | 3 weeks | ✅ Complete | Main Locustron Game Engine API Development |
-| **[Phase 4](./docs/roadmap/phase-4-debugging.md)** | 2 weeks | 🔄 In Progress | Advanced Debugging & Visualization |
-| **[Phase 5](./docs/roadmap/phase-5-documentation.md)** | 2 weeks | ⏳ Planned | Documentation & Examples |
-| **[Phase 6](./docs/roadmap/phase-6-strategies.md)** | 4 weeks | ⏳ Planned | Assess & Implement More Strategies |
-
-**Total Timeline:** 13 weeks
+| Phase | Status | Focus Area |
+|-------|--------|------------|
+| **[Phase 1](./docs/roadmap/phase-1-foundation.md)** | ✅ Complete | Core Abstraction & Vanilla Lua Foundation |
+| **[Phase 2](./docs/roadmap/phase-2-benchmarks.md)** | ✅ Complete | Benchmarks & Advanced Testing with Busted |
+| **[Phase 3](./docs/roadmap/phase-3-api-development.md)** | ✅ Complete | Main Locustron Game Engine API Development |
+| **[Phase 4](./docs/roadmap/phase-4-debugging.md)** | 🔄 In Progress | Advanced Debugging & Visualization |
+| **[Phase 5](./docs/roadmap/phase-5-documentation.md)** | ⏳ Planned | Documentation & Examples |
+| **[Phase 6](./docs/roadmap/phase-6-strategies.md)** | ⏳ Planned | Assess & Implement More Strategies |
 
 ## 🎯 Key Benefits
 
