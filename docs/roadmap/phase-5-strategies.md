@@ -162,7 +162,7 @@ function QuadtreeStrategy.new(config)
   
   -- Strategy identification
   self.strategy_name = "quadtree"
-  self.strategy_type = "hierarchical"
+  self.strategy_name = "hierarchical"
   
   self.root = QuadtreeNode:new({
     x = self.bounds[1],
@@ -223,7 +223,7 @@ describe("QuadtreeStrategy", function()
   describe("initialization", function()
     it("should create with specified bounds", function()
       assert.equals("quadtree", strategy.strategy_name)
-      assert.equals("hierarchical", strategy.strategy_type)
+      assert.equals("hierarchical", strategy.strategy_name)
       assert.equals(4, strategy.max_objects)
       assert.equals(6, strategy.max_depth)
     end)
@@ -312,7 +312,7 @@ function HashGridStrategy.new(config)
   
   -- Strategy identification
   self.strategy_name = "hash_grid"
-  self.strategy_type = "spatial_hash"
+  self.strategy_name = "spatial_hash"
   
   return self
 end

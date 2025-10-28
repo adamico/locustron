@@ -170,28 +170,28 @@ function StrategyFactory.get_strategy_metadata(name)
 end
 
 --- Create a strategy instance
---- @param strategy_type string Strategy type ("fixed_grid", "quadtree", etc.)
+--- @param strategy_name string Strategy type ("fixed_grid", "quadtree", etc.)
 --- @param config table|nil Strategy configuration
 --- @return SpatialStrategy Strategy instance
-function StrategyFactory.create_strategy(strategy_type, config)
+function StrategyFactory.create_strategy(strategy_name, config)
    config = config or {}
 
    -- Handle auto-selection
-   if strategy_type == "auto" then strategy_type = StrategyFactory.auto_select_strategy(config) end
+   if strategy_name == "auto" then strategy_name = StrategyFactory.auto_select_strategy(config) end
 
-   local entry = strategy_registry[strategy_type]
+   local entry = strategy_registry[strategy_name]
    if not entry then
       local available = table.concat(StrategyFactory.get_available_strategies(), ", ")
-      error(string.format("Unknown strategy '%s'. Available strategies: %s", strategy_type, available))
+      error(string.format("Unknown strategy '%s'. Available strategies: %s", strategy_name, available))
    end
 
    local strategy_class = entry.class
    if not strategy_class or not strategy_class.new then
-      error(string.format("Strategy '%s' does not have a valid constructor", strategy_type))
+      error(string.format("Strategy '%s' does not have a valid constructor", strategy_name))
    end
 
    local instance = strategy_class.new(config)
-   instance.strategy_name = strategy_type
+   instance.strategy_name = strategy_name
    instance.config = config
 
    return instance
@@ -222,12 +222,12 @@ function StrategyFactory.auto_select_strategy(config)
 end
 
 --- Validate strategy configuration
---- @param strategy_type string Strategy type
+--- @param strategy_name string Strategy type
 --- @param config table Configuration to validate
 --- @return boolean valid, string|nil error_message
-function StrategyFactory.validate_config(strategy_type, config)
-   local entry = strategy_registry[strategy_type]
-   if not entry then return false, "Unknown strategy type: " .. strategy_type end
+function StrategyFactory.validate_config(strategy_name, config)
+   local entry = strategy_registry[strategy_name]
+   if not entry then return false, "Unknown strategy type: " .. strategy_name end
 
    local metadata = entry.metadata
    if metadata and metadata.validate_config then return metadata.validate_config(config) end
@@ -254,9 +254,9 @@ function M.create_strategy(options)
       return StrategyFactory.create_strategy(options, {})
    elseif type(options) == "table" then
       -- Full options form: create_strategy({strategy = "fixed_grid", config = {...}})
-      local strategy_type = options.strategy or "fixed_grid"
+      local strategy_name = options.strategy or "fixed_grid"
       local config = options.config or options
-      return StrategyFactory.create_strategy(strategy_type, config)
+      return StrategyFactory.create_strategy(strategy_name, config)
    else
       error("Invalid options type. Expected string or table.")
    end

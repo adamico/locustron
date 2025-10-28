@@ -282,7 +282,7 @@ local SpatialStrategy = {
 }
 
 -- Strategy factory
-local function create_strategy(strategy_type, config)
+local function create_strategy(strategy_name, config)
   local strategies = {
     fixed_grid = require("strategies.fixed_grid"),
     quadtree = require("strategies.quadtree"),
@@ -290,9 +290,9 @@ local function create_strategy(strategy_type, config)
     auto = require("strategies.auto_select")
   }
   
-  local strategy_class = strategies[strategy_type]
+  local strategy_class = strategies[strategy_name]
   if not strategy_class then
-    error("Unknown strategy: " .. tostring(strategy_type))
+    error("Unknown strategy: " .. tostring(strategy_name))
   end
   
   return strategy_class.new(config or {})
