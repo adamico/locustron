@@ -162,6 +162,13 @@ function switch_scenario(scenario_name)
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
    debug_console.input_buffer = debug_console.input_buffer or ""
+
+   -- Initialize visualization system if needed
+   if not vis_system then
+      vis_system = VisualizationSystem:new()
+   end
+   vis_system.current_strategy = strategy
+   vis_system.current_strategy_name = "fixed_grid"
 end
 
 function _update()
