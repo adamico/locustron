@@ -2,8 +2,8 @@
 -- Vanilla Lua version using doubly linked lists instead of userdata
 -- Maintains 100% API compatibility with existing Locustron
 
-local dll = require("src.strategies.doubly_linked_list")
-local strategy_interface = require("src.strategies.interface")
+local dll = require("src/strategies/doubly_linked_list")
+local strategy_interface = require("src/strategies/interface")
 local SpatialStrategy = strategy_interface.SpatialStrategy
 
 --- @class FixedGridStrategy : SpatialStrategy

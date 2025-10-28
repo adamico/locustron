@@ -201,5 +201,11 @@ function Locustron:get_strategy_info()
    }
 end
 
+--- Get the internal strategy instance (for debugging)
+--- @return table The strategy instance
+function Locustron:get_strategy()
+   return self._strategy
+end
+
 -- Export the Locustron class
 return Locustron

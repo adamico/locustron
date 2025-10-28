@@ -132,7 +132,7 @@ function DebugConsole:register_command(name, handler, description)
    self.commands[name] = {
       handler = handler,
       description = description or "",
-      registered_at = os.time()
+      registered_at = time()
    }
 end
 
@@ -147,7 +147,7 @@ function DebugConsole:execute_command(command_line)
    -- Add to history
    table.insert(self.history, {
       command = command_line,
-      timestamp = os.time(),
+      timestamp = time(),
       output = nil
    })
 
@@ -611,7 +611,7 @@ end
 --- Get high-resolution time (Picotron optimized)
 --- @return number Current time
 function DebugConsole:get_time()
-   return time and time() or os.time()
+   return time and time()
 end
 
 --- Set current strategy for inspection

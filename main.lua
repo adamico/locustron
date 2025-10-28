@@ -1,11 +1,11 @@
 --- @diagnostic disable: different-requires
-include("src/require.lua")
+include("src.require.lua")
 
-local Locustron = require("src/locustron")
+local Locustron = require("src.locustron")
 
-local VisualizationSystem = require("src/debugging/visualization_system")
-local PerformanceProfiler = require("src/debugging/performance_profiler")
-local DebugConsole = require("src/debugging/debug_console")
+local VisualizationSystem = require("src.debugging.visualization_system")
+local PerformanceProfiler = require("src.debugging.performance_profiler")
+local DebugConsole = require("src.debugging.debug_console")
 
 local loc
 local GRID_SIZE = 256 -- Main grid display area

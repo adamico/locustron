@@ -6,17 +6,19 @@ function require(name)
    local already_imported = _modules[name]
    if already_imported ~= nil then return already_imported end
 
-   local filename = fullpath(name .. ".lua")
-   if not filename then
+   -- Convert dots to slashes for path resolution
+   local filename = name:gsub("%.", "/") .. ".lua"
+   local full_filename = fullpath(filename)
+   if not full_filename then
       notify("module not found: " .. name)
       stop()
       return
    end
 
-   local src = fetch(filename)
+   local src = fetch(full_filename)
 
    if type(src) ~= "string" then
-      notify("could not include " .. filename)
+      notify("could not include " .. full_filename)
       stop()
       return
    end
@@ -24,7 +26,7 @@ function require(name)
    -- https://www.lua.org/manual/5.4/manual.html#pdf-load
    -- chunk name (for error reporting), mode ("t" for text only -- no binary chunk loading), _ENV upvalue
    -- @ is a special character that tells debugger the string is a filename
-   local func, err = load(src, "@" .. filename, "t", _ENV)
+   local func, err = load(src, "@" .. full_filename, "t", _ENV)
    -- syntax error while loading
    if not func then
       -- printh("** syntax error in "..filename..": "..tostr(err))
