@@ -154,6 +154,7 @@ describe("VisualizationSystem", function()
       it("should handle input without errors", function()
          -- Mock btnp function for testing
          _G.btnp = function() return false end
+         _G.keyp = function(key, _) return false end
 
          assert.has_no_error(function()
             vis:handle_input()
@@ -161,6 +162,7 @@ describe("VisualizationSystem", function()
 
          -- Clean up
          _G.btnp = nil
+         _G.keyp = nil
       end)
    end)
 
@@ -176,11 +178,11 @@ describe("VisualizationSystem", function()
          _G.line = function(x1, y1, x2, y2, color)
             table.insert(draw_calls, {type = "line", x1 = x1, y1 = y1, x2 = x2, y2 = y2, color = color})
          end
-         _G.rectfill = function(x, y, x2, y2, color)
-            table.insert(draw_calls, {type = "rectfill", x = x, y = y, x2 = x2, y2 = y2, color = color})
+         _G.rrectfill = function(x, y, w, h, radius, color)
+            table.insert(draw_calls, {type = "rrectfill", x = x, y = y, w = w, h = h, radius = radius, color = color})
          end
-         _G.rect = function(x, y, x2, y2, color)
-            table.insert(draw_calls, {type = "rect", x = x, y = y, x2 = x2, y2 = y2, color = color})
+         _G.rrect = function(x, y, w, h, radius, color)
+            table.insert(draw_calls, {type = "rrect", x = x, y = y, w = w, h = h, radius = radius, color = color})
          end
          _G.print = function(text, x, y, color)
             table.insert(draw_calls, {type = "print", text = text, x = x, y = y, color = color})
@@ -190,8 +192,8 @@ describe("VisualizationSystem", function()
       after_each(function()
          -- Clean up mocks
          _G.line = nil
-         _G.rectfill = nil
-         _G.rect = nil
+         _G.rrectfill = nil
+         _G.rrect = nil
          _G.print = nil
          draw_calls = {}
       end)
@@ -209,26 +211,28 @@ describe("VisualizationSystem", function()
       end)
 
       it("should draw filled rectangles", function()
-         vis:draw_rect(10, 20, 30, 40, 5, true)
+         vis:draw_rect(10, 20, 30, 40, 0, 5, true)
          assert.are.equal(1, #draw_calls)
          local call = draw_calls[1]
-         assert.are.equal("rectfill", call.type)
+         assert.are.equal("rrectfill", call.type)
          assert.are.equal(10, call.x)
          assert.are.equal(20, call.y)
-         assert.are.equal(39, call.x2) -- x + w - 1
-         assert.are.equal(59, call.y2) -- y + h - 1
+         assert.are.equal(30, call.w)
+         assert.are.equal(40, call.h)
+         assert.are.equal(0, call.radius)
          assert.are.equal(5, call.color)
       end)
 
       it("should draw outline rectangles", function()
-         vis:draw_rect(10, 20, 30, 40, 5, false)
+         vis:draw_rect(10, 20, 30, 40, 0, 5, false)
          assert.are.equal(1, #draw_calls)
          local call = draw_calls[1]
-         assert.are.equal("rect", call.type)
+         assert.are.equal("rrect", call.type)
          assert.are.equal(10, call.x)
          assert.are.equal(20, call.y)
-         assert.are.equal(39, call.x2) -- x + w - 1
-         assert.are.equal(59, call.y2) -- y + h - 1
+         assert.are.equal(30, call.w)
+         assert.are.equal(40, call.h)
+         assert.are.equal(0, call.radius)
          assert.are.equal(5, call.color)
       end)
       it("should draw text", function()
@@ -261,11 +265,11 @@ describe("VisualizationSystem", function()
          vis:clear_screen()
          assert.are.equal(1, #draw_calls)
          local call = draw_calls[1]
-         assert.are.equal("rectfill", call.type)
+         assert.are.equal("rrectfill", call.type)
          assert.are.equal(0, call.x)
          assert.are.equal(0, call.y)
-         assert.are.equal(400, call.x2)  -- viewport width
-         assert.are.equal(300, call.y2)  -- viewport height
+         assert.are.equal(400, call.w)  -- viewport width
+         assert.are.equal(300, call.h)  -- viewport height
          assert.are.equal(0, call.color) -- background color
       end)
    end)

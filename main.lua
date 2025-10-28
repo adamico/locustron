@@ -1,4 +1,3 @@
---- @diagnostic disable: different-requires
 include("src/require.lua")
 
 local Locustron = require("src.locustron")
@@ -9,8 +8,8 @@ local DebugConsole = require("src.debugging.debug_console")
 
 local loc
 local GRID_SIZE = 256 -- Main grid display area
-local GRID_X = 16 -- Grid offset from left
-local GRID_Y = 8 -- Grid offset from top
+local GRID_X = 16     -- Grid offset from left
+local GRID_Y = 8      -- Grid offset from top
 
 local OBJECTS_MIN_WIDTH = 10
 local OBJECTS_MAX_WIDTH = 32
@@ -27,14 +26,12 @@ function rand(low, hi) return flr(low + rnd(hi - low)) end
 
 function draw_debug_overlay()
    -- Draw debug controls help
-   local help_x = 10
-   local help_y = 10
+   local help_x = 280
+   local help_y = 100
    local line_height = 8
 
-   color(0)
-   rectfill(help_x - 2, help_y - 2, 180, 60)
-   color(7)
-   rect(help_x - 2, help_y - 2, 180, 60)
+   rrectfill(help_x - 2, help_y - 2, 180, 60, 0, 0)
+   rrect(help_x - 2, help_y - 2, 180, 60, 0, 7)
 
    color(11)
    print("CONTROLS", help_x, help_y)
@@ -58,30 +55,26 @@ function draw_debug_info()
    local info_y = 10
    local line_height = 8
 
-   color(0)
-   rectfill(info_x - 2, info_y - 2, 120, 80)
-   color(7)
-   rect(info_x - 2, info_y - 2, 120, 80)
+   rrectfill(info_x - 2, info_y - 2, 120, 80, 0, 0)
+   rrect(info_x - 2, info_y - 2, 120, 80, 0, 7)
 
-   color(11)
-   print("LOCUSTRON", info_x, info_y)
+   print("LOCUSTRON", info_x, info_y, 11)
    info_y = info_y + line_height * 1.5
 
-   color(7)
-   print("Objects: " .. tostr(loc:count()), info_x, info_y)
+   print("Objects: "..tostr(loc:count()), info_x, info_y, 7)
    info_y = info_y + line_height
 
    -- Get strategy statistics
    local strategy = loc:get_strategy()
    local stats = strategy:get_statistics()
 
-   print("Cells: " .. tostr(stats.cell_count), info_x, info_y)
+   print("Cells: "..tostr(stats.cell_count), info_x, info_y)
    info_y = info_y + line_height
 
-   print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
+   print("CPU: "..tostr(flr(stat(1) * 100)).."%", info_x, info_y)
    info_y = info_y + line_height
 
-   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB", info_x, info_y)
+   print("MEM: "..tostr(flr(stat(3) / 1024)).."KB", info_x, info_y)
    info_y = info_y + line_height
 
    if perf_profiler.enabled then
@@ -93,10 +86,10 @@ function draw_debug_info()
          info_y = info_y + line_height
 
          color(7)
-         print("Total: " .. tostr(stats.total_queries), info_x, info_y)
+         print("Total: "..tostr(stats.total_queries), info_x, info_y)
          info_y = info_y + line_height
 
-         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", info_x, info_y)
+         print("Avg: "..tostr(flr(stats.average_query_time * 1000)).."ms", info_x, info_y)
       end
    end
 end
@@ -146,9 +139,9 @@ function _update()
 
    if debug_mode and vis_system then
       -- Debug visualization controls
-      if btnp(0) then vis_system.show_structure = not vis_system.show_structure end -- Left - toggle structure
-      if btnp(1) then vis_system.show_objects = not vis_system.show_objects end -- Right - toggle objects
-      if btnp(2) then vis_system.show_queries = not vis_system.show_queries end -- Up - toggle queries
+      if btnp(0) then vis_system.show_structure = not vis_system.show_structure end     -- Left - toggle structure
+      if btnp(1) then vis_system.show_objects = not vis_system.show_objects end         -- Right - toggle objects
+      if btnp(2) then vis_system.show_queries = not vis_system.show_queries end         -- Up - toggle queries
       if btnp(3) then vis_system.show_performance = not vis_system.show_performance end -- Down - toggle performance
 
       -- Zoom controls
@@ -177,25 +170,21 @@ function _draw()
    if debug_mode and vis_system then
       -- Debug visualization mode
       vis_system:render_strategy(loc, "fixed_grid")
-
-      -- Render debug UI overlay
-      if show_debug_ui then
-         draw_debug_overlay()
-      end
    else
       -- Simple visualization mode - just show objects
       color(1)
       for obj in pairs(loc:query(-64, -64, 384, 384)) do
          local x, y, w, h = loc:get_bbox(obj)
          if x then
-            rectfill(GRID_X + x, GRID_Y + y, w, h, obj.col)
-            rect(GRID_X + x, GRID_Y + y, w, h, 0)
+            rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col)
+            rrect(GRID_X + x, GRID_Y + y, w, h, 0, 0)
          end
       end
    end
 
-   -- Always show debug info if enabled
+   -- Render debug UI overlay
    if show_debug_ui then
+      draw_debug_overlay()
       draw_debug_info()
    end
 end

@@ -15,6 +15,12 @@
 local class = require("middleclass")
 local VisualizationSystem = class("VisualizationSystem")
 
+local time = os and os.time or time
+local add = add and add or table.insert
+local min = min and min or math.min
+local max = max and max or math.max
+local deli = deli and deli or table.remove
+
 --- Create a new visualization system instance
 --- @param config table Configuration table with colors and viewport settings
 function VisualizationSystem:initialize(config)
@@ -91,7 +97,7 @@ end
 
 --- Clear the screen with background color
 function VisualizationSystem:clear_screen()
-   rectfill(0, 0, self.viewport.w, self.viewport.h, self.colors.background)
+   rrectfill(0, 0, self.viewport.w, self.viewport.h, 0, self.colors.background)
 end
 
 --- Draw a line (Picotron optimized)
@@ -110,12 +116,13 @@ end
 --- @param w number Width
 --- @param h number Height
 --- @param color number Color index
+--- @param radius number Corner radius
 --- @param filled boolean Whether to fill the rectangle
-function VisualizationSystem:draw_rect(x, y, w, h, color, filled)
+function VisualizationSystem:draw_rect(x, y, w, h, radius, color, filled)
    if filled then
-      rectfill(x, y, x + w - 1, y + h - 1, color)
+      rrectfill(x, y, w, h, radius, color)
    else
-      rect(x, y, x + w - 1, y + h - 1, color)
+      rrect(x, y, w, h, radius, color)
    end
 end
 
@@ -208,7 +215,7 @@ function VisualizationSystem:render_fixed_grid(strategy)
                   local screen_h = cell_size * self.viewport.scale
 
                   -- Highlight occupied cells
-                  self:draw_rect(screen_x, screen_y, screen_w, screen_h, self.colors.grid_lines, true)
+                  self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.grid_lines, true)
 
                   -- Draw object count
                   if self.viewport.scale > 0.5 then
@@ -241,7 +248,7 @@ function VisualizationSystem:render_quadtree_node(node, depth)
 
    -- Draw node bounds with depth-based coloring
    local color = (depth % 4) + 4 -- Cycle through colors based on depth
-   self:draw_rect(screen_x, screen_y, screen_w, screen_h, color, false)
+   self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, color, false)
 
    -- Draw object count for leaf nodes
    if node.is_leaf and node.objects and #node.objects > 0 then
@@ -276,7 +283,7 @@ function VisualizationSystem:render_hash_grid(strategy)
 
                -- Color based on hash to show distribution
                local color = (hash % 8) + 8
-               self:draw_rect(screen_x, screen_y, screen_w, screen_h, color, true)
+               self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, color, true)
 
                -- Draw coordinates and count if zoomed in
                if self.viewport.scale > 1.0 then
@@ -315,7 +322,7 @@ function VisualizationSystem:render_objects(strategy)
       local screen_h = obj_data.h * self.viewport.scale
 
       -- Draw object bounding box
-      self:draw_rect(screen_x, screen_y, screen_w, screen_h, self.colors.objects, true)
+      self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.objects, true)
 
       -- Draw object ID if zoom level is high enough
       if self.viewport.scale > 2.0 and obj_data.id then
@@ -335,7 +342,7 @@ function VisualizationSystem:render_query_history()
       local screen_h = query.h * self.viewport.scale
 
       -- Draw query region
-      self:draw_rect(screen_x, screen_y, screen_w, screen_h, self.colors.queries, false)
+      self:draw_rect(screen_x, screen_y, screen_w, screen_h, 0, self.colors.queries, false)
 
       -- Draw result count if available
       if query.result_count and self.viewport.scale > 0.5 then
@@ -376,47 +383,47 @@ end
 --- @param h number Query region height
 --- @param result_count number Number of results (optional)
 function VisualizationSystem:add_query(x, y, w, h, result_count)
-   table.insert(self.query_history, {
+   add(self.query_history, {
       x = x,
       y = y,
       w = w,
       h = h,
       result_count = result_count,
-      timestamp = os.time()
+      timestamp = time()
    })
 
    -- Keep only last 50 queries
    if #self.query_history > 50 then
-      table.remove(self.query_history, 1)
+      deli(self.query_history, 1)
    end
 end
 
 --- Handle keyboard input for debugging controls
 function VisualizationSystem:handle_input()
    -- Toggle structure visibility
-   if btnp(7) then -- G key
+   if keyp("g", true) then -- G key
       self.show_structure = not self.show_structure
    end
 
    -- Toggle object visibility
-   if btnp(14) then -- O key
+   if keyp("o", true) then -- O key
       self.show_objects = not self.show_objects
    end
 
    -- Toggle query visibility
-   if btnp(16) then -- Q key
+   if keyp("q", true) then -- Q key
       self.show_queries = not self.show_queries
    end
 
    -- Toggle performance visibility
-   if btnp(15) then -- P key
+   if keyp("p", true) then -- P key
       self.show_performance = not self.show_performance
    end
 
    -- Zoom controls
-   if btnp(11) then     -- + key
+   if keyp("+", true) then     -- + key
       self:zoom_in()
-   elseif btnp(12) then -- - key
+   elseif keyp("-", true) then -- - key
       self:zoom_out()
    end
 
@@ -435,12 +442,12 @@ end
 
 --- Zoom in
 function VisualizationSystem:zoom_in()
-   self.viewport.scale = math.min(self.viewport.scale * 1.2, 10.0)
+   self.viewport.scale = min(self.viewport.scale * 1.2, 10.0)
 end
 
 --- Zoom out
 function VisualizationSystem:zoom_out()
-   self.viewport.scale = math.max(self.viewport.scale / 1.2, 0.1)
+   self.viewport.scale = max(self.viewport.scale / 1.2, 0.1)
 end
 
 --- Pan the viewport
