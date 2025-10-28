@@ -1,7 +1,8 @@
 --- @diagnostic disable: different-requires
-include("src/picotron/require.lua")
+include("src/require.lua")
 
-local locustron = require("src/picotron/locustron")
+local Locustron = require("src/locustron")
+
 local VisualizationSystem = require("src/debugging/visualization_system")
 local PerformanceProfiler = require("src/debugging/performance_profiler")
 local DebugConsole = require("src/debugging/debug_console")
@@ -59,20 +60,25 @@ function draw_debug_overlay()
    print("VISUALIZATION STATE", help_x, help_y)
    help_y += line_height
 
-   color(vis_system.show_structure and 11 or 5)
-   print("Structure: " .. (vis_system.show_structure and "ON" or "OFF"), help_x, help_y)
-   help_y += line_height
+   if vis_system then
+      color(vis_system.show_structure and 11 or 5)
+      print("Structure: " .. (vis_system.show_structure and "ON" or "OFF"), help_x, help_y)
+      help_y += line_height
 
-   color(vis_system.show_objects and 11 or 5)
-   print("Objects: " .. (vis_system.show_objects and "ON" or "OFF"), help_x, help_y)
-   help_y += line_height
+      color(vis_system.show_objects and 11 or 5)
+      print("Objects: " .. (vis_system.show_objects and "ON" or "OFF"), help_x, help_y)
+      help_y += line_height
 
-   color(vis_system.show_queries and 11 or 5)
-   print("Queries: " .. (vis_system.show_queries and "ON" or "OFF"), help_x, help_y)
-   help_y += line_height
+      color(vis_system.show_queries and 11 or 5)
+      print("Queries: " .. (vis_system.show_queries and "ON" or "OFF"), help_x, help_y)
+      help_y += line_height
 
-   color(vis_system.show_performance and 11 or 5)
-   print("Performance: " .. (vis_system.show_performance and "ON" or "OFF"), help_x, help_y)
+      color(vis_system.show_performance and 11 or 5)
+      print("Performance: " .. (vis_system.show_performance and "ON" or "OFF"), help_x, help_y)
+   else
+      color(5)
+      print("Visualization system not initialized", help_x, help_y)
+   end
 end
 
 function draw_debug_info()
@@ -91,10 +97,14 @@ function draw_debug_info()
    info_y += line_height * 1.5
 
    color(7)
-   print("Objects: " .. tostr(loc._obj_count()), info_x, info_y)
+   print("Objects: " .. tostr(loc:count()), info_x, info_y)
    info_y += line_height
 
-   print("Pool: " .. tostr(loc._pool()), info_x, info_y)
+   -- Get strategy statistics
+   local strategy = loc:get_strategy()
+   local stats = strategy:get_statistics()
+
+   print("Allocated cells: " .. tostr(stats.cell_count), info_x, info_y)
    info_y += line_height
 
    print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
@@ -127,7 +137,7 @@ function _init()
    -- viewport. It's a rectangle that moves around, printing the objects it "sees" in color
    viewport = { x = 60, y = 60, w = 128, h = 128, dx = 2, dy = 1 }
 
-   loc = locustron(32)
+   loc = Locustron.create(32)
 
    -- Initialize debugging system
    vis_system = VisualizationSystem:new({
@@ -140,7 +150,7 @@ function _init()
    })
 
    debug_console = DebugConsole:new()
-   debug_console:set_strategy(loc, "fixed_grid")
+   debug_console:set_strategy(loc:get_strategy(), "fixed_grid")
    debug_console:set_visualization_system(vis_system)
    debug_console:set_performance_profiler(perf_profiler)
 
@@ -155,7 +165,7 @@ function _init()
          r = rnd() * 2, -- Slightly more movement for the larger space
          col = rand(6, 15),
       }
-      loc.add(obj, obj.x, obj.y, obj.w, obj.h)
+      loc:add(obj, obj.x, obj.y, obj.w, obj.h)
    end
 end
 
@@ -169,7 +179,7 @@ function _update()
       debug_mode = not debug_mode
    end
 
-   if debug_mode then
+   if debug_mode and vis_system then
       -- Debug visualization controls
       if btnp(0) then vis_system.show_structure = not vis_system.show_structure end -- Left - toggle structure
       if btnp(1) then vis_system.show_objects = not vis_system.show_objects end -- Right - toggle objects
@@ -188,11 +198,11 @@ function _update()
    -- move all the objects in locus
    -- we use a bigger box than just the grid so that we also update the objects that
    -- are outside of the visible grid area
-   for obj in pairs(loc.query(-64, -64, 384, 384)) do
+   for obj in pairs(loc:query(-64, -64, 384, 384)) do
       obj.x += sin(obj.av * t()) * obj.r
       obj.y += cos(obj.av * t()) * obj.r
       -- Use userdata-optimized update which leverages get_bbox internally
-      loc.update(obj, obj.x, obj.y, obj.w, obj.h)
+      loc:update(obj, obj.x, obj.y, obj.w, obj.h)
    end
 
    -- update the viewport within the grid bounds
@@ -208,26 +218,25 @@ function _update()
 end
 
 function draw_grid_cells(loc, color)
-   local cl, ct, cr, cb = loc._box2grid(0, 0, GRID_SIZE, GRID_SIZE)
-   local size = loc._size
+   local strategy = loc:get_strategy()
+   local debug_info = strategy:get_debug_info()
+   local cell_size = debug_info.cell_size
 
    -- draw the cells within the grid area
-   for cy = ct, cb do
-      for cx = cl, cr do
-         local count = loc._get_cell_count(cx, cy)
-         if count > 0 then
-            local x, y = GRID_X + cx * size, GRID_Y + cy * size
-            rrect(x, y, size, size)
-            print(count, x + 2, y + 2, color or 1)
-         end
+   for _, cell_info in ipairs(debug_info.cells) do
+      local count = cell_info.object_count
+      if count > 0 then
+         local x, y = GRID_X + cell_info.world_x, GRID_Y + cell_info.world_y
+         rrect(x, y, cell_size, cell_size)
+         print(count, x + 2, y + 2, color or 1)
       end
    end
 end
 
 function draw_locus(loc)
    -- draw the boxes containing each object (optimized for userdata)
-   for obj in pairs(loc.query(-64, -64, 384, 384)) do
-      local x, y, w, h = loc.get_bbox(obj)
+   for obj in pairs(loc:query(-64, -64, 384, 384)) do
+      local x, y, w, h = loc:get_bbox(obj)
       if x then rrect(GRID_X + x, GRID_Y + y, w, h) end
    end
 
@@ -238,13 +247,17 @@ function draw_locus(loc)
    print("LOCUSTRON SPATIAL HASH", INFO_X, info_y, 11)
    info_y += line_height * 2
 
-   print("Objects in locus: " .. tostr(loc._obj_count()), INFO_X, info_y, 7)
+   print("Objects in locus: " .. tostr(loc:count()), INFO_X, info_y, 7)
    info_y += line_height
 
-   print("Query pool size: " .. tostr(loc._pool()), INFO_X, info_y, 7)
+   -- Get strategy statistics for additional info
+   local strategy = loc:get_strategy()
+   local stats = strategy:get_statistics()
+
+   print("Allocated cells: " .. tostr(stats.cell_count), INFO_X, info_y, 7)
    info_y += line_height * 2
 
-   print("Grid size: " .. tostr(loc._size) .. "px", INFO_X, info_y, 6)
+   print("Grid size: " .. tostr(stats.cell_size) .. "px", INFO_X, info_y, 6)
    info_y += line_height
 
    print("Object size: min " .. OBJECTS_MIN_WIDTH .. ", max " .. OBJECTS_MAX_WIDTH, INFO_X, info_y, 6)
@@ -266,14 +279,14 @@ function draw_locus(loc)
    print("MEM: " .. tostr(flr(stat(3) / 1024)) .. " KB", INFO_X, info_y, 6)
    info_y += line_height
 
-   print("Cell pool size: " .. tostr(loc._cell_pool_size()), INFO_X, info_y, 6)
+   print("Grid efficiency: " .. tostr(flr(stats.grid_efficiency * 100)) .. "%", INFO_X, info_y, 6)
    info_y += line_height
 end
 
 function _draw()
    cls()
 
-   if debug_mode then
+   if debug_mode and vis_system then
       -- Debug visualization mode
       vis_system:render_strategy(loc, "fixed_grid")
 
@@ -298,9 +311,9 @@ function _draw()
       -- draw the objects that are visible through the viewport with rectfill+color
       -- Use userdata-optimized approach: get bbox coordinates directly from userdata
       clip(GRID_X + viewport.x, GRID_Y + viewport.y, viewport.w, viewport.h)
-      for obj in pairs(loc.query(viewport.x, viewport.y, viewport.w, viewport.h)) do
+      for obj in pairs(loc:query(viewport.x, viewport.y, viewport.w, viewport.h)) do
          -- Leverage userdata bbox access for consistent coordinates
-         local x, y, w, h = loc.get_bbox(obj)
+         local x, y, w, h = loc:get_bbox(obj)
          if x then rrectfill(GRID_X + x, GRID_Y + y, w, h, 0, obj.col) end
       end
       draw_grid_cells(loc, 13)
