@@ -1,5 +1,5 @@
 --- @diagnostic disable: different-requires
-include("src.require.lua")
+include("src/require.lua")
 
 local Locustron = require("src.locustron")
 
