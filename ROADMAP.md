@@ -35,8 +35,7 @@ Locustron is evolving from a single Fixed Grid implementation to a comprehensive
 - **[Phase 3: Game Engine API](./docs/roadmap/phase-3-api-development.md)** - Main locustron game engine API development 🔄
 - **[Phase 4: Debugging & Visualization](./docs/roadmap/phase-4-debugging.md)** - Advanced debugging and visualization ⏳
 - **[Phase 5: Documentation](./docs/roadmap/phase-5-documentation.md)** - Documentation and examples ⏳
-- **[Phase 6: Strategies](./docs/roadmap/phase-6-strategies.md)** - Additional strategy implementation ⏳
-- **[Phase 6: Strategies](./docs/roadmap/phase-6-strategies.md)** - Additional strategy implementation ⏳
+- **[Phase 6: Strategies](./docs/roadmap/phase-6-strategies.md)** - Assess and implement more strategies ⏳
 
 ### Architecture & Implementation
 
