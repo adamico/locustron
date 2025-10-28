@@ -1,27 +1,35 @@
-# Phase 4: Advanced Debugging & Visualization (2 weeks)
+# Phase 4: Advanced Debugging & Visualization
 
 ## Overview
 
-Phase 4 creates comprehensive debugging and visualization tools for Locustron. These tools work with the benchmarking framework from Phase 2 to help developers understand spatial partitioning behavior, optimize performance, and debug spatial logic with real-time visual feedback.
+Phase 4 creates comprehensive debugging and visualization tools for Locustron optimized for the Picotron runtime. These tools help developers understand spatial partitioning behavior, optimize performance, and debug spatial logic with real-time visual feedback in the Picotron environment.
 
----
+**Key Refinements:**
 
-## Phase 4.1: Real-time Visualization System (8 days)
+- **Picotron-Only Rendering**: Single rendering backend optimized for Picotron runtime
+- **Live Testing**: User handles live testing via Picotron demo cartridge execution
+- **Debug Output**: Critical debug information logged via `printh()` statements for review
+- **No Tests/Specs**: Focus on core debugging tools without test suite creation
 
-### Objectives
+## Implementation Plan
 
-- Create real-time visualization of spatial partitioning structures
-- Implement interactive debugging interfaces
-- Develop performance profiling visualizations
-- Support multiple rendering backends (Picotron, HTML5 Canvas, etc.)
+Phase 4 follows a streamlined 4-step implementation approach:
 
-### Key Features
+### Step 1: Picotron Visualization System
 
-- **Structure Visualization**: Real-time display of grid cells, quadtree nodes, etc.
-- **Object Tracking**: Visual representation of objects and their spatial relationships
-- **Query Visualization**: Show query regions and results
-- **Performance Heatmaps**: Visual performance analysis
-- **Interactive Controls**: Zoom, pan, filter, and inspect spatial structures
+Create `src/debugging/visualization_system.lua` with real-time rendering of spatial structures, objects, and query regions optimized for Picotron runtime.
+
+### Step 2: Performance Profiler with Debug Output
+
+Create `src/debugging/performance_profiler.lua` combining performance profiling with colored ANSI printh() debug output for terminal review.
+
+### Step 3: Demo Integration
+
+Integrate debugging tools into `main.lua` with interactive keyboard controls for toggling visualization layers and inspecting spatial data.
+
+### Step 4: Live Testing
+
+User performs live testing in Picotron demo cartridge, reviewing colored printh() output in terminal for validation.
 
 ### Visualization Architecture
 
@@ -32,7 +40,6 @@ VisualizationSystem.__index = VisualizationSystem
 function VisualizationSystem.new(config)
   local self = setmetatable({}, VisualizationSystem)
 
-  self.renderer = config.renderer or "picotron"  -- "picotron", "html5", "terminal"
   self.viewport = {x = 0, y = 0, w = 400, h = 300, scale = 1.0}
   self.colors = config.colors or self:get_default_colors()
   self.show_structure = true
@@ -368,12 +375,12 @@ end
 
 ---
 
-## Phase 4.2: Interactive Debugging Tools (6 days)
+## Phase 4.2: Interactive Debugging Tools
 
 - Create detailed performance profiling for spatial operations
 - Implement performance regression detection
 - Develop performance optimization suggestions
-- Create performance comparison tools
+- Add printh() debug output for critical information review
 
 ### Performance Profiler
 
@@ -581,6 +588,59 @@ function PerformanceProfiler:generate_recommendations(analysis)
 end
 ```
 
+### Debug Output with printh()
+
+Critical debug information is logged using Picotron's `printh()` function for review during live testing:
+
+```lua
+-- Performance profiling debug output
+function PerformanceProfiler:log_performance_summary()
+  printh("\27[33m=== Performance Profile Summary ===\27[0m")
+  for operation, samples in pairs(self.operation_data) do
+    if #samples > 0 then
+      local stats = self:calculate_statistics(samples)
+      printh(string.format("\27[35m%s\27[0m: count=%d, avg=%.2fms, p95=%.2fms",
+                          operation, stats.count,
+                          stats.duration.avg * 1000,
+                          stats.duration.p95 * 1000))
+    end
+  end
+  printh("\27[33m===================================\27[0m")
+end
+
+-- Spatial structure debug output
+function VisualizationSystem:log_spatial_info(strategy, strategy_name)
+  printh("\27[36m=== Spatial Structure Info ===\27[0m")
+  printh(string.format("\27[35mStrategy\27[0m: %s", strategy_name))
+
+  if strategy_name == "fixed_grid" then
+    local total_cells = 0
+    local occupied_cells = 0
+    for _, row in pairs(strategy.grid or {}) do
+      for _, cell in pairs(row) do
+        total_cells = total_cells + 1
+        if cell.count > 0 then
+          occupied_cells = occupied_cells + 1
+        end
+      end
+    end
+    printh(string.format("\27[35mGrid\27[0m: %dx%d cells, %d occupied (%.1f%%)",
+                        strategy.grid_width or 0, strategy.grid_height or 0,
+                        occupied_cells, (occupied_cells / total_cells) * 100))
+  end
+
+  printh(string.format("\27[35mTotal objects\27[0m: %d", strategy._object_count or 0))
+  printh("\27[36m==============================\27[0m")
+end
+
+-- Query operation debug output
+function Locustron:log_query_operation(operation, region, results)
+  printh(string.format("\27[32mQuery\27[0m %s: region=(%.1f,%.1f,%.1f,%.1f), results=%d",
+                      operation, region[1], region[2], region[3], region[4],
+                      results.count or #results))
+end
+```
+
 ### Real-time Performance Dashboard
 
 ```lua
@@ -703,10 +763,9 @@ end
 
 ## Phase 4 Summary
 
-**Duration**: 2 weeks (14 days)
-**Key Achievement**: Comprehensive debugging and visualization tools
-**Visualization**: Real-time display of spatial structures and performance
-**Profiling**: Detailed performance analysis and optimization recommendations
-**Debugging**: Interactive tools for inspecting spatial partitioning behavior
+**Key Achievement**: Picotron-optimized debugging and visualization tools
+**Visualization**: Real-time display of spatial structures and performance in Picotron
+**Profiling**: Detailed performance analysis with printh() debug output
+**Live Testing**: Live testing via Picotron demo cartridge execution
 
 **Ready for Phase 5**: Documentation and examples creation.
