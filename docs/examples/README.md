@@ -5,10 +5,12 @@ This directory contains complete, runnable examples demonstrating Locustron usag
 ## Available Examples
 
 ### 🎮 [Survivor-like Game](survivor-like.lua)
+
 **Strategy**: Quadtree
 **Scenario**: Wave-based survival game with clustered enemy spawning
 
 Features:
+
 - Dynamic enemy spawning in waves around player
 - Quadtree spatial partitioning for efficient collision detection
 - Lifespan-based enemy lifecycle management
@@ -17,10 +19,12 @@ Features:
 **Best for**: Games with clustered object distributions, survival mechanics
 
 ### 🚀 [Space Battle](space-battle.lua)
+
 **Strategy**: Hash Grid
 **Scenario**: Large-scale space battle with many moving ships
 
 Features:
+
 - Large world with multiple objectives
 - Hash grid for efficient sparse world management
 - High object counts (150+ ships)
@@ -29,10 +33,12 @@ Features:
 **Best for**: Open world games, large-scale simulations
 
 ### 🏃 [Platformer](platformer.lua)
+
 **Strategy**: Fixed Grid
 **Scenario**: Traditional platformer with collision detection
 
 Features:
+
 - Bounded level with platforms and player character
 - Fixed grid for uniform spatial partitioning
 - Platform collision and player physics
@@ -41,10 +47,12 @@ Features:
 **Best for**: Bounded worlds, uniform object distributions
 
 ### 🌱 [Dynamic Ecosystem](dynamic-ecosystem.lua)
+
 **Strategy**: Quadtree
 **Scenario**: Birth/death simulation with dynamic object lifecycle
 
 Features:
+
 - Organisms with lifespans and dynamic spawning
 - Quadtree adaptation to changing object distributions
 - Real-time population management
@@ -58,9 +66,11 @@ Features:
 
 1. Load the Locustron cartridge
 2. Include the desired example:
+
    ```lua
    include("examples/survivor-like.lua")
    ```
+
 3. Run the cartridge
 
 ### Standalone Testing
@@ -97,6 +107,7 @@ All examples demonstrate these core patterns:
 ### Performance Monitoring
 
 Each example includes debug visualization to show:
+
 - Spatial partitioning structure
 - Query efficiency
 - Object distribution
@@ -105,6 +116,7 @@ Each example includes debug visualization to show:
 ### Strategy Selection
 
 Examples are chosen to showcase optimal strategies for their use cases:
+
 - Fixed Grid for predictable, uniform scenarios
 - Quadtree for adaptive, clustered scenarios
 - Hash Grid for sparse, large-world scenarios

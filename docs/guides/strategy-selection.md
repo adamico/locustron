@@ -19,36 +19,44 @@ Before choosing a strategy, analyze your game's characteristics:
 ### Object Distribution
 
 **Uniform Distribution**: Objects spread evenly across the world
+
 - **Example**: RTS games, platformers with regular enemy placement
 - **Best Strategy**: Fixed Grid
 
 **Clustered Distribution**: Objects grouped in specific areas
+
 - **Example**: Survival games, games with spawn points
 - **Best Strategy**: Quadtree
 
 **Sparse Distribution**: Objects scattered across large areas
+
 - **Example**: Open world games, space simulations
 - **Best Strategy**: Hash Grid
 
 ### World Characteristics
 
 **Bounded World**: Fixed-size game area
+
 - **Example**: Platformers, puzzle games, most 2D games
 - **Consider**: Fixed Grid, Quadtree
 
 **Infinite/Large World**: Procedurally generated or very large worlds
+
 - **Example**: Open world games, space games
 - **Best Strategy**: Hash Grid
 
 ### Object Behavior
 
 **Static Objects**: Objects that don't move
+
 - **All strategies work well**
 
 **Slowly Moving**: Objects that move short distances
+
 - **All strategies work well**
 
 **Highly Dynamic**: Objects that move frequently/long distances
+
 - **Consider**: BVH for complex movement patterns
 
 ## Strategy Deep Dive
@@ -58,17 +66,20 @@ Before choosing a strategy, analyze your game's characteristics:
 **How it works**: Divides space into regular grid cells of fixed size.
 
 **Best for**:
+
 - Uniform object distributions
 - Bounded game worlds
 - Objects of similar sizes
 - Simple collision detection
 
 **Performance**:
+
 - Add/Update/Remove: O(1)
 - Query: O(k) where k = objects in overlapping cells
 - Memory: O(n + c) where c = active cells
 
 **Configuration**:
+
 ```lua
 local loc = locustron({
   strategy = "fixed_grid",
@@ -80,12 +91,14 @@ local loc = locustron({
 ```
 
 **When to choose**:
+
 - ✅ Platformers with regular level layouts
 - ✅ RTS games with uniform unit distributions
 - ✅ Puzzle games with grid-based mechanics
 - ✅ Memory is not a major constraint
 
 **When to avoid**:
+
 - ❌ Large open worlds (use Hash Grid)
 - ❌ Highly clustered objects (use Quadtree)
 - ❌ Memory-constrained environments
@@ -95,17 +108,20 @@ local loc = locustron({
 **How it works**: Hierarchical subdivision that adapts to object density.
 
 **Best for**:
+
 - Clustered object distributions
 - Adaptive spatial partitioning
 - Games with varying object densities
 - Survival games with spawn waves
 
 **Performance**:
+
 - Add/Update/Remove: O(log n) average
 - Query: O(k + log n) where k = found objects
 - Memory: O(n) with good locality
 
 **Configuration**:
+
 ```lua
 local loc = locustron({
   strategy = "quadtree",
@@ -117,12 +133,14 @@ local loc = locustron({
 ```
 
 **When to choose**:
+
 - ✅ Games with clustered enemies (survival, horde modes)
 - ✅ Procedurally generated content
 - ✅ Scenes with varying object densities
 - ✅ Need adaptive partitioning
 
 **When to avoid**:
+
 - ❌ Uniform object distributions (Fixed Grid is simpler)
 - ❌ Very large worlds (Hash Grid for sparse areas)
 
@@ -131,17 +149,20 @@ local loc = locustron({
 **How it works**: Uses hash functions to map coordinates to cells, only allocating memory for occupied areas.
 
 **Best for**:
+
 - Large or infinite worlds
 - Sparse object distributions
 - Open world games
 - Space/planetary simulations
 
 **Performance**:
+
 - Add/Update/Remove: O(1)
 - Query: O(k) where k = objects in cell
 - Memory: O(n) - only allocates for occupied cells
 
 **Configuration**:
+
 ```lua
 local loc = locustron({
   strategy = "hash_grid",
@@ -152,12 +173,14 @@ local loc = locustron({
 ```
 
 **When to choose**:
+
 - ✅ Open world games
 - ✅ Space simulations
 - ✅ Large procedural worlds
 - ✅ Memory efficiency is important
 
 **When to avoid**:
+
 - ❌ Small bounded worlds (Fixed Grid is simpler)
 - ❌ Very dense object clusters
 
@@ -166,17 +189,20 @@ local loc = locustron({
 **How it works**: Binary space partitioning for hierarchical spatial relationships.
 
 **Best for**:
+
 - Complex spatial queries
 - Ray casting applications
 - Games needing precise spatial relationships
 - Architectural/portal-based games
 
 **Performance**:
+
 - Add/Update/Remove: O(log n)
 - Query: O(log n + k)
 - Memory: O(n)
 
 **Configuration**:
+
 ```lua
 local loc = locustron({
   strategy = "bsp_tree",
@@ -187,6 +213,7 @@ local loc = locustron({
 ```
 
 **When to choose**:
+
 - ✅ Ray casting games
 - ✅ Complex spatial analysis
 - ✅ Architectural visualization
@@ -197,17 +224,20 @@ local loc = locustron({
 **How it works**: Tree structure using bounding volumes for efficient collision detection.
 
 **Best for**:
+
 - Dynamic objects with complex shapes
 - Ray tracing applications
 - Physics simulations
 - Games with many moving objects
 
 **Performance**:
+
 - Add/Update/Remove: O(log n) with refitting
 - Query: O(log n + k)
 - Memory: O(n)
 
 **Configuration**:
+
 ```lua
 local loc = locustron({
   strategy = "bvh",
@@ -218,6 +248,7 @@ local loc = locustron({
 ```
 
 **When to choose**:
+
 - ✅ Physics-heavy games
 - ✅ Ray tracing applications
 - ✅ Complex collision shapes
@@ -225,7 +256,7 @@ local loc = locustron({
 
 ## Decision Flowchart
 
-```
+``` markdown
 Start: Analyze your game
     ↓
 Does your game have a bounded world?
@@ -328,4 +359,3 @@ print(string.format("Spatial ops: %.2fms", elapsed * 1000))
 - Review the [API Reference](../api/) for strategy-specific details
 - Look at [Code Examples](../examples/) for real implementations
 - Run benchmarks with your specific object patterns
-

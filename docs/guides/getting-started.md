@@ -18,6 +18,7 @@ Locustron is distributed as a Picotron cartridge via Yotta:
 ```
 
 Then in your code:
+
 ```lua
 include("lib/locustron/locustron")
 ```
@@ -25,6 +26,7 @@ include("lib/locustron/locustron")
 ### Manual Installation
 
 Copy these files to your project:
+
 - `exports/locustron.lua`
 - `exports/require.lua`
 
