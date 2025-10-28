@@ -28,6 +28,7 @@ git commit-multi
 - ✅ **Conventional Commits validation** - Ensures proper format compliance
 - ✅ **Fish shell compatible** - Works reliably in fish shell environment
 - ✅ **Automatic cleanup** - Temporary files are cleaned up automatically
+- ✅ **Amend support** - Smart handling of `git commit --amend` with current message pre-populated
 
 ## Example Usage
 
