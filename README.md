@@ -34,6 +34,32 @@ Locustron includes multiple interactive demo scenarios to showcase different spa
 | **Platformer Level** | Bounded level with enemies on platforms | Fixed Grid | Uniform areas, bounded world |
 | **Dynamic Ecosystem** | Living system with birth/death cycles | Quadtree | Changing distributions, object lifecycle |
 
+## Demo Architecture
+
+The demo system uses a **SceneManager** with **Stateful** pattern for clean scenario management:
+
+```text
+demo/
+├── scene_manager.lua          # Core scene management with Stateful mixin
+├── scenes/                     # Individual scenario implementations
+│   ├── survivor_like.lua      # Survivor-like gameplay scenario
+│   ├── space_battle.lua       # Space battle scenario
+│   ├── platformer.lua         # Platformer level scenario
+│   └── dynamic_ecosystem.lua  # Dynamic ecosystem scenario
+└── debugging/                  # Debug and visualization tools
+    ├── visualization_system.lua
+    ├── performance_profiler.lua
+    └── debug_console.lua
+```
+
+Each scenario is implemented as a state class that extends SceneManager, providing:
+
+- `enteredState()` - Initialize scenario-specific properties
+- `init()` - Set up spatial structures and initial objects
+- `update()` - Handle game logic and object updates
+- `draw()` - Render the scenario
+- `get_objects()` - Return objects for debugging/visualization
+
 ## Running Demos
 
 The demo can be easily run directly in Picotron through the BBS by doing `load #locustron` from the Picotron console.
