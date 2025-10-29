@@ -261,12 +261,36 @@ function DynamicEcosystem:draw()
    line(cursor.x + 2, cursor.y, cursor.x + 6, cursor.y, cursor_color)
    line(cursor.x, cursor.y - 6, cursor.x, cursor.y - 2, cursor_color)
    line(cursor.x, cursor.y + 2, cursor.x, cursor.y + 6, cursor_color)
-
-   print("Organisms: " .. #self.objects, 280, 8, 7)
    
+
+
+      -- Draw info box
+   local info_x = 8
+   local info_y = 8
+   local lines = 1
+   local padding = 3
+   local line_height = 8
+   local box_width = 80
+   local box_height = lines * (line_height + padding) -- = 4 * (8 + 1) = 36
+   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+   print("Organisms: "..#self.objects, info_x, info_y, 7)
+   info_y = info_y + line_height + padding
    -- Display cursor mode
    local mode_text = "Mode: " .. cursor.mode:upper()
-   print(mode_text, 280, 16, cursor_color)
+   print(mode_text, info_x, info_y, cursor_color)
+
+   -- Draw controls
+   local ctrl_x = info_x
+   local ctrl_y = 248
+   local ctrl_lines = 2
+   local ctrl_box_width = #self.description * 5 + 20
+   local ctrl_box_height = ctrl_lines * (line_height + padding) -- = 3 * (8 + 1) = 27
+   rrectfill(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 0)
+   rrect(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 7)
+   print("CONTROLS", ctrl_x, ctrl_y, 11)
+   ctrl_y += line_height
+   print(self.description, ctrl_x, ctrl_y, 7)
 end
 
 function DynamicEcosystem:get_objects()

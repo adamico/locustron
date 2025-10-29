@@ -1,3 +1,6 @@
+local screen_width = 480
+local screen_height = 270
+
 --- @class VisualizationSystem
 --- Picotron Visualization System for Locustron
 --- Provides real-time rendering of spatial structures, objects, and query regions
@@ -26,7 +29,7 @@ function VisualizationSystem:initialize(config)
    config = config or {}
 
    -- Viewport configuration
-   self.viewport = config.viewport or { x = 0, y = 0, w = 400, h = 300, scale = 1.0 }
+   self.viewport = config.viewport or { x = 0, y = 0, w = screen_width, h = screen_height, scale = 1.0 }
 
    -- Default colors optimized for Picotron
    self.colors = config.colors

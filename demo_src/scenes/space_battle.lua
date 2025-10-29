@@ -13,6 +13,7 @@ function SpaceBattle:enteredState()
    -- Initialize space battle specific properties
    self.name = "Space Battle"
    self.description = "Navigate your ship (arrows) - AI ships react to your presence"
+   self.controls = "Move: Arrows"
    self.optimal_strategy = "hash_grid"
 
    -- Scenario-specific state
@@ -102,6 +103,10 @@ function SpaceBattle:update()
    if math.random() < 0.001 and #self.objects < self.max_objects then
       self:spawn_ship()
    end
+
+   self.draw_info = {
+      "Ships: " .. tostring(#self.objects),
+   }
 end
 
 function SpaceBattle:update_player_ship()
@@ -258,30 +263,6 @@ function SpaceBattle:draw()
          self.player_ship.y + (dir_y / dir_len) * 6,
          7)   -- White direction line
    end
-
-   -- Draw info box
-   local info_x = 8
-   local info_y = 8
-   local lines = 1
-   local padding = 3
-   local line_height = 8
-   local box_width = 80
-   local box_height = lines * (line_height + padding) -- = 4 * (8 + 1) = 36
-   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
-   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
-   print("Ships: "..#self.objects, info_x, info_y, 7)
-
-      -- Draw controls
-   local ctrl_x = info_x
-   local ctrl_y = 230
-   local ctrl_lines = 2
-   local ctrl_box_width = 140
-   local ctrl_box_height = ctrl_lines * (line_height + padding) -- = 3 * (8 + 1) = 27
-   rrectfill(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 0)
-   rrect(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 7)
-   print("CONTROLS", ctrl_x, ctrl_y, 11)
-   ctrl_y += line_height
-   print("Arrows: Move Ship", ctrl_x, ctrl_y, 7)
 end
 
 function SpaceBattle:get_objects()

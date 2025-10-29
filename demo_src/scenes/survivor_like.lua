@@ -14,6 +14,7 @@ function SurvivorLike:enteredState()
    -- Initialize survivor-like specific properties
    self.name = "Survivor Like"
    self.description = "Monsters spawn in waves around player, creating dense clusters"
+   self.controls = "Move: Arrows | Auto-attack nearby monsters"
    self.optimal_strategy = "quadtree"
 
    -- Player definition
@@ -51,8 +52,14 @@ function SurvivorLike:update()
    self:spawn_monsters_if_needed()
    self:update_monsters()
    self:check_player_death()
-end
 
+   self.draw_info = {
+      "Wave: " .. tostring(self.wave),
+      "Monster Count: " .. tostring(#self.objects),
+      "Player Health: " .. tostring(self.player.health),
+      "Projectiles Count: " .. tostring(#self.projectiles),
+   }
+end
 
 function SurvivorLike:process_pending_removal()
    -- Process pending removal for array cleanup only (spatial removal already done)
@@ -427,38 +434,6 @@ function SurvivorLike:draw()
    for _, bullet in ipairs(self.projectiles) do
       circfill(bullet.x, bullet.y, bullet.w, 8) -- Red bullets
    end
-
-   -- Draw wave info
-   local info_x = 8
-   local info_y = 8
-   local lines = 4
-   local padding = 1
-   local line_height = 8
-   local box_width = 80
-   local box_height = lines * (line_height + padding) -- = 4 * (8 + 1) = 36
-   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
-   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
-   print("Wave: "..self.wave, info_x, info_y, 7)
-   info_y = info_y + line_height
-   print("Monsters: "..#self.objects, info_x, info_y, 7)
-   info_y = info_y + line_height
-   print("Health: "..self.player.health.."/"..self.player.max_health, info_x, info_y, 7)
-   info_y = info_y + line_height
-   print("Bullets: "..#self.projectiles, info_x, info_y, 7)
-
-   -- Draw controls
-   local ctrl_x = info_x
-   local ctrl_y = 230
-   local ctrl_lines = 3
-   local ctrl_box_width = 140
-   local ctrl_box_height = ctrl_lines * (line_height + padding) -- = 3 * (8 + 1) = 27
-   rrectfill(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 0)
-   rrect(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 7)
-   print("CONTROLS", ctrl_x, ctrl_y, 11)
-   ctrl_y = ctrl_y + line_height
-   print("Arrow Keys: Move", ctrl_x, ctrl_y, 7)
-   ctrl_y = ctrl_y + line_height
-   print("Auto-Attack Nearby Monsters", ctrl_x, ctrl_y, 7)
 end
 
 function SurvivorLike:get_objects()

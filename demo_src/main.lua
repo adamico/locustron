@@ -186,188 +186,197 @@ function _draw()
       if Scene and Scene.draw then Scene:draw() end
    end
 
+   local margin = 8
+   local left_side_x = margin
+   local left_side_top_y = margin
+   local left_side_bottom_y = 233
+   local left_side_bottom_width = 480 - margin * 2
+   local left_side_top_width = 192
+   local right_side_x = 280
+   local right_side_y = margin
+   local right_width = 192
+   local padding = 8
+
+   -- Get strategy statistics
+   local strategy = loc:get_strategy()
+   local stats = strategy:get_statistics()
+
+
+   local x = left_side_x
+   local y = left_side_top_y
+   local width = left_side_top_width
+   -- Render scenario data info box
+   y = draw_info_box(x, y, width, "DATA", Scene.draw_info) + padding
+
    -- Render debug UI overlay
+   local x = right_side_x
+   local y = right_side_y
+   local width = right_width
+
    if show_debug_ui then
-      draw_debug_overlay()
-      draw_debug_info()
-      draw_scenario_info()
+      -- Render stats info box
+      y = draw_info_box(x, y, width, "STATS", {
+         "Objects: " .. tostr(loc:count()),
+         "Cells: " .. tostr(stats.cell_count),
+         "CPU: " .. tostr(flr(stat(1) * 100)) .. "%",
+         "MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB",
+         string.format("Strategy: %s", vis_system.current_strategy_name),
+      }) + padding
+
+      -- Render scenario info box
+      y = draw_info_box(x, y, width, "SCENARIO", {
+         scenes[current_scene].name,
+         "Best strategy: " .. Scene.optimal_strategy,
+      }) + padding
+
+      -- Render debug mode controls info box
+      if debug_mode then
+         y = draw_info_box(x, y, width, "DEBUG CONTROLS", {
+            "Z: Toggle UI",
+            "X: Toggle Debug Mode",
+            "G: Toggle Grid",
+            "O: Toggle Objects",
+            "Q: Toggle Queries",
+            "P: Toggle Performance",
+            "+/-: Zoom In/Out",
+            "Arrows: Pan Viewport",
+         }) + padding
+      else
+         -- Render UI controls info box
+         y = draw_info_box(x, y, width, "CONTROLS", {
+            "Z: Toggle UI",
+            "X: Toggle Debug Mode",
+            "`: Toggle Console",
+            "Tab: Switch Scenario",
+         }) + padding
+      end
+
+      -- Render scenario controls info box
+      x = left_side_x
+      y = left_side_bottom_y
+      width = left_side_bottom_width
+      draw_info_box(x, y, width, "SCENARIO CONTROLS", {
+         Scene.controls or "N/A",
+      })
    end
 
    -- Render debug console if active
    draw_debug_console()
 end
 
-function draw_debug_overlay()
-   -- Draw debug controls help
-   local info_x = 280
-   local info_y = 154
-   local line_height = 8
-   local lines = 10
-   local padding = 1
-   local box_width = 180
-   local box_height = lines * (line_height + padding) -- = 10 * (8 + 1) = 99
-   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
-   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+function draw_info_box(x, y, width, title, lines_table, title_color)
+   local line_height = 9
+   local padding = 4
+   local height = (#lines_table + 2) * (line_height) + padding / 2
+   rrectfill(x, y, width, height, 0, 0)
+   rrect(x, y, width, height, 0, 7)
 
-   color(11)
-   print("CONTROLS", info_x, info_y)
-   info_y += line_height
+   x += padding
+   local line_y = y + padding
+   print(title, x, line_y, title_color or 11)
+   line_y += line_height * 1.5
 
    color(7)
-   print("Z: Toggle UI", info_x, info_y)
-   info_y += line_height
-   print("X: Toggle Debug Mode", info_x, info_y)
-   info_y += line_height
-   print("`: Toggle Console", info_x, info_y)
-   info_y += line_height
-   print("Tab: Switch Scenario", info_x, info_y)
-   info_y += line_height
-
-   if debug_mode then
-      color(8)
-      print("G: Toggle Grid", info_x, info_y)
-      info_y += line_height
-      print("O: Toggle Objects", info_x, info_y)
-      info_y += line_height
-      print("Q: Toggle Queries", info_x, info_y)
-      info_y += line_height
-      -- FIXME : profiler is broken
-      -- print("P: Toggle Performance", help_x, help_y)
-      -- help_y += line_height
-      print("+/-: Zoom In/Out", info_x, info_y)
-      info_y += line_height
-      print("Arrows: Pan Viewport", info_x, info_y)
+   for _, line in ipairs(lines_table) do
+      print(line, x, line_y)
+      line_y += line_height
    end
+
+   return y + height
 end
 
-function draw_debug_info()
-   -- Draw performance and system info
-   local info_x = 280
-   local info_y = 50
-   local line_height = 8
-   local lines = 10
-   local padding = 1
-   local box_width = 180
-   local box_height = lines * (line_height + padding) -- = 10 * (8 + 1) = 99
-   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
-   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+function draw_debug_console()
+   if not show_debug_console or not debug_console then return end
 
-   print("LOCUSTRON", info_x, info_y, 11)
-   info_y = info_y + line_height * 1.5
+   local margin = 8
+   local width = 480 - margin * 2
+   local height = 270 - margin * 2
+   local x = margin
+   local y = margin
+   local padding = 4
+   local line_height = 9
+   local max_visible_lines = 25
 
-   print("Objects: " .. tostr(loc:count()), info_x, info_y, 7)
-   info_y = info_y + line_height
+   -- Draw console background and border
+   rrectfill(x, y, width, height, 0, 0)
+   rrect(x, y, width, height, 0, 7)
 
-   -- Get strategy statistics
-   local strategy = loc:get_strategy()
-   local stats = strategy:get_statistics()
+   -- Draw console title bar
+   rrectfill(x + 1, y + 1, width - 2, line_height + padding, 0, 1)
+   rrect(x, y, width, line_height + padding + 2, 0, 7)
+   x += padding
+   print("DEBUG CONSOLE", x, y + padding, 11)
 
-   print("Cells: " .. tostr(stats.cell_count), info_x, info_y)
-   info_y = info_y + line_height
+   -- Draw output buffer (command history and results)
+   local output_start = math.max(1, #debug_console.output_buffer - max_visible_lines + 3) -- +3 for input area
+   local output_y = y + line_height + padding * 2
 
-   print("Cell size: " .. tostr(stats.cell_size), info_x, info_y)
-   info_y = info_y + line_height
+   for i = output_start, #debug_console.output_buffer do
+      if output_y + line_height > y + height - line_height * 2 then break end
+      if i == 1 then
+         local prompt = debug_console.output_buffer[i][1]
+         print(prompt, x, output_y, 11)
+         print(debug_console.output_buffer[i]:sub(2), x + padding, output_y, 7)
+      else
+         print(debug_console.output_buffer[i], x, output_y, 7)
+      end
+      output_y += line_height
+   end
 
-   print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
-   info_y = info_y + line_height
+   -- Draw input prompt and current input
+   local input_y = y + height - line_height * 3
+   print("> ", x, input_y, 11)
 
-   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB", info_x, info_y)
-   info_y = info_y + line_height
+   local input_text = debug_console.input_buffer
+   if #input_text > 50 then -- Truncate long input
+      input_text = "..." .. input_text:sub(-47)
+   end
+   print(input_text, x + margin, input_y, 7)
 
-   -- Strategy info
-   print(string.format("Strategy: %s", vis_system.current_strategy_name), info_x, info_y)
+   -- Draw cursor (blinking effect)
+   if time() % 1 < 0.5 then
+      local cursor_x = x + margin + print(input_text, 0, -100) -- Measure text width
+      line(cursor_x, input_y, cursor_x, input_y + line_height - 1, 7)
+   end
 
+   -- Draw help text at bottom
+   rrect(margin, y + height - line_height - padding - 2, width, line_height + padding + 2, 0, 7)
+   local help_y = y + height - line_height - padding + 2
+   print("\fb ENTER:\f7 execute command  | \fb`:\f7 toggle console", margin, help_y, 6)
+end
+
+function draw_profiler_info()
    -- Performance profiler stats : FIXME: profiler doesn't seem to be working
    if perf_profiler.enabled then
       local stats = perf_profiler.stats
       if stats.total_queries > 0 then
          info_y = info_y + line_height
          color(11)
-         print("QUERIES", info_x, info_y)
+         print("QUERIES", ui_info_x, info_y)
          info_y = info_y + line_height
 
          color(7)
-         print("Total: " .. tostr(stats.total_queries), info_x, info_y)
+         print("Total: " .. tostr(stats.total_queries), ui_info_x, info_y)
          info_y = info_y + line_height
 
-         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", info_x, info_y)
+         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", ui_info_x, info_y)
       end
    end
 end
 
-function draw_scenario_info()
+function draw_controls_info()
    if not current_scene then return end
-
-   local info_x = 280
-   local info_y = 8
-   local lines = 3
-   local padding = 1
+   local y = 248
+   local lines = 2
+   local padding = 2
    local line_height = 8
-   local box_width = 180
-   local box_height = lines * (line_height + padding) -- = 3 * (8 + 1) = 27
-
-   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
-   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
-
-   print("SCENARIO", info_x, info_y, 11)
-   info_y += line_height
-
-   color(7)
-   print(scenes[current_scene].name, info_x, info_y)
-   info_y += line_height
-
-   print("Best strategy: " .. Scene.optimal_strategy, info_x, info_y)
-end
-
-function draw_debug_console()
-   if not show_debug_console or not debug_console then return end
-
-   -- Console dimensions and positioning
-   local console_width = 400
-   local console_height = 200
-   local console_x = 8
-   local console_y = 240 - console_height - 8
-   local line_height = 8
-   local max_visible_lines = 20
-
-   -- Draw console background
-   rrectfill(console_x - 2, console_y - 2, console_width + 4, console_height + 4, 0, 0)
-   rrect(console_x - 2, console_y - 2, console_width + 4, console_height + 4, 0, 7)
-
-   -- Draw console header
-   color(11)
-   print("DEBUG CONSOLE", console_x, console_y)
-   local header_y = console_y + line_height
-
-   -- Draw output buffer (command history and results)
-   local output_start = math.max(1, #debug_console.output_buffer - max_visible_lines + 3) -- +3 for input area
-   local output_y = header_y
-
-   for i = output_start, #debug_console.output_buffer do
-      if output_y + line_height > console_y + console_height - line_height * 2 then break end
-      print(debug_console.output_buffer[i], console_x, output_y, 7)
-      output_y += line_height
-   end
-
-   -- Draw input prompt and current input
-   local input_y = console_y + console_height - line_height * 2
-   print("> ", console_x, input_y, 10)
-
-   local input_text = debug_console.input_buffer
-   if #input_text > 50 then -- Truncate long input
-      input_text = "..." .. input_text:sub(-47)
-   end
-   print(input_text, console_x + 16, input_y, 7)
-
-   -- Draw cursor (blinking effect)
-   if time() % 1 < 0.5 then
-      local cursor_x = console_x + 16 + print(input_text, 0, -100) -- Measure text width
-      line(cursor_x, input_y, cursor_x, input_y + line_height - 1, 7)
-   end
-
-   -- Draw help text at bottom
-   local help_y = console_y + console_height - line_height
-   print("Enter: Execute | `: Toggle", console_x, help_y, 6)
+   local width = 480 - 12
+   local height = lines * (line_height + padding) -- = 3 * (8 + 1) = 27
+   rrectfill(scenario_info_x - 2, y - 2, width, height, 0, 0)
+   rrect(scenario_info_x - 2, y - 2, width, height, 0, 7)
+   print("CONTROLS", scenario_info_x, y, 11)
+   y += line_height
+   print(Scene.controls, scenario_info_x, y, 7)
 end
 
 include("error_explorer.lua")

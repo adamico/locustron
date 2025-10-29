@@ -1,7 +1,8 @@
 --- Busted tests for VisualizationSystem
 --- Tests the Picotron visualization system functionality
 
-local class = require("lib.middleclass")
+local screen_width = 480
+local screen_height = 270
 
 describe("VisualizationSystem", function()
    local VisualizationSystem
@@ -19,8 +20,8 @@ describe("VisualizationSystem", function()
          -- Check default viewport
          assert.are.equal(0, vis.viewport.x)
          assert.are.equal(0, vis.viewport.y)
-         assert.are.equal(400, vis.viewport.w)
-         assert.are.equal(300, vis.viewport.h)
+         assert.are.equal(screen_width, vis.viewport.w)
+         assert.are.equal(screen_height, vis.viewport.h)
          assert.are.equal(1.0, vis.viewport.scale)
 
          -- Check default colors
@@ -69,7 +70,7 @@ describe("VisualizationSystem", function()
       end)
 
       it("should convert world to screen coordinates", function()
-         vis:set_viewport(100, 50, 400, 300, 2.0)
+         vis:set_viewport(100, 50, screen_width, screen_height, 2.0)
 
          -- World point (150, 100) should be at screen (100, 100)
          -- Because: (150 - 100) * 2.0 = 100, (100 - 50) * 2.0 = 100
@@ -239,8 +240,8 @@ describe("VisualizationSystem", function()
          assert.are.equal("rrectfill", call.type)
          assert.are.equal(0, call.x)
          assert.are.equal(0, call.y)
-         assert.are.equal(400, call.w) -- viewport width
-         assert.are.equal(300, call.h) -- viewport height
+         assert.are.equal(screen_width, call.w) -- viewport width
+         assert.are.equal(screen_height, call.h) -- viewport height
          assert.are.equal(0, call.color) -- background color
       end)
    end)
