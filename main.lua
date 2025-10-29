@@ -163,7 +163,7 @@ function _update()
 
    -- Update current scenario
    if current_scenario then
-      current_scenario:update(loc, 1 / 30) -- Assume 30 FPS
+      current_scenario:update(loc)
    end
 
    -- Track the update query for visualization (if scenario supports it)

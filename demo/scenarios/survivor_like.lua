@@ -5,6 +5,8 @@ local CollisionUtils = require("demo.collision_utils")
 
 local SurvivorLikeScenario = {}
 
+local fps_time_step = 1 / 60 -- Fixed time step for 60 FPS
+
 function SurvivorLikeScenario.new(config)
    config = config or {}
    local scenario = {
@@ -17,6 +19,7 @@ function SurvivorLikeScenario.new(config)
       spawn_timer = 0,
       max_objects = config.max_objects or 200,
       damage_cooldown = 0, -- Prevent rapid damage
+      to_remove = {}, -- Objects to remove at end of update
    }
 
    function scenario:init(loc, perf_profiler)
@@ -27,14 +30,23 @@ function SurvivorLikeScenario.new(config)
       loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
    end
 
-   function scenario:update(loc, dt)
-      self.spawn_timer = self.spawn_timer + dt
+   function scenario:update(loc)
+      self:update_timers()
+      self:spawn_monsters_if_needed(loc)
+      self:update_monsters(loc)
+      self:cleanup_dead_objects()
+   end
+
+   function scenario:update_timers()
+      self.spawn_timer = self.spawn_timer + fps_time_step
 
       -- Update damage cooldown
       if self.damage_cooldown > 0 then
-         self.damage_cooldown = self.damage_cooldown - dt
+         self.damage_cooldown = self.damage_cooldown - fps_time_step
       end
+   end
 
+   function scenario:spawn_monsters_if_needed(loc)
       -- Spawn monsters in waves
       local spawn_cooldown = self.wave == 0 and 0 or 5.0
       if self.spawn_timer > spawn_cooldown and #self.objects < self.max_objects then
@@ -42,9 +54,13 @@ function SurvivorLikeScenario.new(config)
          self.spawn_timer = 0
          self.wave = self.wave + 1
       end
+   end
+
+   function scenario:update_monsters(loc)
+      -- Clear removal list at start of update
+      self.to_remove = {}
 
       -- Update monster movement and lifespan
-      local to_remove = {}
       for i, obj in ipairs(self.objects) do
          if obj.alive then
 
@@ -54,8 +70,8 @@ function SurvivorLikeScenario.new(config)
             local dist = math.sqrt(dx * dx + dy * dy)
 
             if dist > 0 then
-               obj.x = obj.x + (dx / dist) * obj.speed * dt
-               obj.y = obj.y + (dy / dist) * obj.speed * dt
+               obj.x = obj.x + (dx / dist) * obj.speed * fps_time_step
+               obj.y = obj.y + (dy / dist) * obj.speed * fps_time_step
                loc:update(obj, obj.x, obj.y, obj.w, obj.h)
             end
 
@@ -68,7 +84,7 @@ function SurvivorLikeScenario.new(config)
                -- Remove the monster that hit the player
                obj.alive = false
                loc:remove(obj)
-               table.insert(to_remove, i)
+               table.insert(self.to_remove, i)
 
                -- Check if player is dead
                if self.player.health <= 0 then
@@ -84,7 +100,7 @@ function SurvivorLikeScenario.new(config)
                      end
                   end
                   self.objects = {}
-                  to_remove = {} -- Clear removal list since objects table was reset
+                  self.to_remove = {} -- Clear removal list since objects table was reset
                end
                break
             end
@@ -127,17 +143,19 @@ function SurvivorLikeScenario.new(config)
                local avoid_dist = math.sqrt(avoid_dx * avoid_dx + avoid_dy * avoid_dy)
 
                if avoid_dist > 0 then
-                  obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * dt * 0.5
-                  obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * dt * 0.5
+                  obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * fps_time_step * 0.5
+                  obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * fps_time_step * 0.5
                   loc:update(obj, obj.x, obj.y, obj.w, obj.h)
                end
             end
          end
       end
+   end
 
+   function scenario:cleanup_dead_objects()
       -- Remove dead objects (in reverse order to maintain indices)
-      for i = #to_remove, 1, -1 do
-         table.remove(self.objects, to_remove[i])
+      for i = #self.to_remove, 1, -1 do
+         table.remove(self.objects, self.to_remove[i])
       end
    end
 
