@@ -170,9 +170,56 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 
 - **Indentation**: **3 spaces** for all Lua files (no tabs)
 - **Naming**: `snake_case` for variables/functions, `PascalCase` for classes/modules
+- **OOP Pattern**: Use **middleclass** library for all class definitions
 - **Strategy Pattern**: Implement `SpatialStrategy` interface for new algorithms
 - **Error Handling**: Use `error()` for contract violations, `assert()` for debugging
 - **Documentation**: LuaDoc comments for all public APIs
+
+### OOP with Middleclass
+
+All classes in Locustron use the **middleclass** library (v4.1.1) for consistent OOP patterns:
+
+```lua
+local class = require("lib.middleclass")
+
+-- Class definition
+local MyClass = class("MyClass")
+
+-- Constructor (replaces manual .new() method)
+function MyClass:initialize(config)
+   config = config or {}
+   self.property = config.property or "default"
+end
+
+-- Instance methods
+function MyClass:do_something()
+   return self.property
+end
+
+-- Inheritance
+local ChildClass = class("ChildClass", MyClass)
+
+function ChildClass:initialize(config)
+   MyClass.initialize(self, config)  -- Call parent constructor
+   self.child_property = config.child_property or "child_default"
+end
+
+-- Static methods (class-level)
+function MyClass.static.create_default()
+   return MyClass:new()
+end
+
+-- Instantiation (note: use colon notation)
+local instance = MyClass:new({property = "value"})
+```
+
+**Key Conventions:**
+- Use `class("ClassName")` for new classes
+- Use `class("ClassName", ParentClass)` for inheritance
+- Replace manual `.new()` constructors with `initialize()` method
+- Instantiate with **colon notation**: `Class:new()` not `Class.new()`
+- Use `static` table for class-level methods
+- Call parent constructors with `ParentClass.initialize(self, ...)`
 
 ### Testing Patterns
 
@@ -181,7 +228,8 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 -- Pattern: Behavior-driven test specifications
 describe("Fixed Grid Strategy", function()
    it("should add objects to correct cells", function()
-      local strategy = FixedGridStrategy.new({cell_size = 32})
+      -- Note: Use colon notation for middleclass constructors
+      local strategy = FixedGridStrategy:new({cell_size = 32})
       local obj = {id = "test"}
       strategy:add_object(obj, 10, 10, 8, 8)
 
@@ -319,18 +367,20 @@ end
 
 **Example Strategy Implementation:**
 ```lua
-local QuadtreeStrategy = {}
-QuadtreeStrategy.__index = QuadtreeStrategy
-setmetatable(QuadtreeStrategy, {__index = SpatialStrategy})
+local class = require("lib.middleclass")
+local SpatialStrategy = require("src.strategies.interface").SpatialStrategy
 
-function QuadtreeStrategy.new(config)
-   local self = setmetatable({}, QuadtreeStrategy)
-   self.config = config or {}
-   self.max_objects = self.config.max_objects or 8
-   self.max_depth = self.config.max_depth or 6
+-- Inherit from SpatialStrategy
+local QuadtreeStrategy = class("QuadtreeStrategy", SpatialStrategy)
+
+function QuadtreeStrategy:initialize(config)
+   config = config or {}
+   self.max_objects = config.max_objects or 8
+   self.max_depth = config.max_depth or 6
    self.objects = {}
    self.root = self:create_node(0, 0, 1024, 1024, 0) -- World bounds
-   return self
+   self.strategy_name = "quadtree"
+   self.config = config
 end
 
 function QuadtreeStrategy:add_object(obj, x, y, w, h)

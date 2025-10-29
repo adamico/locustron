@@ -1,6 +1,7 @@
 # Collision Detection Reference: Hit.p8 Port for Picotron
 
 ## Project Overview
+
 This document serves as a reference for a future **high-performance collision detection library** for Picotron, inspired by [hit.p8](https://github.com/kikito/hit.p8) and optimized for survivor games with hundreds of entities in tight clusters.
 
 **Status**: Reference specification for future development  
@@ -12,11 +13,13 @@ This document serves as a reference for a future **high-performance collision de
 ## Design Philosophy
 
 ### Separation of Concerns
+
 - **Spatial Partitioning** (Locustron): Efficiently organize objects in space for fast queries
 - **Collision Detection** (This project): Determine precise intersections and collision responses
 - **Integration Pattern**: Use Locustron to get collision candidates, then apply precise collision detection
 
 ### Performance Goals
+
 - **200+ entities** at **60fps** for survivor games
 - **<10ms** collision detection for tight entity clusters
 - **Callback-based architecture** for flexible collision response
@@ -31,19 +34,16 @@ This document serves as a reference for a future **high-performance collision de
 **Inspired by locus.p8 patterns and optimized for survivor games**:
 
 ```lua
--- Core collision resolution system with callback support
-local CollisionResolver = {}
-CollisionResolver.__index = CollisionResolver
+local class = require("lib.middleclass")
 
-function CollisionResolver.new(spatial_partitioner)
-  local self = setmetatable({}, CollisionResolver)
-  
+-- Core collision resolution system with callback support
+local CollisionResolver = class("CollisionResolver")
+
+function CollisionResolver:initialize(spatial_partitioner)
   self.spatial = spatial_partitioner  -- Locustron instance
   self.collision_callbacks = {}
   self.collision_filters = {}
   self.batch_size = 100  -- Process collisions in batches for performance
-  
-  return self
 end
 
 -- Enhanced collision detection with callback-based resolution
@@ -265,6 +265,7 @@ end
 ## Survivor Game Optimization Patterns
 
 ### Entity Filter Functions for Performance
+
 ```lua
 -- Optimized filter functions for survivor games
 local SurvivorFilters = {}
@@ -313,10 +314,11 @@ end
 ```
 
 ### Usage Examples for Survivor Games
+
 ```lua
 -- Player bullet collision with enemies (typical survivor game pattern)
 function update_player_bullets(player_bullets, spatial)
-  local resolver = CollisionResolver.new(spatial)
+  local resolver = CollisionResolver:new(spatial)
   local enemy_filter = SurvivorFilters.create_type_filter("enemy")
   
   for _, bullet in ipairs(player_bullets) do
@@ -337,7 +339,7 @@ end
 
 -- Enemy swarm collision with player (optimized for hundreds of enemies)
 function check_player_enemy_collisions(player, spatial)
-  local resolver = CollisionResolver.new(spatial)
+  local resolver = CollisionResolver:new(spatial)
   local enemy_filter = SurvivorFilters.create_type_filter("enemy")
   
   -- Use survivor_swarm mode for high-performance batch processing
@@ -369,7 +371,7 @@ end
 
 -- Pickup collection with distance optimization
 function check_pickup_collection(player, spatial)
-  local resolver = CollisionResolver.new(spatial)
+  local resolver = CollisionResolver:new(spatial)
   
   -- Combined filter: only pickups within collection range
   local pickup_filter = SurvivorFilters.create_composite_filter({
@@ -396,18 +398,21 @@ end
 ## Hit.p8 Port Specifications
 
 ### Core Features to Port
+
 1. **Swept AABB collision detection** for continuous collision
 2. **Multiple collision shape support** (rectangles, circles, polygons)
 3. **Collision response calculations** (penetration depth, normal vectors)
 4. **Integration with spatial partitioning** for performance optimization
 
 ### Picotron-Specific Optimizations
+
 1. **Userdata integration** for high-performance collision data storage
 2. **Token optimization** using closure-based APIs instead of OOP syntax
 3. **Memory pooling** for collision result objects
 4. **Frame-rate limiting** for collision batch processing
 
 ### Performance Optimization Features
+
 1. **Batch Processing**: Handle multiple collisions in batches to maintain frame rate
 2. **Filter Caching**: Reuse filter functions to avoid repeated allocations
 3. **Early Termination**: Stop processing when frame time budget exceeded
@@ -419,12 +424,13 @@ end
 ## Integration with Locustron
 
 ### Two-Phase Collision Detection
+
 ```lua
 -- Phase 1: Spatial partitioning (Locustron)
 local candidates = locustron:query(player.x, player.y, player.w, player.h, enemy_filter)
 
 -- Phase 2: Precise collision detection (This project)
-local resolver = CollisionResolver.new(locustron)
+local resolver = CollisionResolver:new(locustron)
 local collisions = resolver:detect_collisions({
   x = player.x, y = player.y, w = player.w, h = player.h
 }, {
@@ -435,6 +441,7 @@ local collisions = resolver:detect_collisions({
 ```
 
 ### Performance Benefits
+
 - **Spatial Partitioning**: Reduces collision candidates by 90%+
 - **Precise Detection**: Eliminates false positives from spatial queries
 - **Optimal Performance**: Best of both worlds - fast broad phase + accurate narrow phase
@@ -444,12 +451,13 @@ local collisions = resolver:detect_collisions({
 ## Testing Framework
 
 ### Performance Validation
+
 ```lua
 -- Test collision detection performance with 200+ entities
 describe("Collision Detection Performance", function()
   it("should handle survivor swarm collisions efficiently", function()
     local spatial = locustron({strategy = "fixed_grid"})
-    local resolver = CollisionResolver.new(spatial)
+    local resolver = CollisionResolver:new(spatial)
     
     -- Set up player
     local player = {type = "player", x = 100, y = 100, w = 16, h = 16}
@@ -505,21 +513,25 @@ end)
 ## Future Development Roadmap
 
 ### Phase 1: Core Implementation (2 weeks)
+
 - Basic rectangle intersection collision detection
 - Callback-based architecture
 - Integration with Locustron spatial partitioning
 
 ### Phase 2: Advanced Features (2 weeks)
+
 - Continuous collision detection (hit.p8 swept AABB)
 - Multiple collision shapes (circles, polygons)
 - Collision response calculations
 
 ### Phase 3: Performance Optimization (1 week)
+
 - Survivor game batch processing
 - Memory pooling and userdata optimization
 - Frame-rate limiting and early termination
 
 ### Phase 4: Documentation & Testing (1 week)
+
 - Comprehensive test suite
 - Performance benchmarks
 - Integration examples and best practices
@@ -531,6 +543,7 @@ end)
 This collision detection project would complement Locustron perfectly by providing the precise collision detection capabilities that spatial partitioning enables. By keeping the concerns separate, we maintain clean architecture while achieving optimal performance for demanding game scenarios like survivor games with hundreds of entities.
 
 **Key Benefits:**
+
 - **Separation of Concerns**: Spatial partitioning vs collision detection
 - **Performance**: Optimized for 200+ entities at 60fps
 - **Flexibility**: Callback-based architecture for any collision response
