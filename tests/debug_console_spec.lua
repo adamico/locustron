@@ -6,8 +6,8 @@ describe("DebugConsole", function()
 
    before_each(function()
       -- Load the module fresh for each test
-      package.loaded["demo.debugging.debug_console"] = nil
-      DebugConsole = require("demo.debugging.debug_console")
+      package.loaded["demo_src.debugging.debug_console"] = nil
+      DebugConsole = require("demo_src.debugging.debug_console")
    end)
 
    describe("Class creation", function()

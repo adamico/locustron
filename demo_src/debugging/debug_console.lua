@@ -1,5 +1,3 @@
-local sort = require("demo.sort")
-
 --- @class DebugConsole
 --- Runtime debugging console for Locustron spatial partitioning
 --- Provides command-line interface for inspecting and controlling spatial structures
@@ -17,6 +15,7 @@ local DebugConsole = class("DebugConsole")
 local time = os and os.time or time
 local add = add and add or table.insert
 local deli = deli and deli or table.remove
+local Sort = Sort or table.sort
 
 --- Create a new debug console instance
 --- @param config table Configuration table with console settings
@@ -241,7 +240,7 @@ function DebugConsole:get_help_text()
    for name, cmd in pairs(self.commands) do
       add(sorted_commands, {name = name, desc = cmd.description})
    end
-   sort(sorted_commands, function(a, b) return a.name < b.name end)
+   Sort(sorted_commands, function(a, b) return a.name < b.name end)
 
    for _, cmd in ipairs(sorted_commands) do
       add(lines, string.format("  %-12s %s", cmd.name, cmd.desc))

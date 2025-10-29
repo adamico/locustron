@@ -1,5 +1,3 @@
-local sort = require("demo.sort")
-
 --- @class PerformanceProfiler
 --- Performance profiling system for Locustron spatial queries
 --- Measures query execution times, analyzes bottlenecks, and provides optimization insights
@@ -10,6 +8,7 @@ local sort = require("demo.sort")
 --- @field stats table Aggregated performance statistics
 local class = require("lib.middleclass")
 local PerformanceProfiler = class("PerformanceProfiler")
+local Sort = Sort or table.sort
 
 --- Create a new performance profiler instance
 --- @param config table Configuration table with profiling settings
@@ -173,7 +172,7 @@ function PerformanceProfiler:update_aggregated_stats()
    self.stats.average_query_time = total_time / #self.measurements
 
    -- Calculate percentiles
-   sort(times)
+   Sort(times)
    local n = #times
    self.stats.median_query_time = times[math.floor(n / 2) + 1] or 0
    self.stats.p95_query_time = times[math.floor(n * 0.95) + 1] or 0
@@ -206,7 +205,7 @@ function PerformanceProfiler:update_strategy_stats()
 
    -- Calculate stats for each strategy
    for strategy, data in pairs(strategy_data) do
-      sort(data.times)
+      Sort(data.times)
       local n = #data.times
 
       self.stats.strategy_performance[strategy] = {
@@ -244,7 +243,7 @@ function PerformanceProfiler:get_bottlenecks(count)
       table.insert(sorted, measurement)
    end
 
-   sort(sorted, function(a, b) return a.execution_time > b.execution_time end)
+   Sort(sorted, function(a, b) return a.execution_time > b.execution_time end)
 
    local bottlenecks = {}
    for i = 1, math.min(count, #sorted) do

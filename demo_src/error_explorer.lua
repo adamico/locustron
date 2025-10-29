@@ -1,3 +1,4 @@
+local Sort = Sort or table.sort
 ---@diagnostic disable
 -- # picotron error explorer
 --
@@ -139,20 +140,6 @@ local function compare_keys(a, b)
       return a.key < b.key
    else
       return safe_tostring(a.key) < safe_tostring(b.key)
-   end
-end
-
-local function sort(t, f)
-   -- insertion sort
-   f = f or function(a, b) return a < b end
-   for i = 1, #t - 1 do
-      local val = t[i + 1]
-      local j = i
-      while j >= 1 and not f(t[j], val) do
-         t[j + 1] = t[j]
-         j = j - 1
-      end
-      t[j + 1] = val
    end
 end
 
@@ -315,7 +302,7 @@ local function error_update()
                   value = v,
                })
             end
-            sort(contents, compare_keys)
+            Sort(contents, compare_keys)
          end
       end
    end

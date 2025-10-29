@@ -2,6 +2,8 @@
 -- Handles strategy registration and provides factory functions
 -- Separated from interface definitions for better organization
 
+local Sort = Sort or table.sort
+
 local interface = require("src.strategies.interface")
 local FixedGridStrategy = require("src.strategies.fixed_grid")
 
@@ -28,7 +30,7 @@ function StrategyFactory.get_available_strategies()
    for name, _ in pairs(strategy_registry) do
       table.insert(strategies, name)
    end
-   table.sort(strategies)
+   Sort(strategies)
    return strategies
 end
 

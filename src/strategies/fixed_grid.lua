@@ -2,6 +2,7 @@
 -- Vanilla Lua version using doubly linked lists instead of userdata
 -- Maintains 100% API compatibility with existing Locustron
 
+local Sort = Sort or table.sort
 local dll = require("src.strategies.doubly_linked_list")
 local strategy_interface = require("src.strategies.interface")
 local SpatialStrategy = strategy_interface.SpatialStrategy
@@ -307,7 +308,7 @@ function FixedGridStrategy:query_nearest(x, y, count, filter_fn)
       end
 
       -- Sort by distance
-      table.sort(found_objects, function(a, b) return a.distance < b.distance end)
+      Sort(found_objects, function(a, b) return a.distance < b.distance end)
 
       -- Double the radius for next iteration
       radius = radius * 2

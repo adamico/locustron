@@ -146,8 +146,7 @@ function DynamicEcosystem:process_pending_removal()
    self.pending_removal = {}
 
    -- Remove dead objects from objects array (in reverse order to maintain indices)
-   local sort = require("demo.sort")
-   sort(indices_to_remove, function(a, b) return a > b end)
+   Sort(indices_to_remove, function(a, b) return a > b end)
    for _, index in ipairs(indices_to_remove) do
       table.remove(self.objects, index)
    end

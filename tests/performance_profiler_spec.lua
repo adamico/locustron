@@ -8,8 +8,8 @@ describe("PerformanceProfiler", function()
 
    before_each(function()
       -- Load the module fresh for each test
-      package.loaded["demo.debugging.performance_profiler"] = nil
-      PerformanceProfiler = require("demo.debugging.performance_profiler")
+      package.loaded["demo_src.debugging.performance_profiler"] = nil
+      PerformanceProfiler = require("demo_src.debugging.performance_profiler")
    end)
 
    describe("Class creation", function()

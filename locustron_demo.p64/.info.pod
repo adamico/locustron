@@ -1,0 +1,1 @@
+--[[pod,author="kc00l",created="2025-10-25 10:36:06",modified="2025-10-29 11:58:31",notes="",runtime=21,title="Locustron",version="0.2.0",workspaces={{location="main.lua#16",workspace_index=1}}]]

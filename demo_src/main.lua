@@ -1,15 +1,16 @@
-include("src/require.lua")
+include("lib/require.lua")
 
 Class = require('lib.middleclass')
+Sort = require("demo_src.sort")
 Stateful = require('lib.stateful')
-SceneManager = require("demo.scene_manager")
+SceneManager = require("demo_src.scene_manager")
 Scene = SceneManager:new()
 
 local Locustron = require("src.locustron")
 
-local VisualizationSystem = require("demo.debugging.visualization_system")
-local PerformanceProfiler = require("demo.debugging.performance_profiler")
-local DebugConsole = require("demo.debugging.debug_console")
+local VisualizationSystem = require("demo_src.debugging.visualization_system")
+local PerformanceProfiler = require("demo_src.debugging.performance_profiler")
+local DebugConsole = require("demo_src.debugging.debug_console")
 
 local loc
 

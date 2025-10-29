@@ -1,10 +1,10 @@
 SceneManager = Class('SceneManager'):include(Stateful)
 
 SceneManager.static.Scenes = {
-   SurvivorLike = {name = "SurvivorLike", module = require("demo.scenes.survivor_like"), next = "SpaceBattle"},
-   SpaceBattle = {name = "SpaceBattle", module = require("demo.scenes.space_battle"), next = "Platformer"},
-   Platformer = {name = "Platformer", module = require("demo.scenes.platformer"), next = "DynamicEcosystem"},
-   DynamicEcosystem = {name = "DynamicEcosystem", module = require("demo.scenes.dynamic_ecosystem"), next = "SurvivorLike"},
+   SurvivorLike = {name = "SurvivorLike", module = require("demo_src.scenes.survivor_like"), next = "SpaceBattle"},
+   SpaceBattle = {name = "SpaceBattle", module = require("demo_src.scenes.space_battle"), next = "Platformer"},
+   Platformer = {name = "Platformer", module = require("demo_src.scenes.platformer"), next = "DynamicEcosystem"},
+   DynamicEcosystem = {name = "DynamicEcosystem", module = require("demo_src.scenes.dynamic_ecosystem"), next = "SurvivorLike"},
 }
 
 function SceneManager:initialize(config)

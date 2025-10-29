@@ -8,8 +8,8 @@ describe("VisualizationSystem", function()
 
    before_each(function()
       -- Load the module fresh for each test
-      package.loaded["demo.debugging.visualization_system"] = nil
-      VisualizationSystem = require("demo.debugging.visualization_system")
+      package.loaded["demo_src.debugging.visualization_system"] = nil
+      VisualizationSystem = require("demo_src.debugging.visualization_system")
    end)
 
    describe("Class creation", function()

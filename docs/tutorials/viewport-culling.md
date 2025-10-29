@@ -267,7 +267,7 @@ function _draw()
     table.insert(sorted_visible, obj)
   end
 
-  table.sort(sorted_visible, function(a, b)
+  Sort(sorted_visible, function(a, b)
     return (a.w * a.h) > (b.w * b.h)  -- Larger objects first
   end)
 
@@ -559,7 +559,7 @@ function _draw()
     table.insert(sorted_visible, obj)
   end
 
-  table.sort(sorted_visible, function(a, b)
+  Sort(sorted_visible, function(a, b)
     return (a.w * a.h) > (b.w * b.h)
   end)
 

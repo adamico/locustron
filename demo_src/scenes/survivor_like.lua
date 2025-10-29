@@ -1,7 +1,6 @@
 -- SurvivorLike Scene
 -- Monsters spawn in waves around player, creating dense clusters
 
-local sort = require("demo.sort")
 local fps_time_step = 1 / 60         -- Fixed time step for 60 FPS
 local player_attack_cooldown = 0.075 -- seconds between attacks
 
@@ -64,7 +63,7 @@ function SurvivorLike:process_pending_removal()
    self.pending_removal = {}
 
    -- Remove dead objects from objects array (in reverse order to maintain indices)
-   sort(indices_to_remove, function(a, b) return a > b end)
+   Sort(indices_to_remove, function(a, b) return a > b end)
    for _, index in ipairs(indices_to_remove) do
       table.remove(self.objects, index)
    end
