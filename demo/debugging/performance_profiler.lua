@@ -1,4 +1,4 @@
-local sort = require("demo.debugging.sort")
+local sort = require("demo.sort")
 
 --- @class PerformanceProfiler
 --- Performance profiling system for Locustron spatial queries

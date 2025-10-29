@@ -1,4 +1,4 @@
-local sort = require("demo.debugging.sort")
+local sort = require("demo.sort")
 
 --- @class DebugConsole
 --- Runtime debugging console for Locustron spatial partitioning

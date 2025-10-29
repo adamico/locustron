@@ -2,6 +2,7 @@
 -- Monsters spawn in waves around player, creating dense clusters
 
 local CollisionUtils = require("demo.collision_utils")
+local sort = require("demo.sort")
 
 local SurvivorLikeScenario = {}
 
@@ -17,6 +18,7 @@ function SurvivorLikeScenario.new(config)
       optimal_strategy = "quadtree",
       objects = {},
       projectiles = {}, -- Player's bullets/projectiles
+      pending_removal = {}, -- Objects pending removal from spatial system and objects array
       player = {
          x = 128, y = 128, w = 8, h = 8,
          health = 5, max_health = 5, speed = 2,
@@ -26,7 +28,6 @@ function SurvivorLikeScenario.new(config)
       spawn_timer = 0,
       max_objects = config.max_objects or 200,
       damage_cooldown = 0, -- Prevent rapid damage
-      to_remove = {},      -- Objects to remove at end of update
    }
 
    function scenario:init(loc, perf_profiler)
@@ -38,13 +39,26 @@ function SurvivorLikeScenario.new(config)
    end
 
    function scenario:update(loc)
+      -- Unified cleanup: remove dead objects from spatial system at frame start
+      local indices_to_remove = {}
+      for _, removal in ipairs(self.pending_removal) do
+         loc:remove(removal.obj)
+         table.insert(indices_to_remove, removal.index)
+      end
+      self.pending_removal = {}
+
+      -- Remove dead objects from objects array (in reverse order to maintain indices)
+      sort(indices_to_remove, function(a, b) return a > b end)
+      for _, index in ipairs(indices_to_remove) do
+         table.remove(self.objects, index)
+      end
+
       self:update_timers()
       self:update_player(loc)
       self:update_projectiles(loc)
       self:spawn_monsters_if_needed(loc)
       self:update_monsters(loc)
       self:check_player_death(loc)
-      self:cleanup_dead_objects()
    end
 
    function scenario:update_timers()
@@ -208,8 +222,7 @@ function SurvivorLikeScenario.new(config)
                      -- Check if monster died
                      if monster.health <= 0 then
                         monster.alive = false
-                        loc:remove(monster)
-                        table.insert(self.to_remove, j)
+                        table.insert(self.pending_removal, {obj = monster, index = j})
                      end
 
                      -- Remove the bullet
@@ -239,25 +252,20 @@ function SurvivorLikeScenario.new(config)
    end
 
    function scenario:update_monsters(loc)
-      -- Clear removal list at start of update
-      self:clear_removal_list()
-
-      -- Update each monster
+      -- Filter alive monsters with their indices for processing
+      local alive_monsters = {}
       for i, obj in ipairs(self.objects) do
          if obj.alive then
-            self:update_monster_movement(obj, loc)
-         end
-         if obj.alive then
-            self:handle_player_collision(obj, i, loc)
-         end
-         if obj.alive then
-            self:handle_monster_crowding(obj, loc)
+            table.insert(alive_monsters, {obj = obj, index = i})
          end
       end
-   end
 
-   function scenario:clear_removal_list()
-      self.to_remove = {}
+      -- Process only alive monsters
+      for _, data in ipairs(alive_monsters) do
+         self:update_monster_movement(data.obj, loc)
+         self:handle_player_collision(data.obj, data.index, loc)
+         self:handle_monster_crowding(data.obj, loc)
+      end
    end
 
    function scenario:update_monster_movement(obj, loc)
@@ -282,10 +290,9 @@ function SurvivorLikeScenario.new(config)
          self.player.health = self.player.health - 1
          self.damage_cooldown = 0.5 -- 0.5 second cooldown between damage
 
-         -- Remove the monster that hit the player
+         -- Mark monster as dead (will be removed from spatial system next frame)
          obj.alive = false
-         loc:remove(obj)
-         table.insert(self.to_remove, monster_index)
+         table.insert(self.pending_removal, {obj = obj, index = monster_index})
       end
    end
 
@@ -296,15 +303,8 @@ function SurvivorLikeScenario.new(config)
          self.wave = 0
          self.player.health = self.player.max_health
          self.spawn_timer = 0
-         -- Remove all monsters
-         for _, monster in ipairs(self.objects) do
-            if monster.alive then
-               loc:remove(monster)
-               monster.alive = false
-            end
-         end
+         -- Clear all monsters (objects table reset, no need for pending removal)
          self.objects = {}
-         self.to_remove = {} -- Clear removal list since objects table was reset
       end
    end
 
@@ -349,18 +349,8 @@ function SurvivorLikeScenario.new(config)
          if avoid_dist > 0 then
             obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * fps_time_step * 0.5
             obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * fps_time_step * 0.5
-            -- Only update spatial position if monster is still alive
-            if obj.alive then
-               loc:update(obj, obj.x, obj.y, obj.w, obj.h)
-            end
+            loc:update(obj, obj.x, obj.y, obj.w, obj.h)
          end
-      end
-   end
-
-   function scenario:cleanup_dead_objects()
-      -- Remove dead objects (in reverse order to maintain indices)
-      for i = #self.to_remove, 1, -1 do
-         table.remove(self.objects, self.to_remove[i])
       end
    end
 

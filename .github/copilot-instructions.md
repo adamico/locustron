@@ -65,6 +65,7 @@ Locustron is a **unified codebase** optimized for the Picotron runtime environme
 - **Memory constraints**: Maximum 10,000 objects with 32MB RAM limit
 - **Strategy separation**: Clean separation between object management and spatial algorithms
 - **Cross-platform testing**: Busted framework enables testing outside Picotron environment
+- **Picotron Utilities**: Uses `demo/sort.lua` for `table.sort` compatibility
 
 ## File Structure & Dependencies
 
@@ -98,6 +99,7 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 │       └── interface.lua          # Strategy interface contract
 ├── demo/                          # Demo cartridge files
 │   ├── demo_scenarios.lua         # Demo scenario definitions
+│   ├── sort.lua                   # Picotron-compatible table.sort implementation
 │   ├── debugging/                 # Debug utilities and visualization
 │   │   ├── debug_console.lua      # Interactive debugging console
 │   │   ├── performance_profiler.lua # Performance analysis tools
@@ -147,6 +149,7 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 - **Strategy Registration**: `src/strategies/init.lua` registers concrete strategies with the factory
 - **Integration Utilities**: `src/integration/viewport_culling.lua` provides game engine integration patterns
 - **Debug Infrastructure**: `demo/debugging/` provides comprehensive debugging and visualization tools
+- **Unified Cleanup System**: `pending_removal` queue ensures safe deferred object removal from spatial structures and arrays
 - **Test Coverage**: Busted-based BDD tests for all components in unified `tests/` directory
 - **Benchmark Suite**: Comprehensive performance analysis tools in `benchmarks/` directory
 - **Demo Integration**: `main.lua` demonstrates library with interactive visualization
@@ -161,6 +164,7 @@ locustron.p64/                    # Picotron cartridge + Git repository root
 - **Userdata**: `userdata("type", width, height)` creates 2D arrays
 - **Console Output**: Always use `printh()` instead of `print()`
 - **Error Handling**: `send_message(3, {event="report_error"})` for module loading errors
+- **Sorting**: Use `require("demo.sort")` instead of `table.sort` for Picotron compatibility
 
 ### Code Style & Formatting
 
@@ -241,6 +245,37 @@ end)
 -- Remove object
 loc:remove_object(obj)
 ```
+
+### Unified Cleanup System
+
+Locustron scenarios use a **unified cleanup system** to safely remove dead objects from both spatial structures and object arrays:
+
+```lua
+-- In scenario initialization
+local scenario = {
+   pending_removal = {}, -- Unified removal queue
+   -- ... other fields
+}
+
+-- When marking objects for removal
+table.insert(self.pending_removal, {obj = monster, index = array_index})
+
+-- In update loop (frame start)
+for _, removal in ipairs(self.pending_removal) do
+   loc:remove(removal.obj) -- Remove from spatial structure
+end
+
+-- Sort indices descending for safe array removal
+local sort = require("demo.sort")
+sort(indices_to_remove, function(a, b) return a > b end)
+for _, index in ipairs(indices_to_remove) do
+   table.remove(self.objects, index)
+end
+
+self.pending_removal = {} -- Clear for next frame
+```
+
+This ensures **deferred removal** prevents "object not found" errors during spatial queries while maintaining array integrity.
 
 ### Collision Detection Integration
 
@@ -381,6 +416,18 @@ print("Object count:", loc._obj_count())
 local info = strategy:get_info()
 print("Strategy:", info.name)
 print("Object count:", info.statistics.object_count)
+```
+
+**Unified Cleanup System Debugging:**
+```lua
+-- Monitor pending removal queue
+print("Pending removal count:", #scenario.pending_removal)
+
+-- Verify sort utility functionality
+local sort = require("demo.sort")
+local test_array = {3, 1, 4, 1, 5}
+sort(test_array, function(a, b) return a < b end)
+-- test_array should be {1, 1, 3, 4, 5}
 ```
 
 ## Performance Considerations
