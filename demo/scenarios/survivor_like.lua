@@ -14,7 +14,7 @@ function SurvivorLikeScenario.new(config)
       description = "Monsters spawn in waves around player, creating dense clusters",
       optimal_strategy = "quadtree",
       objects = {},
-      player = {x = 128, y = 128, w = 8, h = 8, health = 5, max_health = 5},
+      player = {x = 128, y = 128, w = 8, h = 8, health = 5, max_health = 5, speed = 2},
       wave = 0,
       spawn_timer = 0,
       max_objects = config.max_objects or 200,
@@ -32,6 +32,7 @@ function SurvivorLikeScenario.new(config)
 
    function scenario:update(loc)
       self:update_timers()
+      self:update_player(loc)
       self:spawn_monsters_if_needed(loc)
       self:update_monsters(loc)
       self:cleanup_dead_objects()
@@ -43,6 +44,36 @@ function SurvivorLikeScenario.new(config)
       -- Update damage cooldown
       if self.damage_cooldown > 0 then
          self.damage_cooldown = self.damage_cooldown - fps_time_step
+      end
+   end
+
+   function scenario:update_player(loc)
+      -- Handle 8-directional player movement
+      local move_x = 0
+      local move_y = 0
+
+      if btn(0) then move_x = move_x - 1 end -- Left
+      if btn(1) then move_x = move_x + 1 end -- Right
+      if btn(2) then move_y = move_y - 1 end -- Up
+      if btn(3) then move_y = move_y + 1 end -- Down
+
+      -- Normalize diagonal movement
+      if move_x ~= 0 and move_y ~= 0 then
+         move_x = move_x * 0.7071 -- 1/sqrt(2) for diagonal normalization
+         move_y = move_y * 0.7071
+      end
+
+      -- Apply movement
+      if move_x ~= 0 or move_y ~= 0 then
+         self.player.x = self.player.x + move_x * self.player.speed
+         self.player.y = self.player.y + move_y * self.player.speed
+
+         -- Keep player within bounds (roughly the screen area)
+         self.player.x = mid(8, self.player.x, 248) -- 256 - 8 for player width
+         self.player.y = mid(8, self.player.y, 248) -- 256 - 8 for player height
+
+         -- Update player position in spatial structure
+         loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
       end
    end
 
