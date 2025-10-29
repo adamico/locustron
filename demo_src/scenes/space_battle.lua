@@ -12,13 +12,26 @@ end
 function SpaceBattle:enteredState()
    -- Initialize space battle specific properties
    self.name = "Space Battle"
-   self.description = "Ships spread across large area with clusters around objectives"
+   self.description = "Navigate your ship (arrows) - AI ships react to your presence"
    self.optimal_strategy = "hash_grid"
 
    -- Scenario-specific state
    self.objectives = {}
    self.update_cooldown = 0
    self.update_interval = 2 -- Update every other frame
+
+   -- Player ship definition
+   self.player_ship = {
+      x = 256,
+      y = 192,
+      w = 8,
+      h = 8,
+      vx = 0,
+      vy = 0,
+      speed = 120,
+      type = "player_ship",
+      color = 10, -- Green
+   }
 end
 
 function SpaceBattle:init(loc, perf_profiler)
@@ -27,9 +40,9 @@ function SpaceBattle:init(loc, perf_profiler)
 
    -- Create objectives (planets/stations)
    self.objectives = {
-      { x = 100, y = 100, radius = 30, ships = 0 },
-      { x = 400, y = 200, radius = 25, ships = 0 },
-      { x = 200, y = 350, radius = 35, ships = 0 },
+      {x = 100, y = 100, radius = 30, ships = 0},
+      {x = 400, y = 200, radius = 25, ships = 0},
+      {x = 200, y = 350, radius = 35, ships = 0},
    }
 
    -- Initialize/reset game state
@@ -37,6 +50,9 @@ function SpaceBattle:init(loc, perf_profiler)
    self.pending_removal = {}
 
    self.loc:clear()
+
+   -- Add player ship to spatial structure
+   self.loc:add(self.player_ship, self.player_ship.x, self.player_ship.y, self.player_ship.w, self.player_ship.h)
 
    -- Spawn initial ships
    for i = 1, self.max_objects do
@@ -54,7 +70,7 @@ function SpaceBattle:spawn_ship()
    local obj = {
       x = x,
       y = y,
-      w = 4 + math.random(4), -- 4-8 pixels
+      w = 4 + math.random(4),          -- 4-8 pixels
       h = 4 + math.random(4),
       vx = (math.random() - 0.5) * 40, -- Further reduced speed
       vy = (math.random() - 0.5) * 40,
@@ -70,13 +86,66 @@ function SpaceBattle:update()
    -- Process pending removal and cleanup dead objects
    self:process_pending_removal()
 
+   -- Update player ship
+   self:update_player_ship()
+
    -- Update cooldown for batched operations
    self.update_cooldown = self.update_cooldown - 1
    if self.update_cooldown <= 0 then
       self.update_cooldown = self.update_interval
    end
 
-   -- Update ship positions (only some ships per frame for performance)
+   -- Update AI ship positions (only some ships per frame for performance)
+   self:update_ai_ships()
+
+   -- Very rare spawning
+   if math.random() < 0.001 and #self.objects < self.max_objects then
+      self:spawn_ship()
+   end
+end
+
+function SpaceBattle:update_player_ship()
+   -- 8-directional player movement
+   local move_x = 0
+   local move_y = 0
+
+   if btn(0) then move_x = move_x - 1 end -- Left
+   if btn(1) then move_x = move_x + 1 end -- Right
+   if btn(2) then move_y = move_y - 1 end -- Up
+   if btn(3) then move_y = move_y + 1 end -- Down
+
+   -- Normalize diagonal movement
+   if move_x ~= 0 and move_y ~= 0 then
+      move_x = move_x * 0.7071 -- 1/sqrt(2) for diagonal normalization
+      move_y = move_y * 0.7071
+   end
+
+   -- Apply movement
+   if move_x ~= 0 or move_y ~= 0 then
+      self.player_ship.vx = move_x * self.player_ship.speed
+      self.player_ship.vy = move_y * self.player_ship.speed
+   else
+      -- Apply drag when not moving
+      self.player_ship.vx = self.player_ship.vx * 0.9
+      self.player_ship.vy = self.player_ship.vy * 0.9
+   end
+
+   -- Update position
+   self.player_ship.x = self.player_ship.x + self.player_ship.vx * fps_time_step
+   self.player_ship.y = self.player_ship.y + self.player_ship.vy * fps_time_step
+
+   -- Wrap around screen edges
+   if self.player_ship.x < 0 then self.player_ship.x = 512 end
+   if self.player_ship.x > 512 then self.player_ship.x = 0 end
+   if self.player_ship.y < 0 then self.player_ship.y = 384 end
+   if self.player_ship.y > 384 then self.player_ship.y = 0 end
+
+   -- Update in spatial structure
+   self.loc:update(self.player_ship, self.player_ship.x, self.player_ship.y,
+      self.player_ship.w, self.player_ship.h)
+end
+
+function SpaceBattle:update_ai_ships()
    local ships_to_update = math.ceil(#self.objects / self.update_interval)
    local start_idx = ((self.update_cooldown - 1) * ships_to_update) + 1
    local end_idx = math.min(start_idx + ships_to_update - 1, #self.objects)
@@ -84,38 +153,56 @@ function SpaceBattle:update()
    for i = start_idx, end_idx do
       local obj = self.objects[i]
 
-      -- Very simple AI: occasional random direction changes
-      if math.random() < 0.02 then -- 2% chance per update to change direction
-         obj.vx = (math.random() - 0.5) * 60 -- Reduced speed
-         obj.vy = (math.random() - 0.5) * 60
+      -- Check for player proximity and react
+      local nearby_entities = {}
+      if self.perf_profiler then
+         nearby_entities = self.perf_profiler:measure_query(
+            "fixed_grid",
+            function()
+               return self.loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+                  return other ~= obj
+               end)
+            end
+         )
+      else
+         nearby_entities = self.loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+            return other ~= obj
+         end)
       end
 
-      -- Occasionally check for nearby ships (for collision avoidance)
-      if math.random() < 0.03 then -- 3% chance to check nearby ships
-         local nearby_ships = {}
-         if self.perf_profiler then
-            nearby_ships = self.perf_profiler:measure_query(
-               "fixed_grid",
-               function() return self.loc:query(obj.x - 20, obj.y - 20, 40, 40, function(other)
-                  return other ~= obj and other.type == "ship"
-               end) end
-            )
-         else
-            nearby_ships = self.loc:query(obj.x - 20, obj.y - 20, 40, 40, function(other)
-               return other ~= obj and other.type == "ship"
-            end)
+      -- React to player presence
+      if nearby_entities[self.player_ship] then
+         local dx = self.player_ship.x - obj.x
+         local dy = self.player_ship.y - obj.y
+         local dist = math.sqrt(dx * dx + dy * dy)
+
+         if dist > 0 then
+            -- Ships flee from player
+            obj.vx = obj.vx - (dx / dist) * 60 * fps_time_step
+            obj.vy = obj.vy - (dy / dist) * 60 * fps_time_step
+         end
+      else
+         -- Normal behavior: occasional random direction changes
+         if math.random() < 0.02 then
+            obj.vx = (math.random() - 0.5) * 60
+            obj.vy = (math.random() - 0.5) * 60
          end
 
-         -- If too many ships nearby, change direction (avoidance behavior)
+         -- Check for ship crowding
          local ship_count = 0
-         for _ in pairs(nearby_ships) do ship_count = ship_count + 1 end
+         for other in pairs(nearby_entities) do
+            if other.type == "ship" then
+               ship_count = ship_count + 1
+            end
+         end
+
          if ship_count > 2 then
-            obj.vx = (math.random() - 0.5) * 80 -- Random direction change
+            obj.vx = (math.random() - 0.5) * 80
             obj.vy = (math.random() - 0.5) * 80
          end
       end
 
-      -- Apply some drag to prevent infinite acceleration
+      -- Apply drag to prevent infinite acceleration
       obj.vx = obj.vx * 0.995
       obj.vy = obj.vy * 0.995
 
@@ -129,11 +216,6 @@ function SpaceBattle:update()
       if obj.y > 384 then obj.y = 0 end
 
       self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
-   end
-
-   -- Very rare spawning
-   if math.random() < 0.001 and #self.objects < self.max_objects then
-      self:spawn_ship()
    end
 end
 
@@ -159,12 +241,47 @@ function SpaceBattle:draw()
       circ(obj.x, obj.y, obj.radius, 6)
    end
 
-   -- Draw ships
+   -- Draw AI ships
    for _, obj in ipairs(self.objects) do
       rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, obj.color)
    end
 
-   print("Ships: " .. #self.objects, 280, 8, 7)
+   -- Draw player ship (distinct appearance)
+   circfill(self.player_ship.x, self.player_ship.y, 4, self.player_ship.color)
+   -- Draw direction indicator
+   local dir_x = self.player_ship.vx
+   local dir_y = self.player_ship.vy
+   local dir_len = math.sqrt(dir_x * dir_x + dir_y * dir_y)
+   if dir_len > 0 then
+      line(self.player_ship.x, self.player_ship.y,
+         self.player_ship.x + (dir_x / dir_len) * 6,
+         self.player_ship.y + (dir_y / dir_len) * 6,
+         7)   -- White direction line
+   end
+
+   -- Draw info box
+   local info_x = 8
+   local info_y = 8
+   local lines = 1
+   local padding = 3
+   local line_height = 8
+   local box_width = 80
+   local box_height = lines * (line_height + padding) -- = 4 * (8 + 1) = 36
+   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+   print("Ships: "..#self.objects, info_x, info_y, 7)
+
+      -- Draw controls
+   local ctrl_x = info_x
+   local ctrl_y = 230
+   local ctrl_lines = 2
+   local ctrl_box_width = 140
+   local ctrl_box_height = ctrl_lines * (line_height + padding) -- = 3 * (8 + 1) = 27
+   rrectfill(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 0)
+   rrect(ctrl_x - 2, ctrl_y - 2, ctrl_box_width, ctrl_box_height, 0, 7)
+   print("CONTROLS", ctrl_x, ctrl_y, 11)
+   ctrl_y += line_height
+   print("Arrows: Move Ship", ctrl_x, ctrl_y, 7)
 end
 
 function SpaceBattle:get_objects()

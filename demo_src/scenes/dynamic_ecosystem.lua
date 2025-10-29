@@ -12,11 +12,20 @@ end
 function DynamicEcosystem:enteredState()
    -- Initialize ecosystem specific properties
    self.name = "Dynamic Ecosystem"
-   self.description = "Objects spawn and die, creating changing density patterns"
+   self.description = "Move cursor (arrows) - X to attract, O to repel organisms"
    self.optimal_strategy = "quadtree"
 
    -- Scenario-specific state
    self.spawn_timer = 0
+   
+   -- Player cursor for environmental influence
+   self.cursor = {
+      x = 256,
+      y = 192,
+      radius = 60,
+      mode = "neutral", -- "neutral", "attract", "repel"
+      speed = 200,
+   }
 end
 
 function DynamicEcosystem:init(loc, perf_profiler)
@@ -58,6 +67,9 @@ end
 function DynamicEcosystem:update()
    -- Process pending removal and cleanup dead objects
    self:process_pending_removal()
+   
+   -- Update player cursor
+   self:update_cursor()
 
    self.spawn_timer = self.spawn_timer + fps_time_step
 
@@ -122,6 +134,9 @@ function DynamicEcosystem:update()
       -- Bounce off edges
       if obj.x < 0 or obj.x > 512 then obj.vx = -obj.vx end
       if obj.y < 0 or obj.y > 384 then obj.vy = -obj.vy end
+      
+      -- Apply cursor influence
+      self:apply_cursor_influence(obj)
 
       -- Update in spatial structure
       self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
@@ -134,6 +149,70 @@ function DynamicEcosystem:update()
    for i = #to_remove, 1, -1 do
       local obj = table.remove(self.objects, to_remove[i])
       self.loc:remove(obj)
+   end
+end
+
+function DynamicEcosystem:update_cursor()
+   local cursor = self.cursor
+   
+   -- Movement with arrow keys
+   local move_x, move_y = 0, 0
+   if btn(0) then move_x = -1 end -- Left
+   if btn(1) then move_x = 1 end  -- Right
+   if btn(2) then move_y = -1 end -- Up
+   if btn(3) then move_y = 1 end  -- Down
+   
+   -- Normalize diagonal movement
+   if move_x ~= 0 and move_y ~= 0 then
+      local length = math.sqrt(2)
+      move_x = move_x / length
+      move_y = move_y / length
+   end
+   
+   -- Apply movement
+   cursor.x = cursor.x + move_x * cursor.speed * fps_time_step
+   cursor.y = cursor.y + move_y * cursor.speed * fps_time_step
+   
+   -- Keep cursor within bounds
+   cursor.x = math.max(0, math.min(512, cursor.x))
+   cursor.y = math.max(0, math.min(384, cursor.y))
+   
+   -- Mode switching with X and O buttons
+   if btn(4) then
+      cursor.mode = "attract" -- X button
+   elseif btn(5) then
+      cursor.mode = "repel" -- O button
+   else
+      cursor.mode = "neutral"
+   end
+end
+
+function DynamicEcosystem:apply_cursor_influence(obj)
+   if self.cursor.mode == "neutral" then return end
+   
+   -- Calculate distance to cursor
+   local dx = obj.x - self.cursor.x
+   local dy = obj.y - self.cursor.y
+   local dist = math.sqrt(dx * dx + dy * dy)
+   
+   -- Only apply influence within radius
+   if dist > self.cursor.radius or dist < 0.1 then return end
+   
+   -- Normalize direction
+   local nx = dx / dist
+   local ny = dy / dist
+   
+   -- Calculate force based on distance (stronger when closer)
+   local force_strength = (1.0 - dist / self.cursor.radius) * 150
+   
+   if self.cursor.mode == "attract" then
+      -- Pull towards cursor (negative direction)
+      obj.vx = obj.vx - nx * force_strength * fps_time_step
+      obj.vy = obj.vy - ny * force_strength * fps_time_step
+   elseif self.cursor.mode == "repel" then
+      -- Push away from cursor (positive direction)
+      obj.vx = obj.vx + nx * force_strength * fps_time_step
+      obj.vy = obj.vy + ny * force_strength * fps_time_step
    end
 end
 
@@ -161,8 +240,33 @@ function DynamicEcosystem:draw()
       end
       rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, color)
    end
+   
+   -- Draw cursor
+   local cursor = self.cursor
+   local cursor_color = 5 -- Gray for neutral
+   if cursor.mode == "attract" then
+      cursor_color = 11 -- Green for attract
+   elseif cursor.mode == "repel" then
+      cursor_color = 8 -- Red for repel
+   end
+   
+   -- Draw influence radius
+   circ(cursor.x, cursor.y, cursor.radius, cursor_color)
+   
+   -- Draw cursor center
+   circfill(cursor.x, cursor.y, 3, cursor_color)
+   
+   -- Draw crosshair
+   line(cursor.x - 6, cursor.y, cursor.x - 2, cursor.y, cursor_color)
+   line(cursor.x + 2, cursor.y, cursor.x + 6, cursor.y, cursor_color)
+   line(cursor.x, cursor.y - 6, cursor.x, cursor.y - 2, cursor_color)
+   line(cursor.x, cursor.y + 2, cursor.x, cursor.y + 6, cursor_color)
 
    print("Organisms: " .. #self.objects, 280, 8, 7)
+   
+   -- Display cursor mode
+   local mode_text = "Mode: " .. cursor.mode:upper()
+   print(mode_text, 280, 16, cursor_color)
 end
 
 function DynamicEcosystem:get_objects()

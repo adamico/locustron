@@ -1,3 +1,4 @@
+---@diagnostic disable: undefined-field
 include("lib/require.lua")
 
 Class = require('lib.middleclass')
@@ -43,7 +44,7 @@ function switch_scene(scene_name)
    if loc then loc:clear() end
 
    -- Create new spatial structure
-   loc = Locustron.create(64) -- Fixed cell size for now
+   loc = Locustron:new(64) -- Fixed cell size for now
 
    -- Initialize debugging system components first
    if not perf_profiler then
@@ -212,6 +213,7 @@ function draw_debug_overlay()
    print("CONTROLS", info_x, info_y)
    info_y += line_height
 
+   color(7)
    print("Z: Toggle UI", info_x, info_y)
    info_y += line_height
    print("X: Toggle Debug Mode", info_x, info_y)
@@ -301,7 +303,7 @@ function draw_scenario_info()
    local lines = 3
    local padding = 1
    local line_height = 8
-   local box_width = 140
+   local box_width = 180
    local box_height = lines * (line_height + padding) -- = 3 * (8 + 1) = 27
 
    rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
@@ -314,7 +316,7 @@ function draw_scenario_info()
    print(scenes[current_scene].name, info_x, info_y)
    info_y += line_height
 
-   print("Best: " .. Scene.optimal_strategy, info_x, info_y)
+   print("Best strategy: " .. Scene.optimal_strategy, info_x, info_y)
 end
 
 function draw_debug_console()
