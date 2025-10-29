@@ -11,7 +11,7 @@ local DynamicEcosystemScenario = require("demo.scenarios.dynamic_ecosystem")
 
 -- Scenario: Survivor Like
 -- Monsters spawn in waves around player, creating dense clusters
-function DemoScenarios.survivor_like(config) return SurvivorLikeScenario.new(config) end
+function DemoScenarios.survivor_like(config) return SurvivorLikeScenario(config) end
 
 -- Scenario: Space Battle
 -- Ships spread across large area with some clusters around objectives
