@@ -195,6 +195,7 @@ function SurvivorLike:auto_attack_monsters()
       }
 
       table.insert(self.projectiles, bullet)
+      self.loc:add(bullet, bullet.x, bullet.y, bullet.w, bullet.h)
 
       -- Set attack cooldown
       self.player.attack_cooldown = player_attack_cooldown
@@ -210,11 +211,15 @@ function SurvivorLike:update_projectiles()
       bullet.x = bullet.x + bullet.vx * fps_time_step
       bullet.y = bullet.y + bullet.vy * fps_time_step
 
+      -- Update bullet position in spatial structure
+      self.loc:update(bullet, bullet.x, bullet.y, bullet.w, bullet.h)
+
       -- Update lifetime
       bullet.lifetime = bullet.lifetime - fps_time_step
 
       -- Remove bullet if lifetime expired
       if bullet.lifetime <= 0 then
+         self.loc:remove(bullet)
          table.remove(self.projectiles, i)
       else
          -- Check collision with monsters
@@ -236,6 +241,7 @@ function SurvivorLike:update_projectiles()
                   end
 
                   -- Remove the bullet
+                  self.loc:remove(bullet)
                   table.remove(self.projectiles, i)
                   hit_monster = true
                   break
@@ -245,6 +251,7 @@ function SurvivorLike:update_projectiles()
 
          -- Remove bullet if it went off screen
          if not hit_monster and (bullet.x < -10 or bullet.x > 266 or bullet.y < -10 or bullet.y > 266) then
+            self.loc:remove(bullet)
             table.remove(self.projectiles, i)
          end
       end
