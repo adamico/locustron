@@ -43,6 +43,7 @@ function SurvivorLikeScenario.new(config)
       self:update_projectiles(loc)
       self:spawn_monsters_if_needed(loc)
       self:update_monsters(loc)
+      self:check_player_death(loc)
       self:cleanup_dead_objects()
    end
 
@@ -239,96 +240,118 @@ function SurvivorLikeScenario.new(config)
 
    function scenario:update_monsters(loc)
       -- Clear removal list at start of update
-      self.to_remove = {}
+      self:clear_removal_list()
 
-      -- Update monster movement and lifespan
+      -- Update each monster
       for i, obj in ipairs(self.objects) do
          if obj.alive then
-            -- Update movement (move toward player)
-            local dx = self.player.x - obj.x
-            local dy = self.player.y - obj.y
-            local dist = math.sqrt(dx * dx + dy * dy)
+            self:update_monster_movement(obj, loc)
+         end
+         if obj.alive then
+            self:handle_player_collision(obj, i, loc)
+         end
+         if obj.alive then
+            self:handle_monster_crowding(obj, loc)
+         end
+      end
+   end
 
-            if dist > 0 then
-               obj.x = obj.x + (dx / dist) * obj.speed * fps_time_step
-               obj.y = obj.y + (dy / dist) * obj.speed * fps_time_step
-               loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+   function scenario:clear_removal_list()
+      self.to_remove = {}
+   end
+
+   function scenario:update_monster_movement(obj, loc)
+      -- Update movement (move toward player)
+      local dx = self.player.x - obj.x
+      local dy = self.player.y - obj.y
+      local dist = math.sqrt(dx * dx + dy * dy)
+
+      if dist > 0 then
+         obj.x = obj.x + (dx / dist) * obj.speed * fps_time_step
+         obj.y = obj.y + (dy / dist) * obj.speed * fps_time_step
+         loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+      end
+   end
+
+   function scenario:handle_player_collision(obj, monster_index, loc)
+      -- Collision detection with player
+      local dx = math.abs(obj.x - self.player.x)
+      local dy = math.abs(obj.y - self.player.y)
+      if dx < (obj.w + self.player.w) / 2 and dy < (obj.h + self.player.h) / 2 and self.damage_cooldown <= 0 then
+         -- Player hit by monster - decrease health
+         self.player.health = self.player.health - 1
+         self.damage_cooldown = 0.5 -- 0.5 second cooldown between damage
+
+         -- Remove the monster that hit the player
+         obj.alive = false
+         loc:remove(obj)
+         table.insert(self.to_remove, monster_index)
+      end
+   end
+
+   function scenario:check_player_death(loc)
+      -- Check if player is dead
+      if self.player.health <= 0 then
+         -- Player died - reset wave and restore health
+         self.wave = 0
+         self.player.health = self.player.max_health
+         self.spawn_timer = 0
+         -- Remove all monsters
+         for _, monster in ipairs(self.objects) do
+            if monster.alive then
+               loc:remove(monster)
+               monster.alive = false
             end
+         end
+         self.objects = {}
+         self.to_remove = {} -- Clear removal list since objects table was reset
+      end
+   end
 
-            -- Collision detection with player
-            local dx = math.abs(obj.x - self.player.x)
-            local dy = math.abs(obj.y - self.player.y)
-            if dx < (obj.w + self.player.w) / 2 and dy < (obj.h + self.player.h) / 2 and self.damage_cooldown <= 0 then
-               -- Player hit by monster - decrease health
-               self.player.health = self.player.health - 1
-               self.damage_cooldown = 0.5 -- 0.5 second cooldown between damage
-
-               -- Remove the monster that hit the player
-               obj.alive = false
-               loc:remove(obj)
-               table.insert(self.to_remove, i)
-
-               -- Check if player is dead
-               if self.player.health <= 0 then
-                  -- Player died - reset wave and restore health
-                  self.wave = 0
-                  self.player.health = self.player.max_health
-                  self.spawn_timer = 0
-                  -- Remove all monsters
-                  for _, monster in ipairs(self.objects) do
-                     if monster.alive then
-                        loc:remove(monster)
-                        monster.alive = false
-                     end
-                  end
-                  self.objects = {}
-                  self.to_remove = {} -- Clear removal list since objects table was reset
-               end
-               break
-            end
-
-            -- Collision detection with other monsters (avoid crowding)
-            local nearby = {}
-            if self.perf_profiler then
-               nearby = self.perf_profiler:measure_query(
-                  "fixed_grid",
-                  function()
-                     return loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
-                        return other ~= obj and other.alive and other.type == "monster"
-                     end)
-                  end
-               )
-            else
-               nearby = loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
+   function scenario:handle_monster_crowding(obj, loc)
+      -- Collision detection with other monsters (avoid crowding)
+      local nearby = {}
+      if self.perf_profiler then
+         nearby = self.perf_profiler:measure_query(
+            "fixed_grid",
+            function()
+               return loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
                   return other ~= obj and other.alive and other.type == "monster"
                end)
             end
+         )
+      else
+         nearby = loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
+            return other ~= obj and other.alive and other.type == "monster"
+         end)
+      end
 
-            -- Convert hash table to array for easier processing
-            local nearby_array = {}
-            for other in pairs(nearby) do
-               table.insert(nearby_array, other)
-            end
+      -- Convert hash table to array for easier processing
+      local nearby_array = {}
+      for other in pairs(nearby) do
+         table.insert(nearby_array, other)
+      end
 
-            if #nearby_array > 3 then
-               -- Too crowded, move away from center of nearby monsters
-               local center_x, center_y = 0, 0
-               for _, other in ipairs(nearby_array) do
-                  center_x = center_x + other.x
-                  center_y = center_y + other.y
-               end
-               center_x = center_x / #nearby_array
-               center_y = center_y / #nearby_array
+      if #nearby_array > 3 then
+         -- Too crowded, move away from center of nearby monsters
+         local center_x, center_y = 0, 0
+         for _, other in ipairs(nearby_array) do
+            center_x = center_x + other.x
+            center_y = center_y + other.y
+         end
+         center_x = center_x / #nearby_array
+         center_y = center_y / #nearby_array
 
-               local avoid_dx = obj.x - center_x
-               local avoid_dy = obj.y - center_y
-               local avoid_dist = math.sqrt(avoid_dx * avoid_dx + avoid_dy * avoid_dy)
+         local avoid_dx = obj.x - center_x
+         local avoid_dy = obj.y - center_y
+         local avoid_dist = math.sqrt(avoid_dx * avoid_dx + avoid_dy * avoid_dy)
 
-               if avoid_dist > 0 then
-                  obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * fps_time_step * 0.5
-                  obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * fps_time_step * 0.5
-                  loc:update(obj, obj.x, obj.y, obj.w, obj.h)
-               end
+         if avoid_dist > 0 then
+            obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * fps_time_step * 0.5
+            obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * fps_time_step * 0.5
+            -- Only update spatial position if monster is still alive
+            if obj.alive then
+               loc:update(obj, obj.x, obj.y, obj.w, obj.h)
             end
          end
       end
