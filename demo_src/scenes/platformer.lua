@@ -7,6 +7,8 @@ local fps_time_step = 1 / 60
 
 local Platformer = SceneManager:addState("Platformer")
 
+local enemy_acceleration = 120
+
 function Platformer:initialize(config)
    SceneManager.initialize(self, config)
 end
@@ -49,14 +51,27 @@ function Platformer:init(loc, perf_profiler)
    self.loc = loc
 
    self.player.health = self.player.max_health
-   -- Randomize number and placement of platforms (min 3, max 5)
+   -- Generate platforms spread across screen width, accessible with double jump
    self.platforms = {}
-   local num_platforms = 3 + math.random(3) - 1          -- 3, 4, or 5
+   local num_platforms = 5 + math.random(3)                                    -- 5-7 platforms (increased minimum)
+   local screen_width = 480
+   local section_width = screen_width / num_platforms
+   
    for i = 1, num_platforms do
-      local w = 60 + math.random(100)                    -- width 60-160
-      local h = self.platform_height                     -- constant height
-      local x = math.random(32, 512 - w - 32)
-      local y = 80 + (i - 1) * 60 + math.random(-20, 20) -- vertical spread
+      local w = 50 + math.random(60)                                           -- width 50-110 (slightly smaller for better spread)
+      local h = self.platform_height                                           -- constant height
+      
+      -- Spread platforms across screen width with some randomization
+      local section_start = (i - 1) * section_width + 16
+      local section_end = i * section_width - w - 16
+      -- Ensure section_end > section_start to avoid math.random errors
+      section_end = math.max(section_end, section_start + 1)
+      local x = section_start + math.random(section_end - section_start)
+      
+      -- Vertical spacing accessible with double jump (max jump ~300 units up)
+      local base_y = 80 + (i - 1) * 45                                        -- Reduced vertical spacing (45 instead of 60)
+      local y = math.min(base_y + math.random(-15, 15), 270 - h - 20)        -- Less vertical randomization
+      
       local platform = {x = x, y = y, w = w, h = h, type = "platform"}
       table.insert(self.platforms, platform)
       self.loc:add(platform, x, y, w, h)
@@ -69,7 +84,7 @@ function Platformer:init(loc, perf_profiler)
    self.loc:clear()
 
    self:reset_player()
-   
+
    -- Reduce initial enemy count drastically
    for i = 1, 4 do
       self:spawn_on_platform()
@@ -79,22 +94,38 @@ end
 function Platformer:spawn_on_platform()
    if #self.objects >= self.max_objects then return end
 
-   local platform = self.platforms[math.random(#self.platforms)]
-   local obj = {
-      x = platform.x + math.random(platform.w - 16),
-      y = platform.y - 8 - math.random(32), -- Above platform
-      w = 6 + math.random(6),               -- 6-12 pixels
-      h = 6 + math.random(6),
-      vx = (math.random() - 0.5) * 40,      -- Reduced speed
-      vy = 0,
-      grounded = false,
-      lifetime = 0, -- Track how long enemy has been alive
-      type = "enemy",
-      color = 8 + math.random(7),
-   }
+   -- Try up to 10 times to find a suitable spawn location
+   for attempt = 1, 10 do
+      local platform = self.platforms[math.random(#self.platforms)]
+      local spawn_x = platform.x + math.random(platform.w - 16)
+      local spawn_y = platform.y - 8 - math.random(32)
 
-   table.insert(self.objects, obj)
-   self.loc:add(obj, obj.x, obj.y, obj.w, obj.h)
+      -- Check distance from player
+      local dx = spawn_x - self.player.x
+      local dy = spawn_y - self.player.y
+      local distance = math.sqrt(dx * dx + dy * dy)
+
+      -- Only spawn if far enough from player (at least 80 pixels)
+      if distance >= 80 then
+         local obj = {
+            x = spawn_x,
+            y = spawn_y,
+            w = 6 + math.random(6),          -- 6-12 pixels
+            h = 6 + math.random(6),
+            vx = (math.random() - 0.5) * 40, -- Reduced speed
+            vy = 0,
+            grounded = false,
+            lifetime = 0, -- Track how long enemy has been alive
+            type = "enemy",
+            color = 8 + math.random(7),
+         }
+
+         table.insert(self.objects, obj)
+         self.loc:add(obj, obj.x, obj.y, obj.w, obj.h)
+         return -- Successfully spawned
+      end
+   end
+   -- If we couldn't find a suitable location after 10 attempts, don't spawn
 end
 
 function Platformer:update()
@@ -204,49 +235,53 @@ function Platformer:update_enemies()
       self.query_cooldown = self.query_interval
    end
 
-   -- Remove dead enemies and update living ones
-   local to_remove = {}
+   -- Update living enemies (dead ones are handled by pending_removal)
    for i, obj in ipairs(self.objects) do
       -- Track lifetime
       obj.lifetime = (obj.lifetime or 0) + fps_time_step
 
-      -- Remove enemies that have lived too long or fallen off screen
+      -- Mark enemies for removal that have lived too long or fallen off screen
       if obj.lifetime > 30 or obj.y > 450 then
-         self.loc:remove(obj)
-         table.insert(to_remove, i)
+         table.insert(self.pending_removal, {obj = obj, index = i})
       else
          -- Update AI with occasional spatial queries for player detection
          if self.query_cooldown == self.query_interval then
             local nearby_player = {}
             if self.perf_profiler then
-               nearby_player = self.perf_profiler:measure_query(
-                  "fixed_grid",
-                  function()
-                     return self.loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+               nearby_player = self.perf_profiler:measure_query("fixed_grid", function()
+                     return self.loc:query(obj.x - 80, obj.y - 80, 160, 160, function(other)
                         return other == self.player
                      end)
                   end
                )
             else
-               nearby_player = self.loc:query(obj.x - 60, obj.y - 60, 120, 120, function(other)
+               nearby_player = self.loc:query(obj.x - 80, obj.y - 80, 160, 160, function(other)
                   return other == self.player
                end)
             end
             obj.player_nearby = next(nearby_player) ~= nil
          end
 
-         -- Smooth AI behavior based on cached player proximity
-         if obj.player_nearby and math.random() < 0.3 then
-            local dx = self.player.x - obj.x
-            if dx > 0 then
-               obj.vx = obj.vx + 15 * fps_time_step
-            elseif dx < 0 then
-               obj.vx = obj.vx - 15 * fps_time_step
+         -- Aggressive AI behavior based on cached player proximity
+         if obj.player_nearby then
+            -- High chance to aggressively pursue player
+            if math.random() < 0.7 then
+               local dx = self.player.x - obj.x
+               if dx > 0 then
+                  obj.vx = obj.vx + enemy_acceleration * fps_time_step
+               elseif dx < 0 then
+                  obj.vx = obj.vx - enemy_acceleration * fps_time_step
+               end
             end
-         elseif math.random() < 0.05 then
-            obj.vx = (math.random() - 0.5) * 30
+            -- Reduced random movement when chasing player
+            obj.vx = obj.vx * 0.98 -- Less friction when pursuing
          else
-            obj.vx = obj.vx * 0.95
+            -- Normal behavior when player not nearby
+            if math.random() < 0.05 then
+               obj.vx = (math.random() - 0.5) * 30
+            else
+               obj.vx = obj.vx * 0.95
+            end
          end
 
          -- Apply gravity (always)
@@ -255,6 +290,41 @@ function Platformer:update_enemies()
          -- Update position
          obj.x = obj.x + obj.vx * fps_time_step
          obj.y = obj.y + obj.vy * fps_time_step
+
+         -- Update spatial structure immediately after position update
+         self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+
+         -- Enemy-to-enemy collision using spatial query (bumping)
+         local nearby_enemies = self.loc:query(
+            obj.x - obj.w * 1.5, obj.y - obj.h * 1.5,
+            obj.w * 3, obj.h * 3,
+            function(other)
+               return other ~= obj and other.type == "enemy"
+            end
+         )
+
+         for other in pairs(nearby_enemies) do
+            -- Check collision using CollisionUtils (center-based coordinates)
+            if CollisionUtils.check_center_aabb(obj, other) then
+               -- Collision detected - bump each other
+               local dx = obj.x - other.x
+               local dy = obj.y - other.y
+
+               -- Normalize direction and apply bump force
+               local dist = math.sqrt(dx * dx + dy * dy)
+               if dist > 0 then
+                  dx = dx / dist
+                  dy = dy / dist
+
+                  -- Apply bump velocity (stronger force for fast-moving enemies)
+                  local bump_force = 100
+                  obj.vx = obj.vx + dx * bump_force * fps_time_step
+                  obj.vy = obj.vy + dy * bump_force * fps_time_step
+                  other.vx = other.vx - dx * bump_force * fps_time_step
+                  other.vy = other.vy - dy * bump_force * fps_time_step
+               end
+            end
+         end
 
          -- Platform collision (only when falling)
          if obj.vy > 0 then
@@ -274,13 +344,8 @@ function Platformer:update_enemies()
             obj.vx = -obj.vx * 0.9
          end
 
-         self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+         -- Spatial structure already updated above
       end
-   end
-
-   -- Remove dead enemies (in reverse order)
-   for i = #to_remove, 1, -1 do
-      table.remove(self.objects, to_remove[i])
    end
 end
 
@@ -298,17 +363,20 @@ function Platformer:handle_player_stomp()
       local obj = self.objects[i]
       -- Only check if player is falling
       if self.player.vy > 0 then
-         -- Check AABB overlap
+         -- Check AABB overlap for stomp (player landing on enemy from above)
          local px1 = self.player.x - self.player.w / 2
          local px2 = self.player.x + self.player.w / 2
+         local py1 = self.player.y - self.player.h / 2
          local py2 = self.player.y + self.player.h / 2
          local ox1 = obj.x - obj.w / 2
          local ox2 = obj.x + obj.w / 2
          local oy1 = obj.y - obj.h / 2
-         if px2 > ox1 and px1 < ox2 and py2 > oy1 and py2 < obj.y then
-            -- Stomped!
-            self.loc:remove(obj)
-            table.remove(self.objects, i)
+         local oy2 = obj.y + obj.h / 2
+
+         -- Player must be falling, overlap horizontally, and player's bottom must be near enemy's top
+         if px2 > ox1 and px1 < ox2 and py2 >= oy1 - 2 and py2 <= oy1 + 8 and py1 < oy1 then
+            -- Stomped! Mark for removal
+            table.insert(self.pending_removal, {obj = obj, index = i})
             self.player.vy = -120 -- Bounce up after stomp
          end
       end
@@ -377,9 +445,11 @@ function Platformer:reset_player()
 end
 
 function Platformer:process_pending_removal()
-   -- Process pending removal for array cleanup only (spatial removal already done)
+   -- Process pending removal for both spatial structure and array cleanup
    local indices_to_remove = {}
    for _, removal in ipairs(self.pending_removal) do
+      -- Remove from spatial structure
+      self.loc:remove(removal.obj)
       table.insert(indices_to_remove, removal.index)
    end
    self.pending_removal = {}
