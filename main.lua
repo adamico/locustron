@@ -27,108 +27,6 @@ local show_debug_console = false
 
 function rand(low, hi) return flr(low + rnd(hi - low)) end
 
-function draw_debug_overlay()
-   -- Draw debug controls help
-   local help_x = 280
-   local help_y = 120
-   local line_height = 8
-
-   rrectfill(help_x - 2, help_y - 2, 180, 110, 0, 0)
-   rrect(help_x - 2, help_y - 2, 180, 110, 0, 7)
-
-   color(11)
-   print("CONTROLS", help_x, help_y)
-   help_y += line_height
-
-   print("Z: Toggle UI", help_x, help_y)
-   help_y += line_height
-   print("X: Toggle Debug Mode", help_x, help_y)
-   help_y += line_height
-   print("`: Toggle Console", help_x, help_y)
-   help_y += line_height
-   print("Tab: Switch Scenario", help_x, help_y)
-   help_y += line_height * 1.5
-
-   if debug_mode then
-      color(8)
-      print("G: Toggle Grid", help_x, help_y)
-      help_y += line_height
-      print("O: Toggle Objects", help_x, help_y)
-      help_y += line_height
-      print("Q: Toggle Queries", help_x, help_y)
-      help_y += line_height
-      print("P: Toggle Performance", help_x, help_y)
-      help_y += line_height
-      print("+/-: Zoom In/Out", help_x, help_y)
-      help_y += line_height
-      print("Arrows: Pan Viewport", help_x, help_y)
-   end
-end
-
-function draw_visualization_ui()
-   if not vis_system or not vis_system.current_strategy then return end
-
-   -- Strategy info
-   print(string.format("Strategy: %s", vis_system.current_strategy_name), 280, 230, 8)
-
-   -- Object count
-   local obj_count = 0
-   if vis_system.current_strategy.objects then
-      for _ in pairs(vis_system.current_strategy.objects) do
-         obj_count = obj_count + 1
-      end
-   end
-   print(string.format("Objects: %d", obj_count), 280, 240, 8)
-end
-
-function draw_debug_info()
-   -- Draw performance and system info
-   local info_x = 280
-   local info_y = 28
-   local line_height = 8
-
-   rrectfill(info_x - 2, info_y - 2, 120, 80, 0, 0)
-   rrect(info_x - 2, info_y - 2, 120, 80, 0, 7)
-
-   print("LOCUSTRON", info_x, info_y, 11)
-   info_y = info_y + line_height * 1.5
-
-   print("Objects: " .. tostr(loc:count()), info_x, info_y, 7)
-   info_y = info_y + line_height
-
-   -- Get strategy statistics
-   local strategy = loc:get_strategy()
-   local stats = strategy:get_statistics()
-
-   print("Cells: " .. tostr(stats.cell_count), info_x, info_y)
-   info_y = info_y + line_height
-
-   print("Cell size: " .. tostr(stats.cell_size), info_x, info_y)
-   info_y = info_y + line_height
-
-   print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
-   info_y = info_y + line_height
-
-   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB", info_x, info_y)
-   info_y = info_y + line_height
-
-   if perf_profiler.enabled then
-      local stats = perf_profiler.stats
-      if stats.total_queries > 0 then
-         info_y = info_y + line_height
-         color(11)
-         print("QUERIES", info_x, info_y)
-         info_y = info_y + line_height
-
-         color(7)
-         print("Total: " .. tostr(stats.total_queries), info_x, info_y)
-         info_y = info_y + line_height
-
-         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", info_x, info_y)
-      end
-   end
-end
-
 function _init()
    -- Initialize with default scenario (survivor like)
    switch_scenario("survivor_like")
@@ -281,9 +179,6 @@ function _draw()
    if debug_mode and vis_system then
       -- Debug visualization mode
       vis_system:render_strategy(loc:get_strategy(), "fixed_grid")
-
-      -- Render visualization UI overlay
-      draw_visualization_ui()
    else
       -- Scenario visualization mode
       if current_scenario and current_scenario.draw then current_scenario:draw() end
@@ -300,28 +195,125 @@ function _draw()
    draw_debug_console()
 end
 
+function draw_debug_overlay()
+   -- Draw debug controls help
+   local info_x = 280
+   local info_y = 154
+   local line_height = 8
+   local lines = 10
+   local padding = 1
+   local box_width = 180
+   local box_height = lines * (line_height + padding) -- = 10 * (8 + 1) = 99
+   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+
+   color(11)
+   print("CONTROLS", info_x, info_y)
+   info_y += line_height
+
+   print("Z: Toggle UI", info_x, info_y)
+   info_y += line_height
+   print("X: Toggle Debug Mode", info_x, info_y)
+   info_y += line_height
+   print("`: Toggle Console", info_x, info_y)
+   info_y += line_height
+   print("Tab: Switch Scenario", info_x, info_y)
+   info_y += line_height
+
+   if debug_mode then
+      color(8)
+      print("G: Toggle Grid", info_x, info_y)
+      info_y += line_height
+      print("O: Toggle Objects", info_x, info_y)
+      info_y += line_height
+      print("Q: Toggle Queries", info_x, info_y)
+      info_y += line_height
+      -- FIXME : profiler is broken
+      -- print("P: Toggle Performance", help_x, help_y)
+      -- help_y += line_height
+      print("+/-: Zoom In/Out", info_x, info_y)
+      info_y += line_height
+      print("Arrows: Pan Viewport", info_x, info_y)
+   end
+end
+
+function draw_debug_info()
+   -- Draw performance and system info
+   local info_x = 280
+   local info_y = 50
+   local line_height = 8
+   local lines = 10
+   local padding = 1
+   local box_width = 180
+   local box_height = lines * (line_height + padding) -- = 10 * (8 + 1) = 99
+   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+
+   print("LOCUSTRON", info_x, info_y, 11)
+   info_y = info_y + line_height * 1.5
+
+   print("Objects: " .. tostr(loc:count()), info_x, info_y, 7)
+   info_y = info_y + line_height
+
+   -- Get strategy statistics
+   local strategy = loc:get_strategy()
+   local stats = strategy:get_statistics()
+
+   print("Cells: " .. tostr(stats.cell_count), info_x, info_y)
+   info_y = info_y + line_height
+
+   print("Cell size: " .. tostr(stats.cell_size), info_x, info_y)
+   info_y = info_y + line_height
+
+   print("CPU: " .. tostr(flr(stat(1) * 100)) .. "%", info_x, info_y)
+   info_y = info_y + line_height
+
+   print("MEM: " .. tostr(flr(stat(3) / 1024)) .. "KB", info_x, info_y)
+   info_y = info_y + line_height
+
+   -- Strategy info
+   print(string.format("Strategy: %s", vis_system.current_strategy_name), info_x, info_y)
+
+   -- Performance profiler stats : FIXME: profiler doesn't seem to be working
+   if perf_profiler.enabled then
+      local stats = perf_profiler.stats
+      if stats.total_queries > 0 then
+         info_y = info_y + line_height
+         color(11)
+         print("QUERIES", info_x, info_y)
+         info_y = info_y + line_height
+
+         color(7)
+         print("Total: " .. tostr(stats.total_queries), info_x, info_y)
+         info_y = info_y + line_height
+
+         print("Avg: " .. tostr(flr(stats.average_query_time * 1000)) .. "ms", info_x, info_y)
+      end
+   end
+end
+
 function draw_scenario_info()
    if not current_scenario then return end
 
    local info = DemoScenarios.get_scenario_info(scenario_names[current_scenario_index])
    if not info then return end
 
-   local info_x = 8
-   local info_y = 120
+   local info_x = 280
+   local info_y = 8
+   local lines = 3
+   local padding = 1
    local line_height = 8
+   local box_width = 140
+   local box_height = lines * (line_height + padding) -- = 3 * (8 + 1) = 27
 
-   rrectfill(info_x - 2, info_y - 2, 140, 50, 0, 0)
-   rrect(info_x - 2, info_y - 2, 140, 50, 0, 7)
+   rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+   rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
 
-   color(11)
-   print("SCENARIO", info_x, info_y)
+   print("SCENARIO", info_x, info_y, 11)
    info_y += line_height
 
    color(7)
    print(info.name, info_x, info_y)
-   info_y += line_height
-
-   print("Tab: Switch", info_x, info_y)
    info_y += line_height
 
    print("Best: " .. info.optimal_strategy, info_x, info_y)

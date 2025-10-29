@@ -170,7 +170,7 @@ function SurvivorLikeScenario.new(config)
 
    function scenario:draw()
       -- Draw player with health-based color
-      local player_color = 11 -- Default blue
+      local player_color = 11 -- Default green
       if self.player.health <= 1 then
          player_color = 8 -- Red when low health
       elseif self.player.health <= 2 then
@@ -187,9 +187,18 @@ function SurvivorLikeScenario.new(config)
       end
 
       -- Draw wave info
-      print("Wave: "..self.wave, 280, 8, 7)
-      print("Monsters: "..#self.objects, 280, 16, 7)
-      print("Health: "..self.player.health.."/"..self.player.max_health, 280, 24, 7)
+      local info_x = 8
+      local info_y = 8
+      local lines = 3
+      local padding = 1
+      local line_height = 8
+      local box_width = 80
+      local box_height = lines * (line_height + padding) -- = 3 * (8 + 1) = 27
+      rrectfill(info_x - 2, info_y - 2, box_width, box_height, 0, 0)
+      rrect(info_x - 2, info_y - 2, box_width, box_height, 0, 7)
+      print("Wave: "..self.wave, info_x, info_y, 7)
+      print("Monsters: "..#self.objects, info_x, info_y + 8, 7)
+      print("Health: "..self.player.health.."/"..self.player.max_health, info_x, info_y + 16, 7)
    end
 
    function scenario:get_objects()
