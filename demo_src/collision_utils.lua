@@ -19,6 +19,22 @@ function CollisionUtils.check_aabb(obj1, obj2)
    return collides
 end
 
+--- Check center-based AABB collision between two objects
+--- @param obj1 table First object with center-based x, y, w, h properties
+--- @param obj2 table Second object with center-based x, y, w, h properties
+--- @return boolean True if objects collide
+function CollisionUtils.check_center_aabb(obj1, obj2)
+   local collides = false
+   if obj1.x + obj1.w / 2 > obj2.x - obj2.w / 2
+      and obj1.x - obj1.w / 2 < obj2.x + obj2.w / 2
+      and obj1.y + obj1.h / 2 > obj2.y - obj2.h / 2
+      and obj1.y - obj1.h / 2 < obj2.y + obj2.h / 2
+   then
+      collides = true
+   end
+   return collides
+end
+
 --- Check collision between an object and a platform (axis-aligned)
 --- @param obj table Object with x, y, w, h properties
 --- @param platform table Platform with x, y, w, h properties
