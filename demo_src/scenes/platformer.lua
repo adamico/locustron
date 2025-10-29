@@ -8,6 +8,7 @@ local fps_time_step = 1 / 60
 local Platformer = SceneManager:addState("Platformer")
 
 local enemy_acceleration = 120
+local bottom_off_screen_threshold = 320
 
 function Platformer:initialize(config)
    SceneManager.initialize(self, config)
@@ -48,25 +49,37 @@ function Platformer:enteredState()
 end
 
 function Platformer:init(loc, perf_profiler)
-   -- Call parent init
    self.loc = loc
-
    self.player.health = self.player.max_health
+   self:spawn_platforms()
+   self.objects = {}
+   self.pending_removal = {}
+   self.loc:clear()
+   self:reset_player()
+
+   -- Reduce initial enemy count drastically
+   for i = 1, 4 do
+      self:spawn_on_platform()
+   end
+end
+
+function Platformer:spawn_platforms()
    -- Generate platforms spread across screen width, accessible with double jump
    self.platforms = {}
-   local num_platforms = 5 + math.random(3)                                    -- 5-7 platforms (increased minimum)
+   local num_platforms = 5 + math.random(3) -- 5-7 platforms (increased minimum)
    local screen_width = 480
    local section_width = screen_width / num_platforms
-   
+
    for i = 1, num_platforms do
-      local w = 50 + math.random(60)                                           -- width 50-110 (slightly smaller for better spread)
-      local h = self.platform_height                                           -- constant height
-      
+      local w = 50 +
+      math.random(60)                -- width 50-110 (slightly smaller for better spread)
+      local h = self.platform_height -- constant height
+
       -- Try to find a non-overlapping position using spatial queries
       local max_attempts = 10
       local placed = false
       local platform = nil
-      
+
       for attempt = 1, max_attempts do
          -- Spread platforms across screen width with some randomization
          local section_start = (i - 1) * section_width + 16
@@ -74,17 +87,17 @@ function Platformer:init(loc, perf_profiler)
          -- Ensure section_end > section_start to avoid math.random errors
          section_end = math.max(section_end, section_start + 1)
          local x = section_start + math.random(section_end - section_start)
-         
+
          -- Vertical positioning with much more randomness (no longer linear progression)
          local min_y = 60
          local max_y = 250
-         local y = min_y + math.random() * (max_y - min_y)  -- Random y position across full range
-         
+         local y = min_y + math.random() * (max_y - min_y) -- Random y position across full range
+
          -- Check for overlaps with existing platforms using spatial query
          local overlapping = self.loc:query(x - 5, y - 5, w + 10, h + 10, function(other)
             return other.type == "platform"
          end)
-         
+
          -- If no overlaps found, place the platform
          if not next(overlapping) then
             platform = {x = x, y = y, w = w, h = h, type = "platform"}
@@ -94,7 +107,7 @@ function Platformer:init(loc, perf_profiler)
             break
          end
       end
-      
+
       -- If we couldn't find a non-overlapping position after max attempts, place it anyway
       if not placed then
          local section_start = (i - 1) * section_width + 16
@@ -104,25 +117,19 @@ function Platformer:init(loc, perf_profiler)
          local min_y = 60
          local max_y = 250
          local y = min_y + math.random() * (max_y - min_y)
-         
+
          platform = {x = x, y = y, w = w, h = h, type = "platform"}
          table.insert(self.platforms, platform)
          self.loc:add(platform, x, y, w, h)
       end
    end
+end
 
-   -- Initialize/reset game state
-   self.objects = {}
-   self.pending_removal = {}
-
-   self.loc:clear()
-
-   self:reset_player()
-
-   -- Reduce initial enemy count drastically
-   for i = 1, 4 do
-      self:spawn_on_platform()
+function Platformer:get_random_platform()
+   if #self.platforms > 0 then
+      return self.platforms[math.random(#self.platforms)]
    end
+   return nil
 end
 
 function Platformer:spawn_on_platform()
@@ -130,7 +137,9 @@ function Platformer:spawn_on_platform()
 
    -- Try up to 10 times to find a suitable spawn location
    for attempt = 1, 10 do
-      local platform = self.platforms[math.random(#self.platforms)]
+      local platform = self:get_random_platform()
+      if not platform then return end
+
       local spawn_x = platform.x + math.random(platform.w - 16)
       local spawn_y = platform.y - 8 - math.random(32)
 
@@ -166,11 +175,11 @@ function Platformer:update()
    if keyp("r", true) then self:init(self.loc) end
 
    self:handle_player_input()
-   self:handle_enemy_player_collision()  -- Check collision BEFORE physics update
+   self:handle_enemy_player_collision() -- Check collision BEFORE physics update
    self:process_pending_removal()
    self:update_player_physics()
-   self:handle_player_platform_collision()
-   self.loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+   self:handle_player_fall_off_screen()
+
    self:update_enemies()
    self:update_spawn()
    self:handle_player_stomp()
@@ -250,6 +259,19 @@ function Platformer:update_player_physics()
    self.player.y = self.player.y + self.player.vy * fps_time_step
 end
 
+function Platformer:handle_player_fall_off_screen()
+   -- Check if player fell off the bottom of the screen
+   if self.player.y > bottom_off_screen_threshold then
+      -- Player fell off - take damage and handle consequences
+      self:damage_player("fall")
+      return -- Exit early to avoid further processing after damage
+   else
+      -- Normal processing only if player didn't fall off
+      self:handle_player_platform_collision()
+      self.loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+   end
+end
+
 function Platformer:handle_player_platform_collision()
    -- Player platform collision (skip if dropping through)
    self.player.grounded = false
@@ -296,10 +318,10 @@ function Platformer:update_enemies()
             local nearby_player = {}
             if self.perf_profiler then
                nearby_player = self.perf_profiler:measure_query("fixed_grid", function()
-                     return self.loc:query(obj.x - 80, obj.y - 80, 160, 160, function(other)
-                        return other == self.player
-                     end)
-                  end
+                  return self.loc:query(obj.x - 80, obj.y - 80, 160, 160, function(other)
+                     return other == self.player
+                  end)
+               end
                )
             else
                nearby_player = self.loc:query(obj.x - 80, obj.y - 80, 160, 160, function(other)
@@ -430,6 +452,52 @@ function Platformer:handle_player_stomp()
    end
 end
 
+function Platformer:damage_player(damage_source, enemy)
+   -- Common damage logic: reduce health
+   self.player.health = self.player.health - 1
+
+   -- Source-specific behavior
+   if damage_source == "enemy" then
+      -- Enemy collision: apply invulnerability, knockback, and directional push
+      self.player.invulnerability_timer = 1.5 -- 1.5 seconds of invulnerability
+      self.player.blink_timer = 0
+      self.player.knockback_timer = 0.5       -- 0.5 seconds of knockback
+
+      -- Push player in the direction the enemy is moving
+      local enemy_speed = math.sqrt(enemy.vx * enemy.vx + enemy.vy * enemy.vy)
+      if enemy_speed > 0 then
+         -- Normalize enemy velocity and apply push force
+         local push_force = 120
+         self.player.vx = (enemy.vx / enemy_speed) * push_force
+         self.player.vy = (enemy.vy / enemy_speed) * push_force + 30 -- Add upward boost
+      else
+         -- Enemy not moving, fallback to basic knockback
+         local dx = self.player.x - enemy.x
+         if dx > 0 then
+            self.player.vx = 120
+         else
+            self.player.vx = -120
+         end
+         self.player.vy = -30
+      end
+   elseif damage_source == "fall" then
+      -- Fall off screen: respawn player
+      self:respawn_player(false) -- Use update for respawn
+      self.player.invulnerability_timer = 1.5 -- 1.5 seconds of invulnerability
+      self.player.blink_timer = 0
+   end
+
+   -- Common death check
+   if self.player.health <= 0 then
+      self:init(self.loc)
+   end
+end
+
+function Platformer:damage_player_from_enemy(enemy)
+   -- Delegate to generic damage function
+   self:damage_player("enemy", enemy)
+end
+
 function Platformer:handle_enemy_player_collision()
    -- Enemy damage to player (only if not invulnerable)
    if self.player.invulnerability_timer <= 0 then
@@ -447,33 +515,7 @@ function Platformer:handle_enemy_player_collision()
 
             if px2 > ox1 and px1 < ox2 and py2 > oy1 and py1 < oy2 then
                -- Player takes damage
-               self.player.health = self.player.health - 1
-               self.player.invulnerability_timer = 1.5 -- 1.5 seconds of invulnerability
-               self.player.blink_timer = 0
-               self.player.knockback_timer = 0.5 -- 0.5 seconds of knockback
-
-               -- Push player in the direction the enemy is moving
-               local enemy_speed = math.sqrt(obj.vx * obj.vx + obj.vy * obj.vy)
-               if enemy_speed > 0 then
-                  -- Normalize enemy velocity and apply push force
-                  local push_force = 120
-                  self.player.vx = (obj.vx / enemy_speed) * push_force
-                  self.player.vy = (obj.vy / enemy_speed) * push_force + 30  -- Add upward boost
-               else
-                  -- Enemy not moving, fallback to basic knockback
-                  local dx = self.player.x - obj.x
-                  if dx > 0 then
-                     self.player.vx = 120
-                  else
-                     self.player.vx = -120
-                  end
-                  self.player.vy = -30
-               end
-
-               -- Check for death
-               if self.player.health <= 0 then
-                  self:init(self.loc)
-               end
+               self:damage_player_from_enemy(obj)
                break -- Only take damage from one enemy at a time
             end
          end
@@ -481,8 +523,8 @@ function Platformer:handle_enemy_player_collision()
    end
 end
 
-function Platformer:reset_player()
-   self.player.health = self.player.max_health
+function Platformer:respawn_player(use_add)
+   -- Reset player state but keep current health
    self.player.invulnerability_timer = 0
    self.player.blink_timer = 0
    self.player.knockback_timer = 0
@@ -493,13 +535,24 @@ function Platformer:reset_player()
    self.player.drop_velocity = 0
 
    -- Place player on a random platform
-   if #self.platforms > 0 then
-      local p = self.platforms[math.random(#self.platforms)]
-      self.player.x = p.x + p.w / 2
-      self.player.y = p.y - self.player.h / 2
+   local platform = self:get_random_platform()
+   if platform then
+      self.player.x = platform.x + platform.w / 2
+      self.player.y = platform.y - self.player.h / 2
       self.player.grounded = true
    end
-   self.loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+
+   -- Add or update player in spatial structure based on context
+   if use_add then
+      self.loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+   else
+      self.loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+   end
+end
+
+function Platformer:reset_player()
+   self.player.health = self.player.max_health
+   self:respawn_player(true) -- Use add for initial spawn
 end
 
 function Platformer:process_pending_removal()
