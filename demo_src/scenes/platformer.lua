@@ -24,9 +24,21 @@ function Platformer:enteredState()
    -- Scenario-specific state
    self.platforms = {}
    self.player = {
-      x = 256, y = 100, w = 8, h = 16, vx = 0, vy = 0,
-      grounded = false, jumps = 0, max_jumps = 2,
-      drop_timer = 0, drop_velocity = 0 -- Drop-through mechanics
+      x = 256,
+      y = 100,
+      w = 8,
+      h = 16,
+      vx = 0,
+      vy = 0,
+      grounded = false,
+      jumps = 0,
+      max_jumps = 2,
+      drop_timer = 0,
+      drop_velocity = 0,
+      health = 3,
+      max_health = 3,
+      invulnerability_timer = 0,
+      blink_timer = 0
    }
    self.query_cooldown = 0
    self.query_interval = 6 -- Perform spatial queries every 6 frames
@@ -36,18 +48,19 @@ function Platformer:init(loc, perf_profiler)
    -- Call parent init
    self.loc = loc
 
-      -- Randomize number and placement of platforms (min 3, max 5)
-      self.platforms = {}
-      local num_platforms = 3 + math.random(3) - 1 -- 3, 4, or 5
-      for i = 1, num_platforms do
-         local w = 60 + math.random(100) -- width 60-160
-         local h = self.platform_height   -- constant height
-         local x = math.random(32, 512 - w - 32)
-         local y = 80 + (i-1) * 60 + math.random(-20, 20) -- vertical spread
-         local platform = { x = x, y = y, w = w, h = h, type = "platform" }
-         table.insert(self.platforms, platform)
-         self.loc:add(platform, x, y, w, h)
-      end
+   self.player.health = self.player.max_health
+   -- Randomize number and placement of platforms (min 3, max 5)
+   self.platforms = {}
+   local num_platforms = 3 + math.random(3) - 1          -- 3, 4, or 5
+   for i = 1, num_platforms do
+      local w = 60 + math.random(100)                    -- width 60-160
+      local h = self.platform_height                     -- constant height
+      local x = math.random(32, 512 - w - 32)
+      local y = 80 + (i - 1) * 60 + math.random(-20, 20) -- vertical spread
+      local platform = {x = x, y = y, w = w, h = h, type = "platform"}
+      table.insert(self.platforms, platform)
+      self.loc:add(platform, x, y, w, h)
+   end
 
    -- Initialize/reset game state
    self.objects = {}
@@ -55,14 +68,8 @@ function Platformer:init(loc, perf_profiler)
 
    self.loc:clear()
 
-   -- Place player on a random platform
-   if #self.platforms > 0 then
-      local p = self.platforms[math.random(#self.platforms)]
-      self.player.x = p.x + p.w / 2
-      self.player.y = p.y - self.player.h / 2
-   end
-   self.loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
-
+   self:reset_player()
+   
    -- Reduce initial enemy count drastically
    for i = 1, 4 do
       self:spawn_on_platform()
@@ -99,7 +106,11 @@ function Platformer:update()
    self:update_enemies()
    self:update_spawn()
    self:handle_player_stomp()
-   self.draw_info = {"Enemies: "..tostring(#self.objects)}
+   self:handle_enemy_player_collision()
+   self.draw_info = {
+      "Enemies: "..tostring(#self.objects),
+      "Health: "..tostring(self.player.health)
+   }
 end
 
 function Platformer:handle_player_input()
@@ -107,7 +118,7 @@ function Platformer:handle_player_input()
    if btn(3) and self.player.grounded then
       self.player.grounded = false
       self.player.drop_velocity = 20 -- Start with small initial velocity
-      self.player.drop_timer = 0.3 -- Allow dropping for 0.3 seconds
+      self.player.drop_timer = 0.3   -- Allow dropping for 0.3 seconds
    end
 
    -- Update drop timer
@@ -117,6 +128,15 @@ function Platformer:handle_player_input()
          self.player.drop_timer = 0
          self.player.drop_velocity = 0 -- Stop dropping
       end
+   end
+
+   -- Update invulnerability timer
+   if self.player.invulnerability_timer > 0 then
+      self.player.invulnerability_timer = self.player.invulnerability_timer - fps_time_step
+      self.player.blink_timer = self.player.blink_timer + fps_time_step
+   else
+      self.player.invulnerability_timer = 0
+      self.player.blink_timer = 0
    end
 
    -- Simple player movement (for demo purposes)
@@ -295,6 +315,67 @@ function Platformer:handle_player_stomp()
    end
 end
 
+function Platformer:handle_enemy_player_collision()
+   -- Enemy damage to player (only if not invulnerable)
+   if self.player.invulnerability_timer <= 0 then
+      for _, obj in ipairs(self.objects) do
+         if obj.type == "enemy" then
+            -- Check AABB overlap
+            local px1 = self.player.x - self.player.w / 2
+            local px2 = self.player.x + self.player.w / 2
+            local py1 = self.player.y - self.player.h / 2
+            local py2 = self.player.y + self.player.h / 2
+            local ox1 = obj.x - obj.w / 2
+            local ox2 = obj.x + obj.w / 2
+            local oy1 = obj.y - obj.h / 2
+            local oy2 = obj.y + obj.h / 2
+
+            if px2 > ox1 and px1 < ox2 and py2 > oy1 and py1 < oy2 then
+               -- Player takes damage
+               self.player.health = self.player.health - 1
+               self.player.invulnerability_timer = 1.5 -- 1.5 seconds of invulnerability
+               self.player.blink_timer = 0
+
+               -- Knockback
+               local dx = self.player.x - obj.x
+               if dx > 0 then
+                  self.player.vx = 150  -- Knock right
+               else
+                  self.player.vx = -150 -- Knock left
+               end
+               self.player.vy = -100    -- Knock up
+
+               -- Check for death
+               if self.player.health <= 0 then
+                  self:init(self.loc)
+               end
+               break -- Only take damage from one enemy at a time
+            end
+         end
+      end
+   end
+end
+
+function Platformer:reset_player()
+   self.player.health = self.player.max_health
+   self.player.invulnerability_timer = 0
+   self.player.blink_timer = 0
+   self.player.vx = 0
+   self.player.vy = 0
+   self.player.jumps = 0
+   self.player.drop_timer = 0
+   self.player.drop_velocity = 0
+
+   -- Place player on a random platform
+   if #self.platforms > 0 then
+      local p = self.platforms[math.random(#self.platforms)]
+      self.player.x = p.x + p.w / 2
+      self.player.y = p.y - self.player.h / 2
+      self.player.grounded = true
+   end
+   self.loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+end
+
 function Platformer:process_pending_removal()
    -- Process pending removal for array cleanup only (spatial removal already done)
    local indices_to_remove = {}
@@ -321,9 +402,17 @@ function Platformer:draw()
       rectfill(obj.x - obj.w / 2, obj.y - obj.h / 2, obj.x + obj.w / 2, obj.y + obj.h / 2, obj.color)
    end
 
-   -- Draw player
-   rectfill(self.player.x - self.player.w / 2, self.player.y - self.player.h / 2,
-      self.player.x + self.player.w / 2, self.player.y + self.player.h / 2, 11)
+   -- Draw player (with blinking during invulnerability)
+   local should_draw_player = true
+   if self.player.invulnerability_timer > 0 then
+      -- Blink every 0.1 seconds
+      should_draw_player = math.floor(self.player.blink_timer * 10) % 2 == 0
+   end
+
+   if should_draw_player then
+      rectfill(self.player.x - self.player.w / 2, self.player.y - self.player.h / 2,
+         self.player.x + self.player.w / 2, self.player.y + self.player.h / 2, 11)
+   end
 end
 
 function Platformer:get_objects()
