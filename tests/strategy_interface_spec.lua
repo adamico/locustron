@@ -9,7 +9,7 @@ describe("Strategy Interface Foundation", function()
    describe("SpatialStrategy abstract class", function()
       local strategy
 
-      before_each(function() strategy = setmetatable({}, SpatialStrategy) end)
+      before_each(function() strategy = SpatialStrategy:new() end)
 
       it("should throw errors for unimplemented abstract methods", function()
          assert.has_error(

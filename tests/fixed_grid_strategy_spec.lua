@@ -7,18 +7,18 @@ local FixedGridStrategy = require("src.strategies.fixed_grid")
 describe("FixedGridStrategy", function()
    local strategy
 
-   before_each(function() strategy = FixedGridStrategy.new({ cell_size = 32 }) end)
+   before_each(function() strategy = FixedGridStrategy:new({ cell_size = 32 }) end)
 
    describe("initialization", function()
       it("should create with default configuration", function()
-         local default_strategy = FixedGridStrategy.new({})
+         local default_strategy = FixedGridStrategy:new({})
          assert.equals(32, default_strategy.cell_size)
          assert.equals(0, default_strategy.object_count)
          assert.equals("fixed_grid", default_strategy.strategy_name)
       end)
 
       it("should create with custom cell size", function()
-         local custom_strategy = FixedGridStrategy.new({ cell_size = 64 })
+         local custom_strategy = FixedGridStrategy:new({ cell_size = 64 })
          assert.equals(64, custom_strategy.cell_size)
       end)
 

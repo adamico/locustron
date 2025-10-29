@@ -3,21 +3,18 @@
 -- Clean, unified interface for spatial partitioning operations
 -- Uses strategy pattern internally for extensibility
 
+local class = require("lib.middleclass")
 local FixedGridStrategy = require("src.strategies.fixed_grid")
 
 --- @class Locustron
 --- Main spatial partitioning API for game development
 --- @field private _strategy table The active spatial strategy
 --- @field private _obj_count number Current object count
-local Locustron = {}
-Locustron.__index = Locustron
+local Locustron = class("Locustron")
 
 --- Create a new Locustron spatial partitioning instance
 --- @param config table|string|number|nil Configuration object, strategy name, or legacy cell size
---- @return Locustron New spatial partitioning instance
-function Locustron.create(config)
-   local self = setmetatable({}, Locustron)
-
+function Locustron:initialize(config)
    -- Handle different configuration formats for backward compatibility
    if type(config) == "number" then
       -- Legacy: Locustron.create(cell_size)
@@ -40,15 +37,20 @@ function Locustron.create(config)
 
    -- Create strategy instance (currently only fixed_grid supported)
    if config.strategy == "fixed_grid" then
-      self._strategy = FixedGridStrategy.new(config.config)
+      self._strategy = FixedGridStrategy:new(config.config)
    else
       error("unknown strategy: " .. tostring(config.strategy))
    end
 
    -- Initialize object count
    self._obj_count = 0
+end
 
-   return self
+--- Factory method for backward compatibility
+--- @param config table|string|number|nil Configuration object, strategy name, or legacy cell size
+--- @return Locustron New spatial partitioning instance
+function Locustron.static.create(config)
+   return Locustron:new(config)
 end
 
 --- Add an object to the spatial partitioning system

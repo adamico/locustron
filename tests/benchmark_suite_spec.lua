@@ -16,7 +16,7 @@ describe("BenchmarkSuite", function()
 
    before_each(
       function()
-         benchmark_suite = BenchmarkSuite.new({
+         benchmark_suite = BenchmarkSuite:new({
             strategies = { "fixed_grid" },
             iterations = 10,
          })
@@ -25,14 +25,14 @@ describe("BenchmarkSuite", function()
 
    describe("initialization", function()
       it("should create with default configuration", function()
-         local default_suite = BenchmarkSuite.new({})
+         local default_suite = BenchmarkSuite:new({})
          assert.is_table(default_suite.scenarios)
          assert.equals("fixed_grid", default_suite.strategies[1])
          assert.equals(1000, default_suite.iterations)
       end)
 
       it("should create with custom configuration", function()
-         local custom_suite = BenchmarkSuite.new({
+         local custom_suite = BenchmarkSuite:new({
             strategies = { "fixed_grid", "quadtree" },
             iterations = 500,
          })
@@ -245,7 +245,7 @@ end)
 describe("PerformanceProfiler", function()
    local profiler
 
-   before_each(function() profiler = PerformanceProfiler.new() end)
+   before_each(function() profiler = PerformanceProfiler:new() end)
 
    describe("initialization", function()
       it("should create empty profiler", function()

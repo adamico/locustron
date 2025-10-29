@@ -2,22 +2,20 @@
 -- Efficient rendering optimization using spatial queries
 -- Provides viewport-based culling for game engines
 
+local class = require("lib.middleclass")
+
 --- @class ViewportCulling
 --- Efficient rendering optimization using spatial queries
 --- @field spatial table The Locustron spatial partitioning instance
 --- @field viewport table Viewport configuration {x, y, w, h}
 --- @field cull_margin number Extra margin around viewport for culling
 --- @field stats table Performance statistics for monitoring
-local ViewportCulling = {}
-ViewportCulling.__index = ViewportCulling
+local ViewportCulling = class("ViewportCulling")
 
 --- Create a new viewport culling system
 --- @param locustron_instance table The Locustron spatial partitioning instance
 --- @param viewport_config table|nil Viewport configuration {x, y, w, h, cull_margin}
---- @return ViewportCulling New viewport culling instance
-function ViewportCulling.new(locustron_instance, viewport_config)
-   local self = setmetatable({}, ViewportCulling)
-
+function ViewportCulling:initialize(locustron_instance, viewport_config)
    self.spatial = locustron_instance
    self.viewport = viewport_config or { x = 0, y = 0, w = 400, h = 300 }
    self.cull_margin = viewport_config and viewport_config.cull_margin or 32 -- Extra margin for safety
@@ -31,8 +29,6 @@ function ViewportCulling.new(locustron_instance, viewport_config)
       query_count = 0,
       average_query_time = 0,
    }
-
-   return self
 end
 
 --- Get visible objects within the current viewport
@@ -188,7 +184,7 @@ end
 --- @param spatial table Locustron instance
 --- @return ViewportCulling New instance with sensible defaults
 function ViewportCulling.create(spatial)
-   return ViewportCulling.new(spatial, {
+   return ViewportCulling:new(spatial, {
       x = 0,
       y = 0,
       w = 400,

@@ -2,11 +2,12 @@
 -- Defines the contract that all spatial partitioning strategies must implement
 -- Follows Strategy Pattern with Factory for dynamic strategy selection
 
+local class = require("lib.middleclass")
+
 --- @class SpatialStrategy
 --- @field config table Strategy configuration
 --- @field strategy_name string Strategy identifier/name
-local SpatialStrategy = {}
-SpatialStrategy.__index = SpatialStrategy
+local SpatialStrategy = class("SpatialStrategy")
 
 -- Abstract methods that must be implemented by concrete strategies
 -- These will throw errors if called on the base class

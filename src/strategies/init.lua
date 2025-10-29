@@ -59,11 +59,11 @@ function StrategyFactory.create_strategy(strategy_name, config)
    end
 
    local strategy_class = entry.class
-   if not strategy_class or not strategy_class.new then
+   if not strategy_class then
       error(string.format("Strategy '%s' does not have a valid constructor", strategy_name))
    end
 
-   local instance = strategy_class.new(config)
+   local instance = strategy_class:new(config)
    instance.strategy_name = strategy_name
    instance.config = config
 

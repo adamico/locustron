@@ -1,12 +1,13 @@
 -- Doubly Linked List Implementation for Spatial Cells
 -- Optimized for spatial partitioning use cases
 
+local class = require("lib.middleclass")
+
 --- @class SpatialNode
 --- @field data table Object data with spatial properties
 --- @field next SpatialNode | nil
 --- @field prev SpatialNode | nil
-local SpatialNode = {}
-SpatialNode.__index = SpatialNode
+local SpatialNode = class("SpatialNode")
 
 --- Create a new spatial node
 --- @param obj any Object reference
@@ -14,36 +15,29 @@ SpatialNode.__index = SpatialNode
 --- @param y number Y coordinate
 --- @param w number Width
 --- @param h number Height
---- @return SpatialNode
-function SpatialNode:new(obj, x, y, w, h)
-   return setmetatable({
-      data = {
-         obj = obj,
-         x = x,
-         y = y,
-         w = w,
-         h = h,
-      },
-      next = nil,
-      prev = nil,
-   }, self)
+function SpatialNode:initialize(obj, x, y, w, h)
+   self.data = {
+      obj = obj,
+      x = x,
+      y = y,
+      w = w,
+      h = h,
+   }
+   self.next = nil
+   self.prev = nil
 end
 
 --- @class SpatialCell
 --- @field private firstNode SpatialNode | nil
 --- @field private lastNode SpatialNode | nil
 --- @field private count number
-local SpatialCell = {}
-SpatialCell.__index = SpatialCell
+local SpatialCell = class("SpatialCell")
 
 --- Create a new spatial cell
---- @return SpatialCell
-function SpatialCell:new()
-   return setmetatable({
-      firstNode = nil,
-      lastNode = nil,
-      count = 0,
-   }, self)
+function SpatialCell:initialize()
+   self.firstNode = nil
+   self.lastNode = nil
+   self.count = 0
 end
 
 -- Standard doubly linked list insertion operations
@@ -56,7 +50,7 @@ end
 --- @param h number Height
 --- @return SpatialNode The created node
 function SpatialCell:insertBeginning(obj, x, y, w, h)
-   local newNode = SpatialNode:new(obj, x, y, w, h)
+   local newNode = SpatialNode(obj, x, y, w, h)
 
    if self.firstNode == nil then
       -- Empty list case
@@ -81,7 +75,7 @@ end
 --- @param h number Height
 --- @return SpatialNode The created node
 function SpatialCell:insertEnd(obj, x, y, w, h)
-   local newNode = SpatialNode:new(obj, x, y, w, h)
+   local newNode = SpatialNode(obj, x, y, w, h)
 
    if self.lastNode == nil then
       -- Empty list case
@@ -230,7 +224,7 @@ local M = {}
 
 --- Create a new spatial cell
 --- @return SpatialCell
-function M.createCell() return SpatialCell:new() end
+function M.createCell() return SpatialCell() end
 
 --- Create a new spatial node
 --- @param obj any Object reference
@@ -239,7 +233,7 @@ function M.createCell() return SpatialCell:new() end
 --- @param w number Width
 --- @param h number Height
 --- @return SpatialNode
-function M.createNode(obj, x, y, w, h) return SpatialNode:new(obj, x, y, w, h) end
+function M.createNode(obj, x, y, w, h) return SpatialNode(obj, x, y, w, h) end
 
 -- Export classes for testing
 M.SpatialCell = SpatialCell

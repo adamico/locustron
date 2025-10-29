@@ -1,25 +1,21 @@
 -- Performance Profiler for Spatial Partitioning Strategies
 -- Detailed operation profiling and analysis tools
 
+local class = require("lib.middleclass")
+
 --- @class PerformanceProfiler
 --- @field operation_history table History of all operations
 --- @field memory_snapshots table Timeline of memory usage
 --- @field query_patterns table Analysis of query patterns
 --- @field recommendations table Generated optimization suggestions
-local PerformanceProfiler = {}
-PerformanceProfiler.__index = PerformanceProfiler
+local PerformanceProfiler = class("PerformanceProfiler")
 
 --- Create a new performance profiler
---- @return PerformanceProfiler
-function PerformanceProfiler.new()
-   local self = setmetatable({}, PerformanceProfiler)
-
+function PerformanceProfiler:initialize()
    self.operation_history = {}
    self.memory_snapshots = {}
    self.query_patterns = {}
    self.recommendations = {}
-
-   return self
 end
 
 --- Profile a strategy with a given workload
@@ -32,7 +28,7 @@ function PerformanceProfiler:profile_strategy(strategy_name, workload)
 
    local strategy
    if strategy_name == "fixed_grid" then
-      strategy = FixedGridStrategy.new({ cell_size = 32 })
+      strategy = FixedGridStrategy:new({ cell_size = 32 })
    else
       error("Unknown strategy: " .. strategy_name)
    end

@@ -2,6 +2,7 @@
 -- Vanilla Lua version using doubly linked lists instead of userdata
 -- Maintains 100% API compatibility with existing Locustron
 
+local class = require("lib.middleclass")
 local Sort = Sort or table.sort
 local dll = require("src.strategies.doubly_linked_list")
 local strategy_interface = require("src.strategies.interface")
@@ -14,26 +15,21 @@ local SpatialStrategy = strategy_interface.SpatialStrategy
 --- @field public object_count number Number of objects in the spatial structure
 --- @field strategy_name string Strategy identifier
 --- @field config table Strategy configuration
-local FixedGridStrategy = {}
-FixedGridStrategy.__index = FixedGridStrategy
-setmetatable(FixedGridStrategy, { __index = SpatialStrategy })
+local FixedGridStrategy = class("FixedGridStrategy", SpatialStrategy)
 
 --- Create a new Fixed Grid strategy
 --- @param config table Configuration options
---- @return FixedGridStrategy
-function FixedGridStrategy.new(config)
-   local self = setmetatable({}, FixedGridStrategy)
-
+function FixedGridStrategy:initialize(config)
+   config = config or {}
+   
    self.cell_size = config.cell_size or 32
    self.grid = {} -- Sparse grid: {[cy] = {[cx] = SpatialCell}}
    self.objects = {} -- Object metadata: {[obj] = {nodes = {{cell, node}}, bbox = {x,y,w,h}}}
    self.object_count = 0
-   self.config = config or {}
+   self.config = config
 
    -- Strategy identification
    self.strategy_name = "fixed_grid"
-
-   return self
 end
 
 -- Private helper methods

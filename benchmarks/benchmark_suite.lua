@@ -1,6 +1,7 @@
 -- Benchmarking Suite for Spatial Partitioning Strategies
 -- Comprehensive performance testing and analysis framework
 
+local class = require("lib.middleclass")
 local strategy_interface = require("src.strategies.interface")
 local FixedGridStrategy = require("src.strategies.fixed_grid")
 
@@ -9,15 +10,11 @@ local FixedGridStrategy = require("src.strategies.fixed_grid")
 --- @field strategies table Array of strategy names to test
 --- @field metrics table Performance metrics to collect
 --- @field iterations number Number of iterations per test
-local BenchmarkSuite = {}
-BenchmarkSuite.__index = BenchmarkSuite
+local BenchmarkSuite = class("BenchmarkSuite")
 
 --- Create a new benchmark suite
 --- @param config table Configuration options
---- @return BenchmarkSuite
-function BenchmarkSuite.new(config)
-   local self = setmetatable({}, BenchmarkSuite)
-
+function BenchmarkSuite:initialize(config)
    config = config or {}
    self.scenarios = {}
    self.strategies = config.strategies or { "fixed_grid" }
@@ -25,8 +22,6 @@ function BenchmarkSuite.new(config)
    self.iterations = config.iterations or 1000
 
    self:setup_scenarios()
-
-   return self
 end
 
 --- Setup test scenarios for different game patterns
@@ -144,7 +139,7 @@ function BenchmarkSuite:benchmark_strategy(strategy_name, objects)
    local strategy
 
    if strategy_name == "fixed_grid" then
-      strategy = FixedGridStrategy.new({ cell_size = 32 })
+      strategy = FixedGridStrategy:new({ cell_size = 32 })
    else
       error("Unknown strategy: " .. strategy_name)
    end
@@ -217,7 +212,7 @@ function BenchmarkSuite:measure_accuracy(strategy_name, objects)
    local strategy
 
    if strategy_name == "fixed_grid" then
-      strategy = FixedGridStrategy.new({ cell_size = 32 })
+      strategy = FixedGridStrategy:new({ cell_size = 32 })
    else
       error("Unknown strategy: " .. strategy_name)
    end
