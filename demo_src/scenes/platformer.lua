@@ -40,7 +40,8 @@ function Platformer:enteredState()
       health = 3,
       max_health = 3,
       invulnerability_timer = 0,
-      blink_timer = 0
+      blink_timer = 0,
+      knockback_timer = 0
    }
    self.query_cooldown = 0
    self.query_interval = 6 -- Perform spatial queries every 6 frames
@@ -130,6 +131,7 @@ end
 
 function Platformer:update()
    self:handle_player_input()
+   self:handle_enemy_player_collision()  -- Check collision BEFORE physics update
    self:process_pending_removal()
    self:update_player_physics()
    self:handle_player_platform_collision()
@@ -137,7 +139,6 @@ function Platformer:update()
    self:update_enemies()
    self:update_spawn()
    self:handle_player_stomp()
-   self:handle_enemy_player_collision()
    self.draw_info = {
       "Enemies: "..tostring(#self.objects),
       "Health: "..tostring(self.player.health)
@@ -145,6 +146,22 @@ function Platformer:update()
 end
 
 function Platformer:handle_player_input()
+   -- Update invulnerability timer
+   if self.player.invulnerability_timer > 0 then
+      self.player.invulnerability_timer = self.player.invulnerability_timer - fps_time_step
+      self.player.blink_timer = self.player.blink_timer + fps_time_step
+   else
+      self.player.invulnerability_timer = 0
+      self.player.blink_timer = 0
+   end
+
+   -- Update knockback timer
+   if self.player.knockback_timer > 0 then
+      self.player.knockback_timer = self.player.knockback_timer - fps_time_step
+   else
+      self.player.knockback_timer = 0
+   end
+
    -- Handle platform drop-through
    if btn(3) and self.player.grounded then
       self.player.grounded = false
@@ -161,28 +178,23 @@ function Platformer:handle_player_input()
       end
    end
 
-   -- Update invulnerability timer
-   if self.player.invulnerability_timer > 0 then
-      self.player.invulnerability_timer = self.player.invulnerability_timer - fps_time_step
-      self.player.blink_timer = self.player.blink_timer + fps_time_step
-   else
-      self.player.invulnerability_timer = 0
-      self.player.blink_timer = 0
+   -- Simple player movement (for demo purposes) - only if not in knockback
+   if self.player.knockback_timer <= 0 then
+      if btn(0) then self.player.vx = -100 end -- Left
+      if btn(1) then self.player.vx = 100 end  -- Right
+      if not btn(0) and not btn(1) then self.player.vx = 0 end
    end
 
-   -- Simple player movement (for demo purposes)
-   if btn(0) then self.player.vx = -100 end -- Left
-   if btn(1) then self.player.vx = 100 end  -- Right
-   if not btn(0) and not btn(1) then self.player.vx = 0 end
-
-   -- Double jump logic
-   if not self.player._jump_pressed_last then self.player._jump_pressed_last = false end
-   local jump_pressed = btn(2)
-   if jump_pressed and not self.player._jump_pressed_last and self.player.jumps < self.player.max_jumps then
-      self.player.vy = -150
-      self.player.jumps = self.player.jumps + 1
+   -- Double jump logic - only if not in knockback
+   if self.player.knockback_timer <= 0 then
+      if not self.player._jump_pressed_last then self.player._jump_pressed_last = false end
+      local jump_pressed = btn(2)
+      if jump_pressed and not self.player._jump_pressed_last and self.player.jumps < self.player.max_jumps then
+         self.player.vy = -150
+         self.player.jumps = self.player.jumps + 1
+      end
+      self.player._jump_pressed_last = jump_pressed
    end
-   self.player._jump_pressed_last = jump_pressed
 end
 
 function Platformer:update_player_physics()
@@ -403,15 +415,25 @@ function Platformer:handle_enemy_player_collision()
                self.player.health = self.player.health - 1
                self.player.invulnerability_timer = 1.5 -- 1.5 seconds of invulnerability
                self.player.blink_timer = 0
+               self.player.knockback_timer = 0.5 -- 0.5 seconds of knockback
 
-               -- Knockback
-               local dx = self.player.x - obj.x
-               if dx > 0 then
-                  self.player.vx = 150  -- Knock right
+               -- Push player in the direction the enemy is moving
+               local enemy_speed = math.sqrt(obj.vx * obj.vx + obj.vy * obj.vy)
+               if enemy_speed > 0 then
+                  -- Normalize enemy velocity and apply push force
+                  local push_force = 120
+                  self.player.vx = (obj.vx / enemy_speed) * push_force
+                  self.player.vy = (obj.vy / enemy_speed) * push_force + 30  -- Add upward boost
                else
-                  self.player.vx = -150 -- Knock left
+                  -- Enemy not moving, fallback to basic knockback
+                  local dx = self.player.x - obj.x
+                  if dx > 0 then
+                     self.player.vx = 120
+                  else
+                     self.player.vx = -120
+                  end
+                  self.player.vy = -30
                end
-               self.player.vy = -100    -- Knock up
 
                -- Check for death
                if self.player.health <= 0 then
@@ -428,6 +450,7 @@ function Platformer:reset_player()
    self.player.health = self.player.max_health
    self.player.invulnerability_timer = 0
    self.player.blink_timer = 0
+   self.player.knockback_timer = 0
    self.player.vx = 0
    self.player.vy = 0
    self.player.jumps = 0
