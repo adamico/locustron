@@ -62,20 +62,53 @@ function Platformer:init(loc, perf_profiler)
       local w = 50 + math.random(60)                                           -- width 50-110 (slightly smaller for better spread)
       local h = self.platform_height                                           -- constant height
       
-      -- Spread platforms across screen width with some randomization
-      local section_start = (i - 1) * section_width + 16
-      local section_end = i * section_width - w - 16
-      -- Ensure section_end > section_start to avoid math.random errors
-      section_end = math.max(section_end, section_start + 1)
-      local x = section_start + math.random(section_end - section_start)
+      -- Try to find a non-overlapping position using spatial queries
+      local max_attempts = 10
+      local placed = false
+      local platform = nil
       
-      -- Vertical spacing accessible with double jump (max jump ~300 units up)
-      local base_y = 80 + (i - 1) * 45                                        -- Reduced vertical spacing (45 instead of 60)
-      local y = math.min(base_y + math.random(-15, 15), 270 - h - 20)        -- Less vertical randomization
+      for attempt = 1, max_attempts do
+         -- Spread platforms across screen width with some randomization
+         local section_start = (i - 1) * section_width + 16
+         local section_end = i * section_width - w - 16
+         -- Ensure section_end > section_start to avoid math.random errors
+         section_end = math.max(section_end, section_start + 1)
+         local x = section_start + math.random(section_end - section_start)
+         
+         -- Vertical positioning with much more randomness (no longer linear progression)
+         local min_y = 60
+         local max_y = 250
+         local y = min_y + math.random() * (max_y - min_y)  -- Random y position across full range
+         
+         -- Check for overlaps with existing platforms using spatial query
+         local overlapping = self.loc:query(x - 5, y - 5, w + 10, h + 10, function(other)
+            return other.type == "platform"
+         end)
+         
+         -- If no overlaps found, place the platform
+         if not next(overlapping) then
+            platform = {x = x, y = y, w = w, h = h, type = "platform"}
+            table.insert(self.platforms, platform)
+            self.loc:add(platform, x, y, w, h)
+            placed = true
+            break
+         end
+      end
       
-      local platform = {x = x, y = y, w = w, h = h, type = "platform"}
-      table.insert(self.platforms, platform)
-      self.loc:add(platform, x, y, w, h)
+      -- If we couldn't find a non-overlapping position after max attempts, place it anyway
+      if not placed then
+         local section_start = (i - 1) * section_width + 16
+         local section_end = i * section_width - w - 16
+         section_end = math.max(section_end, section_start + 1)
+         local x = section_start + math.random(section_end - section_start)
+         local min_y = 60
+         local max_y = 250
+         local y = min_y + math.random() * (max_y - min_y)
+         
+         platform = {x = x, y = y, w = w, h = h, type = "platform"}
+         table.insert(self.platforms, platform)
+         self.loc:add(platform, x, y, w, h)
+      end
    end
 
    -- Initialize/reset game state
@@ -130,6 +163,8 @@ function Platformer:spawn_on_platform()
 end
 
 function Platformer:update()
+   if keyp("r", true) then self:init(self.loc) end
+
    self:handle_player_input()
    self:handle_enemy_player_collision()  -- Check collision BEFORE physics update
    self:process_pending_removal()
