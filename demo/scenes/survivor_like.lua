@@ -1,74 +1,61 @@
--- Survivor Like Scenario
+-- SurvivorLike Scene
 -- Monsters spawn in waves around player, creating dense clusters
 
-local CollisionUtils = require("demo.collision_utils")
 local sort = require("demo.sort")
-local class = require("lib.middleclass")
-
-local SurvivorLikeScenario = class("SurvivorLikeScenario")
-
 local fps_time_step = 1 / 60         -- Fixed time step for 60 FPS
-
 local player_attack_cooldown = 0.075 -- seconds between attacks
 
-function SurvivorLikeScenario:initialize(config)
-   config = config or {}
+local SurvivorLike = SceneManager:addState("SurvivorLike")
 
-   -- Static configuration
+function SurvivorLike:initialize(config)
+   SceneManager.initialize(self, config)
+end
+
+function SurvivorLike:enteredState()
+   -- Initialize survivor-like specific properties
    self.name = "Survivor Like"
    self.description = "Monsters spawn in waves around player, creating dense clusters"
    self.optimal_strategy = "quadtree"
-   self.max_objects = config.max_objects or 200
 
    -- Player definition
    self.player = {
-      x = 128,
-      y = 128,
-      w = 8,
-      h = 8,
-      health = 5,
-      max_health = 5,
-      speed = 2,
-      attack_range = 64,
-      attack_damage = 1,
-      attack_cooldown = player_attack_cooldown,
+      x = 128, y = 128, w = 8, h = 8,
+      health = 5, max_health = 5, speed = 2,
+      attack_range = 64, attack_damage = 1, attack_cooldown = player_attack_cooldown,
    }
 end
 
-function SurvivorLikeScenario:init(loc, perf_profiler)
-   -- Store performance profiler for measuring queries (if provided)
-   if perf_profiler then
-      self.perf_profiler = perf_profiler
-   end
+function SurvivorLike:init(loc, perf_profiler)
+   -- Call parent init
+   self.loc = loc
 
    -- Initialize/reset game state
    self.wave = 0
    self.player.health = self.player.max_health
    self.spawn_timer = 0
    self.damage_cooldown = 0
-   -- Clear all monsters (objects table reset, no need for pending removal)
    self.objects = {}
-   self.pending_removal = {} -- Clear pending removal since objects were reset
-   self.projectiles = {}     -- Clear all projectiles
+   self.pending_removal = {}
+   self.projectiles = {}
 
-   -- Clear spatial structure and re-add player to prevent shooting at old monsters
-   loc:clear()
-   loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+   self.loc:clear()
+   self.loc:add(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
 end
 
-function SurvivorLikeScenario:update(loc)
-   -- Process pending removal and cleanup dead objects
+function SurvivorLike:update()
+      -- Process pending removal and cleanup dead objects
    self:process_pending_removal()
 
    self:update_timers()
-   self:update_player(loc)
-   self:update_projectiles(loc)
-   self:spawn_monsters_if_needed(loc)
-   self:update_monsters(loc)
-   self:check_player_death(loc)
+   self:update_player()
+   self:update_projectiles()
+   self:spawn_monsters_if_needed()
+   self:update_monsters()
+   self:check_player_death()
 end
 
-function SurvivorLikeScenario:process_pending_removal()
+
+function SurvivorLike:process_pending_removal()
    -- Process pending removal for array cleanup only (spatial removal already done)
    local indices_to_remove = {}
    for _, removal in ipairs(self.pending_removal) do
@@ -83,7 +70,7 @@ function SurvivorLikeScenario:process_pending_removal()
    end
 end
 
-function SurvivorLikeScenario:update_timers()
+function SurvivorLike:update_timers()
    self.spawn_timer = self.spawn_timer + fps_time_step
 
    -- Update damage cooldown
@@ -97,7 +84,7 @@ function SurvivorLikeScenario:update_timers()
    end
 end
 
-function SurvivorLikeScenario:update_player(loc)
+function SurvivorLike:update_player()
    -- Handle 8-directional player movement
    local move_x = 0
    local move_y = 0
@@ -123,23 +110,23 @@ function SurvivorLikeScenario:update_player(loc)
       self.player.y = mid(8, self.player.y, 248) -- 256 - 8 for player height
 
       -- Update player position in spatial structure
-      loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
+      self.loc:update(self.player, self.player.x, self.player.y, self.player.w, self.player.h)
    end
 
    -- Auto-attack nearby monsters
    if self.player.attack_cooldown <= 0 then
-      self:auto_attack_monsters(loc)
+      self:auto_attack_monsters()
    end
 end
 
-function SurvivorLikeScenario:auto_attack_monsters(loc)
+function SurvivorLike:auto_attack_monsters()
    -- Find monsters within attack range
    local nearby_monsters = {}
    if self.perf_profiler then
       nearby_monsters = self.perf_profiler:measure_query(
          "fixed_grid",
          function()
-            return loc:query(
+            return self.loc:query(
                self.player.x - self.player.attack_range,
                self.player.y - self.player.attack_range,
                self.player.attack_range * 2,
@@ -151,7 +138,7 @@ function SurvivorLikeScenario:auto_attack_monsters(loc)
          end
       )
    else
-      nearby_monsters = loc:query(
+      nearby_monsters = self.loc:query(
          self.player.x - self.player.attack_range,
          self.player.y - self.player.attack_range,
          self.player.attack_range * 2,
@@ -199,9 +186,8 @@ function SurvivorLikeScenario:auto_attack_monsters(loc)
       local bullet = {
          x = self.player.x + dx * 6, -- Start 6 units from player center
          y = self.player.y + dy * 6,
-         w = 4,
-         h = 4,                      -- Made bigger for visibility
-         vx = dx * 200,              -- Bullet speed: 200 units/sec
+         w = 4, h = 4,  -- Made bigger for visibility
+         vx = dx * 200, -- Bullet speed: 200 units/sec
          vy = dy * 200,
          damage = self.player.attack_damage,
          type = "bullet",
@@ -215,7 +201,7 @@ function SurvivorLikeScenario:auto_attack_monsters(loc)
    end
 end
 
-function SurvivorLikeScenario:update_projectiles(loc)
+function SurvivorLike:update_projectiles()
    -- Update bullet positions and check collisions
    for i = #self.projectiles, 1, -1 do
       local bullet = self.projectiles[i]
@@ -245,7 +231,7 @@ function SurvivorLikeScenario:update_projectiles(loc)
                   -- Check if monster died
                   if monster.health <= 0 then
                      monster.alive = false
-                     loc:remove(monster) -- Remove immediately from spatial structure
+                     self.loc:remove(monster) -- Remove immediately from spatial structure
                      table.insert(self.pending_removal, {obj = monster, index = j})
                   end
 
@@ -265,17 +251,17 @@ function SurvivorLikeScenario:update_projectiles(loc)
    end
 end
 
-function SurvivorLikeScenario:spawn_monsters_if_needed(loc)
+function SurvivorLike:spawn_monsters_if_needed()
    -- Spawn monsters in waves
    local spawn_cooldown = self.wave == 0 and 0 or 5.0
    if self.spawn_timer > spawn_cooldown and #self.objects < self.max_objects then
-      self:spawn_wave(loc)
+      self:spawn_wave()
       self.spawn_timer = 0
       self.wave = self.wave + 1
    end
 end
 
-function SurvivorLikeScenario:update_monsters(loc)
+function SurvivorLike:update_monsters()
    -- Filter alive monsters with their indices for processing
    local alive_monsters = {}
    for i, obj in ipairs(self.objects) do
@@ -286,13 +272,13 @@ function SurvivorLikeScenario:update_monsters(loc)
 
    -- Process only alive monsters
    for _, data in ipairs(alive_monsters) do
-      self:update_monster_movement(data.obj, loc)
-      self:handle_player_collision(data.obj, data.index, loc)
-      self:handle_monster_crowding(data.obj, loc)
+      self:update_monster_movement(data.obj)
+      self:handle_player_collision(data.obj, data.index)
+      self:handle_monster_crowding(data.obj)
    end
 end
 
-function SurvivorLikeScenario:update_monster_movement(obj, loc)
+function SurvivorLike:update_monster_movement(obj)
    -- Update movement (move toward player)
    if not obj.alive then return end -- Skip if monster died this frame
 
@@ -303,11 +289,11 @@ function SurvivorLikeScenario:update_monster_movement(obj, loc)
    if dist > 0 then
       obj.x = obj.x + (dx / dist) * obj.speed * fps_time_step
       obj.y = obj.y + (dy / dist) * obj.speed * fps_time_step
-      loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+      self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
    end
 end
 
-function SurvivorLikeScenario:handle_player_collision(obj, monster_index, loc)
+function SurvivorLike:handle_player_collision(obj, monster_index)
    -- Collision detection with player
    if not obj.alive then return end -- Skip if monster already died
 
@@ -320,19 +306,19 @@ function SurvivorLikeScenario:handle_player_collision(obj, monster_index, loc)
 
       -- Mark monster as dead (will be removed from spatial system next frame)
       obj.alive = false
-      loc:remove(obj) -- Remove immediately from spatial structure
+      self.loc:remove(obj) -- Remove immediately from spatial structure
       table.insert(self.pending_removal, {obj = obj, index = monster_index})
    end
 end
 
-function SurvivorLikeScenario:check_player_death(loc)
+function SurvivorLike:check_player_death()
    -- Check if player is dead
    if self.player.health <= 0 then
-      self:init(loc)
+      self:init(self.loc)
    end
 end
 
-function SurvivorLikeScenario:handle_monster_crowding(obj, loc)
+function SurvivorLike:handle_monster_crowding(obj)
    -- Collision detection with other monsters (avoid crowding)
    if not obj.alive then return end -- Skip if monster died this frame
 
@@ -341,14 +327,13 @@ function SurvivorLikeScenario:handle_monster_crowding(obj, loc)
       nearby = self.perf_profiler:measure_query(
          "fixed_grid",
          function()
-            return loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
+            return self.loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
                return other ~= obj and other.alive and other.type == "monster"
-            end
-            )
+            end)
          end
       )
    else
-      nearby = loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
+      nearby = self.loc:query(obj.x - 16, obj.y - 16, 32, 32, function(other)
          return other ~= obj and other.alive and other.type == "monster"
       end)
    end
@@ -376,12 +361,12 @@ function SurvivorLikeScenario:handle_monster_crowding(obj, loc)
       if avoid_dist > 0 then
          obj.x = obj.x + (avoid_dx / avoid_dist) * obj.speed * fps_time_step * 0.5
          obj.y = obj.y + (avoid_dy / avoid_dist) * obj.speed * fps_time_step * 0.5
-         loc:update(obj, obj.x, obj.y, obj.w, obj.h)
+         self.loc:update(obj, obj.x, obj.y, obj.w, obj.h)
       end
    end
 end
 
-function SurvivorLikeScenario:spawn_wave(loc)
+function SurvivorLike:spawn_wave()
    local monsters_per_wave = math.min(20 + self.wave * 5, 50)
    local spawn_radius = 150
 
@@ -406,11 +391,11 @@ function SurvivorLikeScenario:spawn_wave(loc)
       }
 
       table.insert(self.objects, obj)
-      loc:add(obj, obj.x, obj.y, obj.w, obj.h)
+      self.loc:add(obj, obj.x, obj.y, obj.w, obj.h)
    end
 end
 
-function SurvivorLikeScenario:draw()
+function SurvivorLike:draw()
    -- Draw player with health-based color
    local player_color = 11 -- Default green
    if self.player.health <= 1 then
@@ -453,7 +438,7 @@ function SurvivorLikeScenario:draw()
    print("Bullets: "..#self.projectiles, info_x, info_y + 24, 7)
 end
 
-function SurvivorLikeScenario:get_objects()
+function SurvivorLike:get_objects()
    local all_objects = {self.player}
    for _, obj in ipairs(self.objects) do
       if obj.alive then table.insert(all_objects, obj) end
@@ -465,4 +450,4 @@ function SurvivorLikeScenario:get_objects()
    return all_objects
 end
 
-return SurvivorLikeScenario
+return SurvivorLike

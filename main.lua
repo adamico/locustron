@@ -1,21 +1,21 @@
 include("src/require.lua")
 
+Class = require('lib.middleclass')
+Stateful = require('lib.stateful')
+SceneManager = require("demo.scene_manager")
+Scene = SceneManager:new()
+
 local Locustron = require("src.locustron")
-local DemoScenarios = require("demo.demo_scenarios")
 
 local VisualizationSystem = require("demo.debugging.visualization_system")
 local PerformanceProfiler = require("demo.debugging.performance_profiler")
 local DebugConsole = require("demo.debugging.debug_console")
 
 local loc
-local GRID_SIZE = 256 -- Main grid display area
-local GRID_X = 16 -- Grid offset from left
-local GRID_Y = 8 -- Grid offset from top
 
--- Demo scenario system
-local current_scenario
-local scenario_names = DemoScenarios.get_available_scenarios()
-local current_scenario_index = 1
+local scenes = SceneManager.Scenes
+local initial_scene = scenes.SurvivorLike.name
+local current_scene
 
 -- Debugging system components
 local vis_system
@@ -25,14 +25,19 @@ local show_debug_ui = true
 local debug_mode = false
 local show_debug_console = false
 
+function count_keys(t)
+   local count = 0
+   for _ in pairs(t) do count = count + 1 end
+   return count
+end
+
 function rand(low, hi) return flr(low + rnd(hi - low)) end
 
 function _init()
-   -- Initialize with default scenario (survivor like)
-   switch_scenario("survivor_like")
+   switch_scene(initial_scene)
 end
 
-function switch_scenario(scenario_name)
+function switch_scene(scene_name)
    -- Clear existing spatial structure
    if loc then loc:clear() end
 
@@ -51,9 +56,9 @@ function switch_scenario(scenario_name)
    end
 
    -- Create scenario
-   current_scenario = DemoScenarios.create_scenario(scenario_name, { max_objects = 200 })
-   current_scenario:init(loc, perf_profiler)
-
+   Scene:gotoState(scene_name)
+   Scene:init(loc, perf_profiler)
+   current_scene = Scene:getStateStackDebugInfo()[1]
    local strategy = loc:get_strategy()
    if not debug_console then debug_console = DebugConsole:new() end
    debug_console:set_strategy(strategy, "fixed_grid")
@@ -129,9 +134,7 @@ function _update()
 
    -- Scenario switching (Tab key)
    if keyp("tab", true) then
-      current_scenario_index = current_scenario_index % #scenario_names + 1
-      local next_scenario = scenario_names[current_scenario_index]
-      switch_scenario(next_scenario)
+      switch_scene(scenes[current_scene].next)
    end
 
    if debug_mode and vis_system then
@@ -161,14 +164,11 @@ function _update()
       end
    end
 
-   -- Update current scenario
-   if current_scenario then
-      current_scenario:update(loc)
-   end
+   if Scene and Scene.update then Scene:update() end
 
    -- Track the update query for visualization (if scenario supports it)
-   if debug_mode and vis_system and current_scenario.get_objects then
-      local objects = current_scenario:get_objects()
+   if debug_mode and vis_system and Scene.get_objects then
+      local objects = Scene:get_objects()
       if vis_system then vis_system:add_query(0, 0, 256, 256, #objects) end
    end
 end
@@ -181,7 +181,7 @@ function _draw()
       vis_system:render_strategy(loc:get_strategy(), "fixed_grid")
    else
       -- Scenario visualization mode
-      if current_scenario and current_scenario.draw then current_scenario:draw() end
+      if Scene and Scene.draw then Scene:draw() end
    end
 
    -- Render debug UI overlay
@@ -293,10 +293,7 @@ function draw_debug_info()
 end
 
 function draw_scenario_info()
-   if not current_scenario then return end
-
-   local info = DemoScenarios.get_scenario_info(scenario_names[current_scenario_index])
-   if not info then return end
+   if not current_scene then return end
 
    local info_x = 280
    local info_y = 8
@@ -313,10 +310,10 @@ function draw_scenario_info()
    info_y += line_height
 
    color(7)
-   print(info.name, info_x, info_y)
+   print(scenes[current_scene].name, info_x, info_y)
    info_y += line_height
 
-   print("Best: " .. info.optimal_strategy, info_x, info_y)
+   print("Best: " .. Scene.optimal_strategy, info_x, info_y)
 end
 
 function draw_debug_console()
