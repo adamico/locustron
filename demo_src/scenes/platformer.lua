@@ -18,9 +18,16 @@ function Platformer:enteredState()
    self.controls = "Move: LEFT, RIGHT, Jump: UP"
    self.optimal_strategy = "fixed_grid"
 
+   -- Platform constants
+   self.platform_height = 16
+
    -- Scenario-specific state
    self.platforms = {}
-   self.player = {x = 256, y = 100, w = 8, h = 16, vx = 0, vy = 0, grounded = false, jumps = 0, max_jumps = 2, drop_timer = 0}
+   self.player = {
+      x = 256, y = 100, w = 8, h = 16, vx = 0, vy = 0,
+      grounded = false, jumps = 0, max_jumps = 2,
+      drop_timer = 0, drop_velocity = 0 -- Drop-through mechanics
+   }
    self.query_cooldown = 0
    self.query_interval = 6 -- Perform spatial queries every 6 frames
 end
@@ -34,10 +41,12 @@ function Platformer:init(loc, perf_profiler)
       local num_platforms = 3 + math.random(3) - 1 -- 3, 4, or 5
       for i = 1, num_platforms do
          local w = 60 + math.random(100) -- width 60-160
-         local h = 16 + math.random(8)   -- height 16-24
+         local h = self.platform_height   -- constant height
          local x = math.random(32, 512 - w - 32)
          local y = 80 + (i-1) * 60 + math.random(-20, 20) -- vertical spread
-         table.insert(self.platforms, { x = x, y = y, w = w, h = h })
+         local platform = { x = x, y = y, w = w, h = h, type = "platform" }
+         table.insert(self.platforms, platform)
+         self.loc:add(platform, x, y, w, h)
       end
 
    -- Initialize/reset game state
@@ -96,14 +105,18 @@ end
 function Platformer:handle_player_input()
    -- Handle platform drop-through
    if btn(3) and self.player.grounded then
-      self.player.drop_timer = 0.18 -- About 10 frames at 60fps
       self.player.grounded = false
-      self.player.y = self.player.y + 2 -- Nudge down to avoid instant re-collision
+      self.player.drop_velocity = 20 -- Start with small initial velocity
+      self.player.drop_timer = 0.3 -- Allow dropping for 0.3 seconds
    end
+
+   -- Update drop timer
    if self.player.drop_timer and self.player.drop_timer > 0 then
       self.player.drop_timer = self.player.drop_timer - fps_time_step
-   else
-      self.player.drop_timer = 0
+      if self.player.drop_timer <= 0 then
+         self.player.drop_timer = 0
+         self.player.drop_velocity = 0 -- Stop dropping
+      end
    end
 
    -- Simple player movement (for demo purposes)
@@ -123,10 +136,15 @@ end
 
 function Platformer:update_player_physics()
    local gravity = 200
+   local drop_acceleration = 200 -- Reduced acceleration for more controlled drop
 
-   -- Apply gravity only when not grounded
-   if not self.player.grounded then
+   -- Apply gravity only when not grounded and not dropping through
+   if not self.player.grounded and self.player.drop_velocity == 0 then
       self.player.vy = self.player.vy + gravity * fps_time_step
+   elseif self.player.drop_velocity > 0 then
+      -- Apply acceleration for smooth platform drop-through with increasing speed
+      self.player.drop_velocity = self.player.drop_velocity + drop_acceleration * fps_time_step
+      self.player.vy = self.player.drop_velocity
    end
 
    -- Update player position
